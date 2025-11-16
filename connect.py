@@ -1,10 +1,10 @@
 """
 Connections to the databases
 """
-import Cassandra.cassandra
+from Cassandra.cassandra import CassandraService
 
 def main():
     """
     No docstring >:(
     """
-    pass
+    CassandraService()
