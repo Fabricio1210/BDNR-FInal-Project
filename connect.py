@@ -2,9 +2,12 @@
 Connections to the databases
 """
 from Cassandra.cassandra import CassandraService
+from Dgraph.dgraph import DgraphService
 
-def main():
+class DatabateFacade():
     """
     No docstring >:(
     """
-    CassandraService()
+    def __init__(self):
+        self._cassandra = CassandraService()
+        self._dgraph = DgraphService()
