@@ -57,6 +57,9 @@ class CassandraService:
         self.cassandra_session.session.execute(schema.CREATE_HISTORICAL_PERFORMANCE_BY_PLAYER_TABLE)
         self.cassandra_session.session.execute(schema.CREATE_LINEUP_BY_TEAM_MATCH_TABLE)
         self.cassandra_session.session.execute(schema.CREATE_PLAYER_CURRENT_POSITION_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_MATCHES_BY_TEAM_SEASON_TABLE )
+        self.cassandra_session.session.execute(schema.CREATE_MATCHES_BY_PLAYER_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_HEAD_TO_HEAD_TEAMS_TABLE)
 
     def execute_batch(self, session, stmt, data):
         """

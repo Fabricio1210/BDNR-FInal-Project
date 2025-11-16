@@ -112,3 +112,35 @@ CREATE_PLAYER_CURRENT_POSITION_TABLE = """
             PRIMARY KEY (player_id)
         );
         """
+
+CREATE_MATCHES_BY_TEAM_SEASON_TABLE = """
+        CREATE TABLE IF NOT EXISTS matches_by_team_season (
+            team_id uuid,
+            season_id uuid,
+            match_datetime timestamp,
+            match_id uuid,
+            opponent_team_id uuid,
+            location text,
+            PRIMARY KEY ((team_id, season_id), match_datetime)
+        ) WITH CLUSTERING ORDER BY (match_datetime ASC);
+        """
+
+CREATE_MATCHES_BY_PLAYER_TABLE = """
+        CREATE TABLE IF NOT EXISTS matches_by_player (
+            player_id uuid,
+            match_datetime timestamp,
+            match_id uuid,
+            PRIMARY KEY ((player_id), match_datetime)
+        ) WITH CLUSTERING ORDER BY (match_datetime DESC);
+        """
+
+CREATE_HEAD_TO_HEAD_TEAMS_TABLE = """
+        CREATE TABLE IF NOT EXISTS head_to_head_teams (
+            team_a_id uuid,
+            team_b_id uuid,
+            wins_a int,
+            wins_b int,
+            draws int,
+            PRIMARY KEY ((team_a_id, team_b_id))
+        );
+        """
