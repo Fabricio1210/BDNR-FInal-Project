@@ -6,6 +6,7 @@ import logging
 
 from cassandra.cluster import Cluster
 from cassandra.query import BatchStatement
+import schema
 
 log = logging.getLogger()
 
@@ -21,14 +22,14 @@ class CassandraSingleton:
         ips = raw_ips.split(",")
         self._cluster = Cluster(ips)
         self.session = self._cluster.connect()
-    
+
     def __new__(cls):
         if cls._instance:
             return cls._instance
         cls._instance = super().__new__(cls)
         cls._instance._init_instance()
         return cls._instance
-    
+
     def shutdown(self):
         """
         No docstring :)
@@ -43,7 +44,20 @@ class CassandraService:
 
     def __init__(self):
         self.cassandra_session = CassandraSingleton()
-    
+        log.info("Creating keyspace:  with replication factor 1")
+        self.cassandra_session.session.execute(schema.CREATE_KEYSPACE)
+        log.info("Creating logistics schema")
+        self.cassandra_session.session.execute(schema.CREATE_POINTS_BY_TEAM_MATCH_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_POINTS_BY_PLAYER_MATCH_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_SANCTIONS_BY_PLAYER_MATCH_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_SANCTIONS_BY_TEAM_SEASON_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_MVP_BY_TEAM_SEASON_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_EVENTS_BY_TEAM_MATCH_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_PERFORMANCE_BY_PLAYER_MATCH_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_HISTORICAL_PERFORMANCE_BY_PLAYER_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_LINEUP_BY_TEAM_MATCH_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_PLAYER_CURRENT_POSITION_TABLE)
+
     def execute_batch(self, session, stmt, data):
         """
         No docstring :)
@@ -54,7 +68,7 @@ class CassandraService:
             for item in data[i : i+batch_size]:
                 batch.add(stmt, item)
             session.execute(batch)
-    
+
     def bulk_insert(self, session):
         """
         No docstring :)
