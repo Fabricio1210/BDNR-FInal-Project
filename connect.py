@@ -20,6 +20,7 @@ class DatabaseFacade():
         """
         self._mongo.poblar()
         self._cassandra.populate_data()
+        self._dgraph.populate_data()
 
     def delete_databases(self):
         """
@@ -55,3 +56,33 @@ class DatabaseFacade():
         """
         No docstring >:(
         """
+
+    def consultar_jugador_completo(self, nombre, apellido):
+        """
+        Consulta información completa de un jugador desde Dgraph
+        """
+        return self._dgraph.consultar_jugador_completo(nombre, apellido)
+
+    def consultar_enfrentamientos_equipo_temporada(self, nombre_equipo, nombre_temporada):
+        """
+        Consulta enfrentamientos de un equipo en una temporada desde Dgraph
+        """
+        return self._dgraph.consultar_enfrentamientos_equipo_temporada(nombre_equipo, nombre_temporada)
+
+    def consultar_equipos_locales_estadio(self, nombre_campo):
+        """
+        Consulta equipos locales de un estadio desde Dgraph
+        """
+        return self._dgraph.consultar_equipos_locales_estadio(nombre_campo)
+
+    def consultar_campos_equipo(self, nombre_equipo):
+        """
+        Consulta campos donde juega un equipo desde Dgraph
+        """
+        return self._dgraph.consultar_campos_equipo(nombre_equipo)
+
+    def consultar_enfrentamientos_estadio(self, nombre_campo):
+        """
+        Consulta todos los enfrentamientos en un estadio desde Dgraph
+        """
+        return self._dgraph.consultar_enfrentamientos_estadio(nombre_campo)
