@@ -144,3 +144,81 @@ CREATE_HEAD_TO_HEAD_TEAMS_TABLE = """
             PRIMARY KEY ((team_a_id, team_b_id))
         );
         """
+
+QUERY_POINTS_BY_TEAM_MATCH_TABLE = """
+        SELECT total_points
+        FROM points_by_team_match
+        WHERE match_id = ? AND team_id = ?;
+        """
+
+QUERY_POINTS_BY_PLAYER_MATCH_TABLE = """
+        SELECT *
+        FROM points_by_player_match
+        WHERE match_id = ? AND player_id = ?;
+        """
+
+QUERY_SANCTIONS_BY_PLAYER_MATCH_TABLE = """
+        SELECT *
+        FROM sanctions_by_player_match
+        WHERE match_id = ? AND player_id = ?;
+        """
+
+QUERY_SANCTIONS_BY_TEAM_SEASON_TABLE = """
+        SELECT *
+        FROM sanctions_by_team_season
+        WHERE team_id = ? AND season_id = ?;
+        """
+
+QUERY_MVP_BY_TEAM_SEASON_TABLE = """
+        SELECT *
+        FROM mvp_by_team_season
+        CWHERE team_id = ? AND season_id = ?;
+        """
+
+QUERY_EVENTS_BY_TEAM_MATCH_TABLE = """
+        SELECT *
+        FROM events_by_team_match
+        WHERE match_id = ? AND team_id = ?;
+        """
+
+QUERY_PERFORMANCE_BY_PLAYER_MATCH_TABLE = """
+        SELECT *
+        FROM performance_by_player_match
+        WHERE match_id = ? AND player_id = ?;
+        """
+
+QUERY_HISTORICAL_PERFORMANCE_BY_PLAYER_TABLE = """
+        SELECT *
+        FROM historical_performance_by_player
+        WHERE player_id = ?;
+        """
+
+QUERY_LINEUP_BY_TEAM_MATCH_TABLE = """
+        SELECT *
+        FROM lineup_by_team_match
+        WHERE match_id = ? AND team_id = ?;
+        """
+
+QUERY_PLAYER_CURRENT_POSITION_TABLE = """
+        SELECT *
+        FROM player_current_position
+        WHERE player_id = ?;
+        """
+
+QUERY_MATCHES_BY_TEAM_SEASON_TABLE = """
+        SELECT *
+        FROM matches_by_team_season
+        WHERE team_id = ? AND season_id = ?;
+        """
+
+QUERY_MATCHES_BY_PLAYER_TABLE = """
+        SELECT *
+        FROM matches_by_player
+        WHERE player_id = ?;
+        """
+
+QUERY_HEAD_TO_HEAD_TEAMS_TABLE = """
+        SELECT *
+        FROM head_to_head_teams
+        WHERE team_a_id = ? AND team_b_id = ?;
+        """

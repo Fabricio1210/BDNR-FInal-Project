@@ -3,6 +3,7 @@
 """
 import os
 import logging
+from uuid import UUID
 
 from cassandra.cluster import Cluster
 from cassandra.query import BatchStatement
@@ -62,8 +63,12 @@ class CassandraService:
         """
 
     def populateData(self):
+        """
+        No docstring :)
+        """
         log.info("Creating keyspace:  with replication factor 1")
         self.cassandra_session.session.execute(schema.CREATE_KEYSPACE)
+        self.cassandra_session.session.execute("USE analisis_deportivo;")
         log.info("Creating logistics schema")
         self.cassandra_session.session.execute(schema.CREATE_POINTS_BY_TEAM_MATCH_TABLE)
         self.cassandra_session.session.execute(schema.CREATE_POINTS_BY_PLAYER_MATCH_TABLE)
@@ -78,3 +83,12 @@ class CassandraService:
         self.cassandra_session.session.execute(schema.CREATE_MATCHES_BY_TEAM_SEASON_TABLE )
         self.cassandra_session.session.execute(schema.CREATE_MATCHES_BY_PLAYER_TABLE)
         self.cassandra_session.session.execute(schema.CREATE_HEAD_TO_HEAD_TEAMS_TABLE)
+
+    def obtener_puntos_por_partido_equipo(self, match_id: str, team_id: str):
+        """
+        No docstring :)
+        """
+        prepared = self.cassandra_session.session.prepare(schema.QUERY_POINTS_BY_TEAM_MATCH_TABLE)
+        match_uuid = UUID(match_id)
+        team_uuid = UUID(team_id)
+        return self.cassandra_session.session.execute(prepared, (match_uuid, team_uuid))
