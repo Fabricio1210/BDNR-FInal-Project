@@ -233,8 +233,13 @@ if __name__ == "__main__":
                     continue
                 response = int(response)
                 if response == 1:
+                    equipo = input("Nombre del equipo: ")
+                    print(database_controller.get_team_info(equipo))
                     continue
                 if response == 2:
+                    equipo = input("Nombre del equipo: ")
+                    partido_id = input("Id del partido: ")
+                    print(database_controller.get_events_by_team_match(equipo, partido_id))
                     continue
                 if response == 3:
                     # Obtener enfrentamientos de un equipo en cierta temporada
@@ -364,8 +369,11 @@ if __name__ == "__main__":
                         print("\nOpción inválida\n")
                     continue
                 if response == 5:
+                    deporte = input("Deporte: ")
+                    print(database_controller.get_team_reanking_by_sport(deporte))
                     continue
                 if response == 6:
+                    print(database_controller.get_first_places_from_all_sports())
                     continue
                 if response == 7:
                     estado = "MENU"
@@ -380,8 +388,13 @@ if __name__ == "__main__":
                     continue
                 response = int(response)
                 if response == 1:
+                    liga = input("Nombre del torneo: ")
+                    temporada = input("Temporada: ")
+                    print(database_controller.get_league_stats_by_season(liga, temporada))
                     continue
                 if response == 2:
+                    deporte = input("Deporte: ")
+                    print(database_controller.get_all_leagues_by_sport(deporte))
                     continue
                 if response == 3:
                     estado = "MENU"

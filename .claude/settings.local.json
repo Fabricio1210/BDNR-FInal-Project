@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(dir /s /b \"c:\\Users\\Razer\\Documents\\Iteso\\Bases de datos\\BDNR-FInal-Project\")",
+      "Bash(if exist nul del /F nul)",
+      "Bash(if exist test_dgraph.py del /F test_dgraph.py)",
+      "Bash(if exist DGRAPH_QUERIES.md del /F DGRAPH_QUERIES.md)",
+      "Bash(del \"c:\\Users\\Razer\\Documents\\Iteso\\Bases de datos\\BDNR-FInal-Project\\nul\")",
+      "Bash(rm:*)",
+      "Bash(git add:*)",
+      "Bash(git stash:*)",
+      "Bash(git pull:*)",
+      "Bash(git commit:*)",
+      "Bash(python test_dgraph.py:*)",
+      "Bash(python test_repopulate.py:*)",
+      "Bash(python:*)",
+      "Bash(if exist test_repopulate.py del /F test_repopulate.py)",
+      "Bash(if exist test_queries.py del /F test_queries.py)",
+      "Bash(del test_dgraph.py test_repopulate.py test_queries.py)",
+      "Bash(git checkout:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

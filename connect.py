@@ -31,11 +31,31 @@ class DatabaseFacade():
         """
         No docstring >:(
         """
+        try:
+            jugadores = self._mongo.obtener_jugadores(name, last_name)
+            if not jugadores:
+                return "No se encontraron jugadores con ese nombre y aplleido."
+            else:
+                return jugadores
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
 
     def get_points_scored_by_player_match(self, name, last_name, match_id):
         """
         No docstring >:(
         """
+        try:
+            player = self._mongo.obtener_jugadores(name, last_name)
+            if not player:
+                return "No se encontraron jugadores con ese nombre y aplleido."
+            player_id = None
+            data = self._cassandra.obtener_puntos_por_jugador_partido(match_id, player_id)
+            if not data:
+                return "No se encontraron datos de ese partido"
+            else:
+                return data
+        except error:
+            return "Hubo un error en la base de datos. Error: " + str(error)
 
     def get_player_teammates(self, name, last_name):
         """
@@ -56,6 +76,8 @@ class DatabaseFacade():
         """
         No docstring >:(
         """
+
+    # ==================== DGRAPH METHODS ====================
 
     def consultar_jugador_completo(self, nombre, apellido):
         """
@@ -86,3 +108,40 @@ class DatabaseFacade():
         Consulta todos los enfrentamientos en un estadio desde Dgraph
         """
         return self._dgraph.consultar_enfrentamientos_estadio(nombre_campo)
+
+    # ==================== OTHER METHODS FROM REMOTE ====================
+
+    def get_team_info(self, team):
+        """
+        No docstring >:(
+        """
+
+    def get_matches_by_team_season(self, team, season):
+        """
+        No docstring >:(
+        """
+
+    def get_teams_by_stadium(self, stadium):
+        """
+        No docstring >:(
+        """
+
+    def get_team_reanking_by_sport(self, sport):
+        """
+        No docstring >:(
+        """
+
+    def get_first_places_from_all_sports(self):
+        """
+        No docstring >:(
+        """
+
+    def get_league_stats_by_season(self, league, season):
+        """
+        No docstring >:(
+        """
+
+    def get_all_leagues_by_sport(self, sport):
+        """
+        No docstring >:(
+        """
