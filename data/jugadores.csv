@@ -1,0 +1,8 @@
+nombre,apellido,numero,fecha_nacimiento,deporte,pais_origen,equipo_id,posicion,altura_cm
+Lionel,Messi,10,1987-06-24,Futbol,Argentina,ID_PSG_001,Delantero,170
+LeBron,James,23,1984-12-30,Baloncesto,Estados Unidos,ID_LAL_002,Alero,206
+Stephen,Curry,30,1988-03-14,Baloncesto,Estados Unidos,ID_GSW_003,Base,188
+Kylian,Mbappé,7,1998-12-20,Futbol,Francia,ID_PSG_001,Extremo,178
+Alexia,Putellas,11,1994-02-04,Futbol,España,ID_FCB_004,Centrocampista,173
+Michael,Jordan,23,1963-02-17,Baloncesto,Estados Unidos,ID_CHI_005,Escolta,198
+Cristiano,Ronaldo,7,1985-02-05,Futbol,Portugal,ID_ALN_006,Delantero,187
