@@ -43,6 +43,18 @@ class DatabaseFacade():
         """
         No docstring >:(
         """
+        try:
+            player = self._mongo.obtener_jugadores(name, last_name)
+            if not player:
+                return "No se encontraron jugadores con ese nombre y aplleido."
+            player_id = None
+            data = self._cassandra.obtener_puntos_por_jugador_partido(match_id, player_id)
+            if not data:
+                return "No se encontraron datos de ese partido"
+            else:
+                return data
+        except error:
+            return "Hubo un error en la base de datos. Error: " + str(error)
 
     def get_player_teammates(self, name, last_name):
         """
