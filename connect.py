@@ -30,6 +30,13 @@ class DatabaseFacade():
         """
         No docstring >:(
         """
+        try:
+            jugadores = self._mongo.obtener_jugadores(name, last_name)
+            if not jugadores:
+                return "No se encontraron jugadores con ese nombre y aplleido."
+            else return jugadores
+        except error:
+            return "Hubo un error en la base de datos. Error: " + str(error)
 
     def get_points_scored_by_player_match(self, name, last_name, match_id):
         """
