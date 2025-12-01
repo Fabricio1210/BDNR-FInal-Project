@@ -60,7 +60,7 @@ MENU_LEAGUES = """
     CONSULTAR LIGAS:
     ++++++++++++++++++
     1- Consultar todas las estadisticas de un torneo por su nombre y su temporada
-    2- Obtener los eventos que ha tenido un equipo en cierto partido por nombre de equipo e id de partido
+    2- Obtener todas las ligas de un deporte
     3- Regresar
 ------------------------------------------------------------
 """
@@ -157,7 +157,7 @@ if __name__ == "__main__":
                 if response == 4:
                     estadio = input("Nombre del estadio: ")
                     print(database_controller.get_matches_by_stadium(estadio))
-                    continue
+                    continue 
                 if response == 5:
                     estado = "MENU"
                     continue
@@ -171,16 +171,29 @@ if __name__ == "__main__":
                     continue
                 response = int(response)
                 if response == 1:
+                    equipo = input("Nombre del equipo: ")
+                    print(database_controller.get_team_info(equipo))
                     continue
                 if response == 2:
+                    equipo = input("Nombre del equipo: ")
+                    partido_id = input("Id del partido: ")
+                    print(database_controller.get_events_by_team_match(equipo, partido_id))
                     continue
                 if response == 3:
+                    equipo = input("Nombre del equipo: ")
+                    temporada = input("Temporada: ")
+                    print(database_controller.get_matches_by_team_season(equipo, temporada))
                     continue
                 if response == 4:
+                    estadio = input("Estadio: ")
+                    print(database_controller.get_teams_by_stadium(estadio))
                     continue
                 if response == 5:
+                    deporte = input("Deporte: ")
+                    print(database_controller.get_team_reanking_by_sport(deporte))
                     continue
                 if response == 6:
+                    print(database_controller.get_first_places_from_all_sports())
                     continue
                 if response == 7:
                     estado = "MENU"
@@ -195,8 +208,13 @@ if __name__ == "__main__":
                     continue
                 response = int(response)
                 if response == 1:
+                    liga = input("Nombre del torneo: ")
+                    temporada = input("Temporada: ")
+                    print(database_controller.get_league_stats_by_season(liga, temporada))
                     continue
                 if response == 2:
+                    deporte = input("Deporte: ")
+                    print(database_controller.get_all_leagues_by_sport(deporte))
                     continue
                 if response == 3:
                     estado = "MENU"

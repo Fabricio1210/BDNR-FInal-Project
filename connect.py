@@ -55,3 +55,38 @@ class DatabaseFacade():
         """
         No docstring >:(
         """
+
+    def get_team_info(self, team):
+        """
+        No docstring >:(
+        """
+
+    def get_matches_by_team_season(self, team, season):
+        """
+        No docstring >:(
+        """
+
+    def get_teams_by_stadium(self, stadium):
+        """
+        No docstring >:(
+        """
+
+    def get_team_reanking_by_sport(self, sport):
+        """
+        No docstring >:(
+        """
+
+    def get_first_places_from_all_sports(self):
+        """
+        No docstring >:(
+        """
+
+    def get_league_stats_by_season(self, league, season):
+        """
+        No docstring >:(
+        """  
+
+    def get_all_leagues_by_sport(self, sport):
+        """
+        No docstring >:(
+        """  
