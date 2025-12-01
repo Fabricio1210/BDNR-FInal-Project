@@ -1,6 +1,8 @@
 """
 Main file that interacts with the user
 """
+import sys
+from connect import DatabaseFacade
 
 MENU = """
 ------------------------------------------------------------
@@ -64,3 +66,112 @@ MENU_LEAGUES = """
     3- Regresar
 ------------------------------------------------------------
 """
+OPCIONES = {
+    2: "PLAYERS",
+    3: "MATCHES",
+    4: "TEAMS",
+    5: "LEAGUES"
+}
+
+if __name__ == "__main__":
+    database_controller = DatabaseFacade()
+    estado = "MENU"
+    while True:
+        match estado:
+            case "MENU":
+                print(MENU)
+                response = input()
+                if not response.isdigit():
+                    print("Por favor, responde con el numero de la opcion que necesites")
+                    continue
+                if OPCIONES.get(int(response)):
+                    estado = OPCIONES[int(response)]
+                    continue
+                if int(response) == 1:
+                    database_controller.populate_databases()
+                    continue
+                if int(response) == 7:
+                    sys.exit()
+                print("Opcion invalida. Seleccione una opcion del 1-7")
+
+            case "PLAYERS":
+                print(MENU_PLAYERS)
+                response = input()
+                if not response.isdigit():
+                    print("Por favor, responde con el numero de la opcion que necesites")
+                    continue
+                response = int(response)
+                if response == 1:
+                    continue
+                if response == 2:
+                    continue
+                if response == 3:
+                    continue
+                if response == 4:
+                    continue
+                if response == 5:
+                    estado = "MENU"
+                    continue
+                print("Opcion invalida. Seleccione una opcion del 1-5")
+
+            case "MATCHES":
+                print(MENU_MATCHES)
+                response = input()
+                if not response.isdigit():
+                    print("Por favor, responde con el numero de la opcion que necesites")
+                    continue
+                response = int(response)
+                if response == 1:
+                    continue
+                if response == 2:
+                    continue
+                if response == 3:
+                    continue
+                if response == 4:
+                    continue
+                if response == 5:
+                    estado = "MENU"
+                    continue
+                print("Opcion invalida. Seleccione una opcion del 1-5")
+
+            case "TEAMS":
+                print(MENU_TEAMS)
+                response = input()
+                if not response.isdigit():
+                    print("Por favor, responde con el numero de la opcion que necesites")
+                    continue
+                response = int(response)
+                if response == 1:
+                    continue
+                if response == 2:
+                    continue
+                if response == 3:
+                    continue
+                if response == 4:
+                    continue
+                if response == 5:
+                    continue
+                if response == 6:
+                    continue
+                if response == 7:
+                    continue
+                if response == 8:
+                    estado = "MENU"
+                    continue
+                print("Opcion invalida. Seleccione una opcion del 1-8")
+
+            case "LEAGUES":
+                print(MENU_LEAGUES)
+                response = input()
+                if not response.isdigit():
+                    print("Por favor, responde con el numero de la opcion que necesites")
+                    continue
+                response = int(response)
+                if response == 1:
+                    continue
+                if response == 2:
+                    continue
+                if response == 3:
+                    estado = "MENU"
+                    continue
+                print("Opcion invalida. Seleccione una opcion del 1-3")

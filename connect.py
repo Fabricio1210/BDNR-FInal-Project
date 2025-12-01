@@ -5,7 +5,7 @@ from Cassandra.cassandra import CassandraService
 from Dgraph.dgraph import DgraphService
 from Mongo.Mongo import MongoSingleton
 
-class DatabateFacade():
+class DatabaseFacade():
     """
     No docstring >:(
     """
@@ -13,3 +13,8 @@ class DatabateFacade():
         self._cassandra = CassandraService()
         self._dgraph = DgraphService()
         self._mongo = MongoSingleton()
+
+    def populate_databases(self):
+        """
+        No docstring >:(
+        """

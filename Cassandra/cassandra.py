@@ -62,7 +62,7 @@ class CassandraService:
         No docstring :)
         """
 
-    def populateData(self):
+    def populate_data(self):
         """
         No docstring :)
         """
@@ -92,3 +92,90 @@ class CassandraService:
         match_uuid = UUID(match_id)
         team_uuid = UUID(team_id)
         return self.cassandra_session.session.execute(prepared, (match_uuid, team_uuid))
+
+    def obtener_puntos_por_jugador_partido(self, match_id: str, player_id: str):
+        """
+        No docstring :)
+        """
+        prepared = self.cassandra_session.prepare(schema.QUERY_POINTS_BY_PLAYER_MATCH_TABLE)
+        return self.cassandra_session.execute(prepared, (UUID(match_id), UUID(player_id)))
+
+
+    def obtener_sanciones_por_jugador_partido(self, match_id: str, player_id: str):
+        """
+        No docstring :)
+        """
+        prepared = self.cassandra_session.prepare(schema.QUERY_SANCTIONS_BY_PLAYER_MATCH_TABLE)
+        return self.cassandra_session.execute(prepared, (UUID(match_id), UUID(player_id)))
+
+    def obtener_sanciones_por_equipo_temporada(self, team_id: str, season_id: str):
+        """
+        No docstring :)
+        """
+        prepared = self.cassandra_session.prepare(schema.QUERY_SANCTIONS_BY_TEAM_SEASON_TABLE)
+        return self.cassandra_session.execute(prepared, (UUID(team_id), UUID(season_id)))
+
+    def obtener_mvp_por_equipo_temporada(self, team_id: str, season_id: str):
+        """
+        No docstring :)
+        """
+        prepared = self.cassandra_session.prepare(schema.QUERY_MVP_BY_TEAM_SEASON_TABLE)
+        return self.cassandra_session.execute(prepared, (UUID(team_id), UUID(season_id)))
+
+    def obtener_eventos_por_equipo_partido(self, match_id: str, team_id: str):
+        """
+        No docstring :)
+        """
+        prepared = self.cassandra_session.prepare(schema.QUERY_EVENTS_BY_TEAM_MATCH_TABLE)
+        return self.cassandra_session.execute(prepared, (UUID(match_id), UUID(team_id)))
+
+    def obtener_rendimiento_por_jugador_partido(self, match_id: str, player_id: str):
+        """
+        No docstring :)
+        """
+        prepared = self.cassandra_session.prepare(schema.QUERY_PERFORMANCE_BY_PLAYER_MATCH_TABLE)
+        return self.cassandra_session.execute(prepared, (UUID(match_id), UUID(player_id)))
+
+    def obtener_rendimiento_historico_jugador(self, player_id: str):
+        """
+        No docstring :)
+        """
+        prepared = self.cassandra_session.prepare(
+            schema.QUERY_HISTORICAL_PERFORMANCE_BY_PLAYER_TABLE
+        )
+        return self.cassandra_session.execute(prepared, (UUID(player_id),))
+
+    def obtener_alineacion_por_equipo_partido(self, match_id: str, team_id: str):
+        """
+        No docstring :)
+        """
+        prepared = self.cassandra_session.prepare(schema.QUERY_LINEUP_BY_TEAM_MATCH_TABLE)
+        return self.cassandra_session.execute(prepared, (UUID(match_id), UUID(team_id)))
+
+    def obtener_posicion_actual_jugador(self, player_id: str):
+        """
+        No docstring :)
+        """
+        prepared = self.cassandra_session.prepare(schema.QUERY_PLAYER_CURRENT_POSITION_TABLE)
+        return self.cassandra_session.execute(prepared, (UUID(player_id),))
+
+    def obtener_partidos_por_equipo_temporada(self, team_id: str, season_id: str):
+        """
+        No docstring :)
+        """
+        prepared = self.cassandra_session.prepare(schema.QUERY_MATCHES_BY_TEAM_SEASON_TABLE)
+        return self.cassandra_session.execute(prepared, (UUID(team_id), UUID(season_id)))
+
+    def obtener_partidos_por_jugador(self, player_id: str):
+        """
+        No docstring :)
+        """
+        prepared = self.cassandra_session.prepare(schema.QUERY_MATCHES_BY_PLAYER_TABLE)
+        return self.cassandra_session.execute(prepared, (UUID(player_id),))
+
+    def obtener_head_to_head(self, team_a_id: str, team_b_id: str):
+        """
+        No docstring :)
+        """
+        prepared = self.cassandra_session.prepare(schema.QUERY_HEAD_TO_HEAD_TEAMS_TABLE)
+        return self.cassandra_session.execute(prepared, (UUID(team_a_id), UUID(team_b_id)))
