@@ -22,6 +22,7 @@ MENU_PLAYERS = """
     ++++++++++++++++++
     1- Consultar toda la informacion de un jugador por su nombre y apellido
     2- Consultar lo puntos que ha anotado un jugador en un partido por nombre de jugador e id de partido
+    3 - Actualizar la informacion de un jugador por su nombre y apellido
 ------------------------------------------------------------
 """
 
@@ -44,6 +45,9 @@ MENU_TEAMS = """
     2- Obtener los eventos que ha tenido un equipo en cierto partido por nombre de equipo e id de partido
     3- Obtener los enfrentamientos de un equipo en cierta temporada
     4- Obtener los equipos que juegan como locales en cierto estadio o viceversa
+    5- Actualizar la informacion de un equipo por su nombre
+    6- Ranking de equipos por deporte
+    7- Obtener los primeros lugares de todos los deportes
 ------------------------------------------------------------
 """
 
