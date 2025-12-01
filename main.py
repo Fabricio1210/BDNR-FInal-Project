@@ -33,8 +33,8 @@ MENU_MATCHES = """
 ------------------------------------------------------------
     CONSULTAR PARTIDOS:
     ++++++++++++++++++
-    1- Consultar partidos en cierta fecha
-    2- Consultar lo puntos que ha anotado un jugador en un partido por nombre de jugador e id de partido
+    1- Consultar partidos en cierta fecha en cierto deporte
+    2- Consultar los puntos que ha anotado un jugador en un partido por nombre de jugador e id de partido
     3- Obtener los eventos que ha tenido un equipo en cierto partido por nombre de equipo e id de partido
     4- Obtener todos los enfrentamientos que ha habido en un estadio
     5- Regresar
@@ -135,12 +135,28 @@ if __name__ == "__main__":
                     continue
                 response = int(response)
                 if response == 1:
+                    deporte = input("Deporte: ")
+                    fecha = input("Fecha: ")
+                    print(database_controller.get_matches_by_date_sport(deporte, fecha))
                     continue
                 if response == 2:
+                    nombre = input("Nombre del jugador: ")
+                    apellido = input("Apellido del jugador: ")
+                    partido_id = input("Id del partido: ")
+                    print(
+                        database_controller.get_points_scored_by_player_match(
+                            nombre, apellido, partido_id
+                        )
+                    )
                     continue
                 if response == 3:
+                    equipo = input("Nombre del equipo: ")
+                    partido_id = input("Id del partido: ")
+                    print(database_controller.get_events_by_team_match(equipo, partido_id))
                     continue
                 if response == 4:
+                    estadio = input("Nombre del estadio: ")
+                    print(database_controller.get_matches_by_stadium(estadio))
                     continue
                 if response == 5:
                     estado = "MENU"

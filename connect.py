@@ -40,3 +40,18 @@ class DatabaseFacade():
         """
         No docstring >:(
         """
+
+    def get_matches_by_date_sport(self, sport, date):
+        """
+        No docstring >:(
+        """
+
+    def get_events_by_team_match(self, team, match_id):
+        """
+        No docstring >:(
+        """
+
+    def get_matches_by_stadium(self, stadium):
+        """
+        No docstring >:(
+        """
