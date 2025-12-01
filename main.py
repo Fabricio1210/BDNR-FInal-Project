@@ -44,6 +44,7 @@ MENU_TEAMS = """
     2- Obtener los eventos que ha tenido un equipo en cierto partido por nombre de equipo e id de partido
     3- Obtener los enfrentamientos de un equipo en cierta temporada
     4- Obtener los equipos que juegan como locales en cierto estadio o viceversa
+    5- Consultar las temporadas en las que un equipo en especifico ha participado
 ------------------------------------------------------------
 """
 
