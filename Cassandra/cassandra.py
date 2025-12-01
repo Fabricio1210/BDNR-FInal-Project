@@ -44,22 +44,6 @@ class CassandraService:
 
     def __init__(self):
         self.cassandra_session = CassandraSingleton()
-        log.info("Creating keyspace:  with replication factor 1")
-        self.cassandra_session.session.execute(schema.CREATE_KEYSPACE)
-        log.info("Creating logistics schema")
-        self.cassandra_session.session.execute(schema.CREATE_POINTS_BY_TEAM_MATCH_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_POINTS_BY_PLAYER_MATCH_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_SANCTIONS_BY_PLAYER_MATCH_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_SANCTIONS_BY_TEAM_SEASON_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_MVP_BY_TEAM_SEASON_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_EVENTS_BY_TEAM_MATCH_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_PERFORMANCE_BY_PLAYER_MATCH_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_HISTORICAL_PERFORMANCE_BY_PLAYER_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_LINEUP_BY_TEAM_MATCH_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_PLAYER_CURRENT_POSITION_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_MATCHES_BY_TEAM_SEASON_TABLE )
-        self.cassandra_session.session.execute(schema.CREATE_MATCHES_BY_PLAYER_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_HEAD_TO_HEAD_TEAMS_TABLE)
 
     def execute_batch(self, session, stmt, data):
         """
@@ -76,3 +60,21 @@ class CassandraService:
         """
         No docstring :)
         """
+
+    def populateData(self):
+        log.info("Creating keyspace:  with replication factor 1")
+        self.cassandra_session.session.execute(schema.CREATE_KEYSPACE)
+        log.info("Creating logistics schema")
+        self.cassandra_session.session.execute(schema.CREATE_POINTS_BY_TEAM_MATCH_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_POINTS_BY_PLAYER_MATCH_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_SANCTIONS_BY_PLAYER_MATCH_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_SANCTIONS_BY_TEAM_SEASON_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_MVP_BY_TEAM_SEASON_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_EVENTS_BY_TEAM_MATCH_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_PERFORMANCE_BY_PLAYER_MATCH_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_HISTORICAL_PERFORMANCE_BY_PLAYER_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_LINEUP_BY_TEAM_MATCH_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_PLAYER_CURRENT_POSITION_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_MATCHES_BY_TEAM_SEASON_TABLE )
+        self.cassandra_session.session.execute(schema.CREATE_MATCHES_BY_PLAYER_TABLE)
+        self.cassandra_session.session.execute(schema.CREATE_HEAD_TO_HEAD_TEAMS_TABLE)
