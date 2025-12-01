@@ -1,5 +1,6 @@
 import logging
 from pymongo import MongoClient
+from Mongo.populate import algo
 
 log = logging.getLogger()
 
@@ -37,3 +38,10 @@ class MongoSingleton:
         if self._client:
             self._client.close()
             log.info("Conexión Singleton a MongoDB cerrada.")
+
+class MongoService:
+    def __init__(self):
+        pass
+
+    def poblar_equipos_db(self):
+        algo()

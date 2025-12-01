@@ -18,7 +18,6 @@ COLLECTION_ESTADISTICAS = "estadisticas_torneos"
 COLLECTION_PARTIDOS = "partidos"
 COLLECTION_LIGAS = "ligas"
 
-
 def poblar_equipos_db():
     client = MongoClient(MONGO_URI)
     db = client[DB_NOMBRE]
@@ -218,10 +217,12 @@ def poblar_ligas_db():
     return len(docs)
 
 
-if __name__ == "__main__":
+def algo():
     mapa_ids = poblar_equipos_db()
     jugadores_docs, jugadores_ids = poblar_jugadores_db(mapa_ids)
     actualizar_equipos(jugadores_docs, jugadores_ids)
     poblar_estadisticas_equipos(mapa_ids)
     poblar_partidos_db(mapa_ids)
     poblar_ligas_db()
+    from Cassandra.cassandra import CassandraService
+    CassandraService().populate_data()

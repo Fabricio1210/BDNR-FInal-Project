@@ -90,6 +90,8 @@ if __name__ == "__main__":
                 if int(response) == 1:
                     database_controller.populate_databases()
                     continue
+                if int(response) == 6:
+                    continue
                 if int(response) == 7:
                     sys.exit()
                 print("Opcion invalida. Seleccione una opcion del 1-7")

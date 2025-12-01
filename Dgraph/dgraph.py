@@ -4,7 +4,7 @@
 import logging
 import os
 import pydgraph
-import schema
+from Dgraph import schema
 
 log = logging.getLogger()
 

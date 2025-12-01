@@ -18,3 +18,6 @@ class DatabaseFacade():
         """
         No docstring >:(
         """
+        self._mongo.populate()
+        self._cassandra.populate_data()
+        

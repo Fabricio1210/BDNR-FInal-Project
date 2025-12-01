@@ -7,7 +7,7 @@ from uuid import UUID
 
 from cassandra.cluster import Cluster
 from cassandra.query import BatchStatement
-import schema
+from Cassandra import schema
 
 log = logging.getLogger()
 
