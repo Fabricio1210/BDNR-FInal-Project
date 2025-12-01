@@ -2,7 +2,7 @@
 Connections to the databases
 """
 from Cassandra.cassandra import CassandraService
-from Dgraph.dgraph import DgraphService
+#from Dgraph.dgraph import DgraphService
 from Mongo.Mongo import MongoService
 
 class DatabaseFacade():
@@ -11,7 +11,7 @@ class DatabaseFacade():
     """
     def __init__(self):
         self._cassandra = CassandraService()
-        self._dgraph = DgraphService()
+        #self._dgraph = DgraphService()
         self._mongo = MongoService()
 
     def populate_databases(self):
@@ -34,9 +34,10 @@ class DatabaseFacade():
             jugadores = self._mongo.obtener_jugadores(name, last_name)
             if not jugadores:
                 return "No se encontraron jugadores con ese nombre y aplleido."
-            else return jugadores
-        except error:
-            return "Hubo un error en la base de datos. Error: " + str(error)
+            else:
+                return jugadores
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
 
     def get_points_scored_by_player_match(self, name, last_name, match_id):
         """

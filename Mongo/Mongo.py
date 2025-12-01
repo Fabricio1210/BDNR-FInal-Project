@@ -41,13 +41,13 @@ class MongoSingleton:
 
 class MongoService:
     def __init__(self):
-        pass
+        self.db = MongoSingleton()
 
     def poblar(self):
         poblar()
 
-    def obtener_jugadores(nombre, apellido):
-        jugadores = db.jugadores.find({
+    def obtener_jugadores(self, nombre, apellido):
+        jugadores = self.db.db.jugadores.find({
             "nombre": nombre,
             "apellido": apellido
         })
