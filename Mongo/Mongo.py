@@ -1,6 +1,6 @@
 import logging
 from pymongo import MongoClient
-from Mongo.populate import algo
+from Mongo.populate import poblar
 
 log = logging.getLogger()
 
@@ -43,5 +43,43 @@ class MongoService:
     def __init__(self):
         pass
 
-    def poblar_equipos_db(self):
-        algo()
+    def poblar(self):
+        poblar()
+
+    def obtener_jugadores(nombre, apellido):
+        jugadores = db.jugadores.find({
+            "nombre": nombre,
+            "apellido": apellido
+        })
+
+        return list(jugadores)
+
+    def obtener_partidos(deporte, fecha):
+        partidos = db.partidos.find({
+            "deporte": deporte,
+            "fecha": fecha
+        })
+
+        return list(partidos)
+
+    def obtener_equipo(nombre_equipo):
+        equipo = db.equipos.find_one({
+            "nombre": nombre_equipo
+        })
+
+        return list(equipo)
+
+    def obtener_estadisticas_torneo(torneo_nombre_arg, temporada_arg):
+        estadisticas = db.estadisticas_torneos.find({
+            "torneo_nombre": torneo_nombre_arg,
+            "temporada": temporada_arg
+        })
+
+        return list(estadisticas)
+
+    def obtener_ligas(nombre_deporte):
+        ligas = db.ligas.find({
+            "nombre_deporte": nombre_deporte
+        })
+
+        return list(ligas)

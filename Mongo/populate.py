@@ -217,12 +217,10 @@ def poblar_ligas_db():
     return len(docs)
 
 
-def algo():
+def poblar():
     mapa_ids = poblar_equipos_db()
     jugadores_docs, jugadores_ids = poblar_jugadores_db(mapa_ids)
     actualizar_equipos(jugadores_docs, jugadores_ids)
     poblar_estadisticas_equipos(mapa_ids)
     poblar_partidos_db(mapa_ids)
     poblar_ligas_db()
-    from Cassandra.cassandra import CassandraService
-    CassandraService().populate_data()
