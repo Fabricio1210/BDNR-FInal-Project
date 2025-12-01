@@ -1,6 +1,7 @@
 """
     Modelos y controladores de cassandra
 """
+import csv
 import os
 import logging
 from uuid import UUID
@@ -8,6 +9,7 @@ from uuid import UUID
 from cassandra.cluster import Cluster
 from cassandra.query import BatchStatement
 from Cassandra import schema
+from Mongo.Mongo import MongoService
 
 log = logging.getLogger()
 
@@ -83,6 +85,235 @@ class CassandraService:
         self.cassandra_session.session.execute(schema.CREATE_MATCHES_BY_TEAM_SEASON_TABLE )
         self.cassandra_session.session.execute(schema.CREATE_MATCHES_BY_PLAYER_TABLE)
         self.cassandra_session.session.execute(schema.CREATE_HEAD_TO_HEAD_TEAMS_TABLE)
+
+    def _insert_points_by_team_match(self):
+        """
+        No docstring :)
+        """
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        csv_path = os.path.join(base_path, "..", "data", "partidos.csv")
+        prepared = self.cassandra_session.session.prepare(schema.INSERT_POINTS_BY_TEAM_MATCH_TABLE)
+        with open(csv_path, newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                match_id = UUID(row["match_id"])
+                team_id = UUID(row["team_id"])
+                total_points = int(row["total_points"])
+                bound = prepared.bind((match_id, team_id, total_points))
+                self.cassandra_session.session.execute(bound)
+
+    def _insert_points_by_player_match(self):
+        """
+        No docstring :)
+        """
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        csv_path = os.path.join(base_path, "..", "data", "points_by_player_match.csv")
+        prepared = self.cassandra_session.session.prepare(schema.INSERT_POINTS_BY_PLAYER_MATCH_TABLE)
+        with open(csv_path, newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                match_id = UUID(row["match_id"])
+                player_id = UUID(row["player_id"])
+                total_points = int(row["total_points"])
+                bound = prepared.bind((match_id, player_id, total_points))
+                self.cassandra_session.session.execute(bound)
+
+    def _insert_sanctions_by_player_match(self):
+        """
+        No docstring :)
+        """
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        csv_path = os.path.join(base_path, "..", "data", "sanctions_by_player_match.csv")
+        prepared = self.cassandra_session.session.prepare(schema.INSERT_SANCTIONS_BY_PLAYER_MATCH_TABLE)
+        with open(csv_path, newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                match_id = UUID(row["match_id"])
+                player_id = UUID(row["player_id"])
+                sanction_time = datetime.fromisoformat(row["sanction_time"])
+                sanction_type = row["sanction_type"]
+                description = row["description"]
+                bound = prepared.bind((match_id, player_id, sanction_time, sanction_type, description))
+                self.cassandra_session.session.execute(bound)
+
+    def _insert_sanctions_by_team_season(self):
+        """
+        No docstring :)
+        """
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        csv_path = os.path.join(base_path, "..", "data", "sanctions_by_team_season.csv")
+        prepared = self.cassandra_session.session.prepare(schema.INSERT_SANCTIONS_BY_TEAM_SEASON_TABLE)
+        with open(csv_path, newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                team_id = UUID(row["team_id"])
+                season_id = UUID(row["season_id"])
+                sanction_type = row["sanction_type"]
+                description = row["description"]
+                total_sanctions = int(row["total_sanctions"])
+                bound = prepared.bind((team_id, season_id, sanction_type, description, total_sanctions))
+                self.cassandra_session.session.execute(bound)
+
+    def _insert_mvp_by_team_season(self):
+        """
+        No docstring :)
+        """
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        csv_path = os.path.join(base_path, "..", "data", "mvp_by_team_season.csv")
+        prepared = self.cassandra_session.session.prepare(schema.INSERT_MVP_BY_TEAM_SEASON_TABLE)
+        with open(csv_path, newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                team_id = UUID(row["team_id"])
+                season_id = UUID(row["season_id"])
+                player_id = UUID(row["player_id"])
+                bound = prepared.bind((team_id, season_id, player_id))
+                self.cassandra_session.session.execute(bound)
+
+    def _insert_events_by_team_match(self):
+        """
+        No docstring :)
+        """
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        csv_path = os.path.join(base_path, "..", "data", "events_by_team_match.csv")
+        prepared = self.cassandra_session.session.prepare(schema.INSERT_EVENTS_BY_TEAM_MATCH_TABLE)
+        with open(csv_path, newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                match_id = UUID(row["match_id"])
+                team_id = UUID(row["team_id"])
+                event_time = datetime.fromisoformat(row["event_time"])
+                event_type = row["event_type"]
+                player_id = UUID(row["player_id"])
+                description = row["description"]
+                bound = prepared.bind((match_id, team_id, event_time, event_type, player_id, description))
+                self.cassandra_session.session.execute(bound)
+
+    def _insert_performance_by_player_match(self):
+        """
+        No docstring :)
+        """
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        csv_path = os.path.join(base_path, "..", "data", "performance_by_player_match.csv")
+        prepared = self.cassandra_session.session.prepare(schema.INSERT_PERFORMANCE_BY_PLAYER_MATCH_TABLE)
+        with open(csv_path, newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                match_id = UUID(row["match_id"])
+                player_id = UUID(row["player_id"])
+                distance_moved = float(row["distance_moved"])
+                possesion = float(row["possesion"])
+                points_scored = int(row["points_scored"])
+                assists = int(row["assists"])
+                bound = prepared.bind((match_id, player_id, distance_moved, possesion, points_scored, assists))
+                self.cassandra_session.session.execute(bound)
+
+    def _insert_historical_performance_by_player(self):
+        """
+        No docstring :)
+        """
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        csv_path = os.path.join(base_path, "..", "data", "historical_performance_by_player.csv")
+        prepared = self.cassandra_session.session.prepare(schema.INSERT_HISTORICAL_PERFORMANCE_BY_PLAYER_TABLE)
+        with open(csv_path, newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                player_id = UUID(row["player_id"])
+                matches_played = int(row["matches_played"])
+                total_points = int(row["total_points"])
+                total_assists = int(row["total_assists"])
+                minutes_played = int(row["minutes_played"])
+                bound = prepared.bind((player_id, matches_played, total_points, total_assists, minutes_played))
+                self.cassandra_session.session.execute(bound)
+
+    def _insert_lineup_by_team_match(self):
+        """
+        No docstring :)
+        """
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        csv_path = os.path.join(base_path, "..", "data", "lineup_by_team_match.csv")
+        prepared = self.cassandra_session.session.prepare(schema.INSERT_LINEUP_BY_TEAM_MATCH_TABLE)
+        with open(csv_path, newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                match_id = UUID(row["match_id"])
+                team_id = UUID(row["team_id"])
+                player_id = UUID(row["player_id"])
+                position = row["position"]
+                last_update = datetime.fromisoformat(row["last_update"])
+                bound = prepared.bind((match_id, team_id, player_id, position, last_update))
+                self.cassandra_session.session.execute(bound)
+
+    def _insert_player_current_position(self):
+        """
+        No docstring :)
+        """
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        csv_path = os.path.join(base_path, "..", "data", "player_current_position.csv")
+        prepared = self.cassandra_session.session.prepare(schema.INSERT_PLAYER_CURRENT_POSITION_TABLE)
+        with open(csv_path, newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                player_id = UUID(row["player_id"])
+                match_id = UUID(row["match_id"])
+                updated = datetime.fromisoformat(row["updated"])
+                position = row["position"]
+                ball_possession = row["ball_possession"].lower() == "true"
+                bound = prepared.bind((player_id, match_id, updated, position, ball_possession))
+                self.cassandra_session.session.execute(bound)
+
+    def _insert_matches_by_team_season(self):
+        """
+        No docstring :)
+        """
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        csv_path = os.path.join(base_path, "..", "data", "matches_by_team_season.csv")
+        prepared = self.cassandra_session.session.prepare(schema.INSERT_MATCHES_BY_TEAM_SEASON_TABLE)
+        with open(csv_path, newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                team_id = UUID(row["team_id"])
+                season_id = UUID(row["season_id"])
+                match_datetime = datetime.fromisoformat(row["match_datetime"])
+                match_id = UUID(row["match_id"])
+                opponent_team_id = UUID(row["opponent_team_id"])
+                location = row["location"]
+                bound = prepared.bind((team_id, season_id, match_datetime, match_id, opponent_team_id, location))
+                self.cassandra_session.session.execute(bound)
+
+    def _insert_matches_by_player(self):
+        """
+        No docstring :)
+        """
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        csv_path = os.path.join(base_path, "..", "data", "matches_by_player.csv")
+        prepared = self.cassandra_session.session.prepare(schema.INSERT_MATCHES_BY_PLAYER_TABLE)
+        with open(csv_path, newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                player_id = UUID(row["player_id"])
+                match_datetime = datetime.fromisoformat(row["match_datetime"])
+                match_id = UUID(row["match_id"])
+                bound = prepared.bind((player_id, match_datetime, match_id))
+                self.cassandra_session.session.execute(bound)
+
+    def _insert_head_to_head_teams(self):
+        """
+        No docstring :)
+        """
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        csv_path = os.path.join(base_path, "..", "data", "head_to_head_teams.csv")
+        prepared = self.cassandra_session.session.prepare(schema.INSERT_HEAD_TO_HEAD_TEAMS_TABLE)
+        with open(csv_path, newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                team_a_id = UUID(row["team_a_id"])
+                team_b_id = UUID(row["team_b_id"])
+                wins_a = int(row["wins_a"])
+                wins_b = int(row["wins_b"])
+                draws = int(row["draws"])
+                bound = prepared.bind((team_a_id, team_b_id, wins_a, wins_b, draws))
+                self.cassandra_session.session.execute(bound)
 
     def obtener_puntos_por_partido_equipo(self, match_id: str, team_id: str):
         """

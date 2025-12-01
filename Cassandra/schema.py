@@ -222,3 +222,68 @@ QUERY_HEAD_TO_HEAD_TEAMS_TABLE = """
         FROM head_to_head_teams
         WHERE team_a_id = ? AND team_b_id = ?;
         """
+
+INSERT_POINTS_BY_TEAM_MATCH_TABLE = """
+        INSERT INTO points_by_team_match (match_id, team_id, total_points)
+        VALUES (?, ?, ?);
+        """
+
+INSERT_POINTS_BY_PLAYER_MATCH_TABLE = """
+        INSERT INTO points_by_player_match (match_id, player_id, total_points)
+        VALUES (?, ?, ?);
+        """
+
+INSERT_SANCTIONS_BY_PLAYER_MATCH_TABLE = """
+        INSERT INTO sanctions_by_player_match (match_id, player_id, sanction_time, sanction_type, description)
+        VALUES (?, ?, ?, ?, ?);
+        """
+
+INSERT_SANCTIONS_BY_TEAM_SEASON_TABLE = """
+        INSERT INTO sanctions_by_team_season (team_id, season_id, sanction_type, description, total_sanctions)
+        VALUES (?, ?, ?, ?, ?);
+        """
+
+INSERT_MVP_BY_TEAM_SEASON_TABLE = """
+        INSERT INTO mvp_by_team_season (team_id, season_id, player_id)
+        VALUES (?, ?, ?);
+        """
+
+INSERT_EVENTS_BY_TEAM_MATCH_TABLE = """
+        INSERT INTO events_by_team_match (match_id, team_id, event_time, event_type, player_id, description)
+        VALUES (?, ?, ?, ?, ?, ?);
+        """
+
+INSERT_PERFORMANCE_BY_PLAYER_MATCH_TABLE = """
+        INSERT INTO performance_by_player_match (match_id, player_id, distance_moved, possesion, points_scored, assists)
+        VALUES (?, ?, ?, ?, ?, ?);
+        """
+
+INSERT_HISTORICAL_PERFORMANCE_BY_PLAYER_TABLE = """
+        INSERT INTO historical_performance_by_player (player_id, matches_played, total_points, total_assists, minutes_played)
+        VALUES (?, ?, ?, ?, ?);
+        """
+
+INSERT_LINEUP_BY_TEAM_MATCH_TABLE = """
+        INSERT INTO lineup_by_team_match (match_id, team_id, player_id, position, last_update)
+        VALUES (?, ?, ?, ?, ?);
+        """
+
+INSERT_PLAYER_CURRENT_POSITION_TABLE = """
+        INSERT INTO player_current_position (player_id, match_id, updated, position, ball_possession)
+        VALUES (?, ?, ?, ?, ?);
+        """
+
+INSERT_MATCHES_BY_TEAM_SEASON_TABLE = """
+        INSERT INTO matches_by_team_season (team_id, season_id, match_datetime, match_id, opponent_team_id, location)
+        VALUES (?, ?, ?, ?, ?, ?);
+        """
+
+INSERT_MATCHES_BY_PLAYER_TABLE = """
+        INSERT INTO matches_by_player (player_id, match_datetime, match_id)
+        VALUES (?, ?, ?);
+        """
+
+INSERT_HEAD_TO_HEAD_TEAMS_TABLE = """
+        INSERT INTO head_to_head_teams (team_a_id, team_b_id, wins_a, wins_b, draws)
+        VALUES (?, ?, ?, ?, ?);
+        """
