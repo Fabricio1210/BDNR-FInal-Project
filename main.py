@@ -37,7 +37,8 @@ MENU_MATCHES = """
     2- Consultar los puntos que ha anotado un jugador en un partido por nombre de jugador e id de partido
     3- Obtener los eventos que ha tenido un equipo en cierto partido por nombre de equipo e id de partido
     4- Obtener todos los enfrentamientos que ha habido en un estadio
-    5- Regresar
+    5- Obtener los parrtidos en cierta fecha y dos equipos
+    6- Regresar
 ------------------------------------------------------------
 """
 
@@ -159,6 +160,12 @@ if __name__ == "__main__":
                     print(database_controller.get_matches_by_stadium(estadio))
                     continue 
                 if response == 5:
+                    fecha = input("Fecha: ")
+                    equipo_local = input("Nombre del equipo local: ")
+                    equipo_visitante = input("Nombre del equipo visitante: ")
+                    print(database_controller.get_matches_by_date_and_teams(fecha, equipo_local, equipo_visitante))
+                    continue
+                if response == 6:
                     estado = "MENU"
                     continue
                 print("Opcion invalida. Seleccione una opcion del 1-5")
