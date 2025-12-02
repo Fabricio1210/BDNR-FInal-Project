@@ -54,31 +54,31 @@ class MongoService:
 
         return list(jugadores)
 
-    def obtener_partidos(deporte, fecha):
-        partidos = db.partidos.find({
+    def obtener_partidos(self, deporte, fecha):
+        partidos = self.db.db.partidos.find({
             "deporte": deporte,
             "fecha": fecha
         })
 
         return list(partidos)
 
-    def obtener_equipo(nombre_equipo):
-        equipo = db.equipos.find_one({
+    def obtener_equipo(self, nombre_equipo):
+        equipo = self.db.db.equipos.find_one({
             "nombre": nombre_equipo
         })
 
         return list(equipo)
 
-    def obtener_estadisticas_torneo(torneo_nombre_arg, temporada_arg):
-        estadisticas = db.estadisticas_torneos.find({
+    def obtener_estadisticas_torneo(self, torneo_nombre_arg, temporada_arg):
+        estadisticas = self.db.db.estadisticas_torneos.find({
             "torneo_nombre": torneo_nombre_arg,
             "temporada": temporada_arg
         })
 
         return list(estadisticas)
 
-    def obtener_ligas(nombre_deporte):
-        ligas = db.ligas.find({
+    def obtener_ligas(self, nombre_deporte):
+        ligas = self.db.db.ligas.find({
             "nombre_deporte": nombre_deporte
         })
 

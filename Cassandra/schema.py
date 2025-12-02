@@ -39,7 +39,7 @@ CREATE_SANCTIONS_BY_PLAYER_MATCH_TABLE = """
 CREATE_SANCTIONS_BY_TEAM_SEASON_TABLE = """
         CREATE TABLE IF NOT EXISTS sanctions_by_team_season (
             team_id uuid,
-            season_id uuid,
+            season_id text,
             sanction_type text,
             description text,
             total_sanctions int,
@@ -50,7 +50,7 @@ CREATE_SANCTIONS_BY_TEAM_SEASON_TABLE = """
 CREATE_MVP_BY_TEAM_SEASON_TABLE = """
         CREATE TABLE IF NOT EXISTS mvp_by_team_season (
             team_id uuid,
-            season_id uuid,
+            season_id text,
             player_id uuid,
             PRIMARY KEY ((team_id, season_id))
         );
@@ -116,7 +116,7 @@ CREATE_PLAYER_CURRENT_POSITION_TABLE = """
 CREATE_MATCHES_BY_TEAM_SEASON_TABLE = """
         CREATE TABLE IF NOT EXISTS matches_by_team_season (
             team_id uuid,
-            season_id uuid,
+            season_id text,
             match_datetime timestamp,
             match_id uuid,
             opponent_team_id uuid,
