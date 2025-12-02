@@ -1,0 +1,7 @@
+nombre,pais,capacidad,tipo,ciudad,equipo_local_csv_id
+Parc des Princes,Francia,48000,Cesped,Paris,ID_PSG_001
+Crypto.com Arena,Estados Unidos,19000,Duro,Los Angeles,ID_LAL_002
+Chase Center,Estados Unidos,18000,Duro,San Francisco,ID_GSW_003
+Camp Nou,España,99000,Cesped,Barcelona,ID_FCB_004
+United Center,Estados Unidos,21000,Duro,Chicago,ID_CHI_005
+Mrsool Park,Arabia Saudita,25000,Cesped,Riyadh,ID_ALN_006
