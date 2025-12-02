@@ -1,6 +1,7 @@
 import logging
 from pymongo import MongoClient
 from Mongo.populate import poblar
+from datetime import datetime
 
 log = logging.getLogger()
 
@@ -83,3 +84,37 @@ class MongoService:
         })
 
         return list(ligas)
+
+    def obtener_partido_por_fecha_y_equipos(self, fecha_str, nombre_local, nombre_visitante):
+        fecha = datetime.strptime(fecha_str, "%Y-%m-%d")
+
+        pipeline = [
+            { "$match": { "fecha": fecha } },
+            {
+                "$lookup": {
+                    "from": "equipos",
+                    "localField": "equipo_local_id",
+                    "foreignField": "_id",
+                    "as": "equipo_local"
+                }
+            },
+            { "$unwind": "$equipo_local" },
+            {
+                "$lookup": {
+                    "from": "equipos",
+                    "localField": "equipo_visitante_id",
+                    "foreignField": "_id",
+                    "as": "equipo_visitante"
+                }
+            },
+            { "$unwind": "$equipo_visitante" },
+            {
+                "$match": {
+                    "equipo_local.nombre": nombre_local,
+                    "equipo_visitante.nombre": nombre_visitante
+                }
+            }
+        ]
+
+        resultado = list(self.db.db.partidos.aggregate(pipeline))
+        return resultado[0] if resultado else None

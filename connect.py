@@ -65,6 +65,18 @@ class DatabaseFacade():
         """
         No docstring >:(
         """
+    
+    def get_matches_by_date_and_teams(self, date, home_team, away_team):
+        """
+        No docstring >:(
+        """
+        try:
+            match = self._mongo.obtener_partido_por_fecha_y_equipos(date, home_team, away_team)
+            if not match:
+                return "No se encontró un partido con esos datos"
+            return match
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
 
     def get_events_by_team_match(self, team, match_id):
         """
