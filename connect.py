@@ -54,6 +54,8 @@ class DatabaseFacade():
                 return "No se encontraron datos de ese partido"
             else:
                 return data
+        except ValueError as e:
+            return "No se encontro el partido"
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
 
@@ -71,6 +73,8 @@ class DatabaseFacade():
             if not matches:
                 return "No se encontraron partidos en esa fecha para ese deporte."
             return matches
+        except ValueError as e:
+            return "No se encontro el partido"
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
     
@@ -83,6 +87,8 @@ class DatabaseFacade():
             if not match:
                 return "No se encontró un partido con esos datos"
             return match
+        except ValueError as e:
+            return "No se encontro el partido"
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
 
@@ -100,6 +106,15 @@ class DatabaseFacade():
         """
         No docstring >:(
         """
+        try:
+            equipo = self._mongo.obtener_equipo(team)
+            if not equipo:
+                return "No se encontro el equipo deseado"
+            return equipo
+        except ValueError as e:
+            return "No se encontro el equipo"
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
 
     def get_matches_by_team_season(self, team, season):
         """
@@ -130,3 +145,12 @@ class DatabaseFacade():
         """
         No docstring >:(
         """  
+        try: 
+            ligas = self._mongo.obtener_ligas(sport)
+            if not ligas:
+                return "No se enocntraron las ligas"
+            return ligas
+        except ValueError as e:
+            return "No se encontroran las ligas"
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)

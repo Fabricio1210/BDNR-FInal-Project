@@ -84,26 +84,35 @@ class MongoService:
             return partidos
 
     def obtener_equipo(self, nombre_equipo):
-        equipo = self.db.db.equipos.find_one({
+        equipo_doc = self.db.db.equipos.find_one({
             "nombre": nombre_equipo
         })
-
-        return list(equipo)
+        if equipo_doc is None:
+            raise ValueError(f"No se encontró el equipo")
+        else:
+            equipo_dict = self.to_dict(equipo_doc)
+            return equipo_dict
 
     def obtener_estadisticas_torneo(self, torneo_nombre_arg, temporada_arg):
-        estadisticas = self.db.db.estadisticas_torneos.find({
+        cursor_estadisticas = self.db.db.estadisticas_torneos.find({
             "torneo_nombre": torneo_nombre_arg,
             "temporada": temporada_arg
         })
-
-        return list(estadisticas)
+        resultados_dict = [self.to_dict(doc) for doc in cursor_estadisticas]
+        if not resultados_dict:
+            raise ValueError(f"No se encontró el torneo")
+        return resultados_dict
 
     def obtener_ligas(self, nombre_deporte):
-        ligas = self.db.db.ligas.find({
+        cursor_ligas = self.db.db.ligas.find({
             "nombre_deporte": nombre_deporte
         })
-
-        return list(ligas)
+        ligas_dict = [self.to_dict(doc) for doc in cursor_ligas]
+        if not ligas_dict:
+            raise ValueError(
+                f"No se encontraron ligas para el deporte: '{nombre_deporte}'."
+            )
+        return ligas_dict
 
     def obtener_partido_por_fecha_y_equipos(self, fecha_str, nombre_local, nombre_visitante):
         fecha = datetime.strptime(fecha_str, "%Y-%m-%d")
@@ -137,4 +146,11 @@ class MongoService:
         ]
 
         resultado = list(self.db.db.partidos.aggregate(pipeline))
-        return resultado[0] if resultado else None
+        if not resultado:
+            raise ValueError("No se encontró un partido con esos datos.")
+        partido_dict = self.to_dict(resultado[0])
+
+        if 'fecha' in partido_dict and isinstance(partido_dict['fecha'], datetime):
+            partido_dict['fecha'] = partido_dict['fecha'].strftime("%Y-%m-%d")
+
+        return partido_dict
