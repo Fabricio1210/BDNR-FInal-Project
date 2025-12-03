@@ -1,0 +1,18 @@
+fecha,torneo,deporte,equipo_id,player_id,nombre,apellido,numero,puntos_anotados
+2024-11-01,Liga MX,Futbol,ID_PSG_001,PID_PSG_001,Lionel,Messi,10,2
+2024-11-01,Liga MX,Futbol,ID_PSG_001,PID_PSG_004,Kylian,Mbappé,7,1
+2024-11-01,Liga MX,Futbol,ID_FCB_004,PID_FCB_005,Alexia,Putellas,11,1
+2024-11-10,Champions League,Futbol,ID_FCB_004,PID_FCB_005,Alexia,Putellas,11,1
+2024-11-10,Champions League,Futbol,ID_FCB_004,PID_FCB_008,Carla,Gómez,19,1
+2024-11-10,Champions League,Futbol,ID_PSG_001,PID_PSG_001,Lionel,Messi,10,1
+2024-11-10,Champions League,Futbol,ID_PSG_001,PID_PSG_004,Kylian,Mbappé,7,1
+2024-11-15,Liga Profesional Saudí,Futbol,ID_ALN_006,PID_ALN_007,Cristiano,Ronaldo,7,1
+2024-11-20,NBA,Baloncesto,ID_LAL_002,PID_LAL_002,LeBron,James,23,34
+2024-11-20,NBA,Baloncesto,ID_GSW_003,PID_GSW_003,Stephen,Curry,30,40
+2024-11-22,NBA,Baloncesto,ID_CHI_005,PID_CHI_006,Michael,Jordan,23,41
+2024-11-22,NBA,Baloncesto,ID_LAL_002,PID_LAL_002,LeBron,James,23,45
+2024-11-25,Liga Femenina,Futbol,ID_FCB_004,PID_FCB_005,Alexia,Putellas,11,2
+2024-11-25,Liga Femenina,Futbol,ID_FCB_004,PID_FCB_008,Carla,Gómez,19,1
+2024-11-25,Liga Femenina,Futbol,ID_FCB_004,PID_FCB_009,Arturo,López,21,1
+2024-11-25,Liga Femenina,Futbol,ID_ALN_006,PID_ALN_007,Cristiano,Ronaldo,7,1
+

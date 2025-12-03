@@ -205,7 +205,6 @@ if __name__ == "__main__":
                                 print(f"    {local.get('nombre', 'N/A')} vs {visitante.get('nombre', 'N/A')}")
                                 print(f"    Marcador: {partido.get('marcadorLocal', 0)} - {partido.get('marcadorVisitante', 0)}")
                                 print(f"    Resultado: {partido.get('resultado', 'N/A')}")
-                                print(f"    Asistencia: {partido.get('asistencia', 'N/A'):,} personas")
 
                                 if partido.get('temporada'):
                                     temp = partido['temporada']
@@ -270,9 +269,6 @@ if __name__ == "__main__":
                                     campo = partido['campo']
                                     print(f"    Estadio: {campo.get('nombre', 'N/A')} - {campo.get('pais', 'N/A')}")
                                     print(f"    Tipo: {campo.get('tipo', 'N/A')} | Capacidad: {campo.get('capacidad', 'N/A'):,}")
-
-                                if partido.get('asistencia'):
-                                    print(f"    Asistencia: {partido.get('asistencia'):,} personas")
                             print("\n" + "="*60 + "\n")
                         else:
                             print(f"\nNo se encontraron enfrentamientos para '{nombre_equipo}' en la temporada '{nombre_temporada}'\n")

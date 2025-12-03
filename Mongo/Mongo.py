@@ -1,6 +1,8 @@
 import logging
 from pymongo import MongoClient
 from Mongo.populate import poblar
+from datetime import datetime
+from bson import ObjectId
 
 log = logging.getLogger()
 
@@ -52,40 +54,109 @@ class MongoService:
     def poblar(self):
         poblar()
 
+    def to_dict(self, obj):
+        if isinstance(obj, ObjectId):
+            return str(obj)
+
+        if isinstance(obj, dict):
+            return {k: self.to_dict(v) for k, v in obj.items()}
+
+        if isinstance(obj, list):
+            return [self.to_dict(i) for i in obj]
+
+        return obj
+
     def obtener_jugadores(self, nombre, apellido):
         jugadores = self.db.db.jugadores.find({
             "nombre": nombre,
             "apellido": apellido
         })
+        jugadores = [self.to_dict(j) for j in jugadores]
+        if not jugadores or len(jugadores) == 0:
+            raise ValueError("No se encontraron jugadores con ese nombre y apellido.")
+        else:
+            return jugadores
 
-        return list(jugadores)
-
-    def obtener_partidos(deporte, fecha):
-        partidos = db.partidos.find({
+    def obtener_partidos(self, deporte, fecha):
+        fecha_iso = datetime.strptime(fecha, "%Y-%m-%d")
+        partidos = self.db.db.partidos.find({
             "deporte": deporte,
-            "fecha": fecha
+            "fecha": fecha_iso
         })
+        partidos = [self.to_dict(j) for j in partidos]
+        if not partidos or len(partidos) == 0:
+            raise ValueError("No se encontraron partidos en esa fecha para ese deporte.")
+        else:
+            return partidos
 
-        return list(partidos)
-
-    def obtener_equipo(nombre_equipo):
-        equipo = db.equipos.find_one({
+    def obtener_equipo(self, nombre_equipo):
+        equipo_doc = self.db.db.equipos.find_one({
             "nombre": nombre_equipo
         })
+        if equipo_doc is None:
+            raise ValueError(f"No se encontró el equipo")
+        else:
+            equipo_dict = self.to_dict(equipo_doc)
+            return equipo_dict
 
-        return list(equipo)
-
-    def obtener_estadisticas_torneo(torneo_nombre_arg, temporada_arg):
-        estadisticas = db.estadisticas_torneos.find({
+    def obtener_estadisticas_torneo(self, torneo_nombre_arg, temporada_arg):
+        cursor_estadisticas = self.db.db.estadisticas_torneos.find({
             "torneo_nombre": torneo_nombre_arg,
             "temporada": temporada_arg
         })
+        resultados_dict = [self.to_dict(doc) for doc in cursor_estadisticas]
+        if not resultados_dict:
+            raise ValueError(f"No se encontró el torneo")
+        return resultados_dict
 
-        return list(estadisticas)
-
-    def obtener_ligas(nombre_deporte):
-        ligas = db.ligas.find({
+    def obtener_ligas(self, nombre_deporte):
+        cursor_ligas = self.db.db.ligas.find({
             "nombre_deporte": nombre_deporte
         })
+        ligas_dict = [self.to_dict(doc) for doc in cursor_ligas]
+        if not ligas_dict:
+            raise ValueError(
+                f"No se encontraron ligas para el deporte: '{nombre_deporte}'."
+            )
+        return ligas_dict
 
-        return list(ligas)
+    def obtener_partido_por_fecha_y_equipos(self, fecha_str, nombre_local, nombre_visitante):
+        fecha = datetime.strptime(fecha_str, "%Y-%m-%d")
+
+        pipeline = [
+            { "$match": { "fecha": fecha } },
+            {
+                "$lookup": {
+                    "from": "equipos",
+                    "localField": "equipo_local_id",
+                    "foreignField": "_id",
+                    "as": "equipo_local"
+                }
+            },
+            { "$unwind": "$equipo_local" },
+            {
+                "$lookup": {
+                    "from": "equipos",
+                    "localField": "equipo_visitante_id",
+                    "foreignField": "_id",
+                    "as": "equipo_visitante"
+                }
+            },
+            { "$unwind": "$equipo_visitante" },
+            {
+                "$match": {
+                    "equipo_local.nombre": nombre_local,
+                    "equipo_visitante.nombre": nombre_visitante
+                }
+            }
+        ]
+
+        resultado = list(self.db.db.partidos.aggregate(pipeline))
+        if not resultado:
+            raise ValueError("No se encontró un partido con esos datos.")
+        partido_dict = self.to_dict(resultado[0])
+
+        if 'fecha' in partido_dict and isinstance(partido_dict['fecha'], datetime):
+            partido_dict['fecha'] = partido_dict['fecha'].strftime("%Y-%m-%d")
+
+        return partido_dict

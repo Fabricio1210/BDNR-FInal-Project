@@ -34,7 +34,6 @@ fecha: datetime @index(year) .
 marcadorLocal: int .
 marcadorVisitante: int .
 resultado: string .
-asistencia: int .
 
 type Jugador {
   nombre
@@ -83,7 +82,6 @@ type Enfrentamiento {
   marcadorLocal
   marcadorVisitante
   resultado
-  asistencia
 }
 """
 
@@ -131,7 +129,6 @@ query enfrentamientos($nombre_equipo: string, $nombre_temporada: string) {
         marcadorLocal
         marcadorVisitante
         resultado
-        asistencia
         equipo_local {
             uid
             nombre
@@ -235,7 +232,6 @@ query enfrentamientos_campo($nombre_campo: string) {
         marcadorLocal
         marcadorVisitante
         resultado
-        asistencia
         equipo_local {
             uid
             nombre
