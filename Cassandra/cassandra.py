@@ -108,15 +108,19 @@ class CassandraService:
         """
         base_path = os.path.dirname(os.path.abspath(__file__))
         csv_path = os.path.join(base_path, "..", "data", "partidos.csv")
-        # prepared = self.cassandra_session.session.prepare(schema.INSERT_POINTS_BY_TEAM_MATCH_TABLE)
-        # with open(csv_path, newline="", encoding="utf-8") as f:
-        #     reader = csv.DictReader(f)
-        #     for row in reader:
-        #         match_id = UUID(row["match_id"])
-        #         team_id = UUID(row["team_id"])
-        #         total_points = int(row["total_points"])
-        #         bound = prepared.bind((match_id, team_id, total_points))
-        #         self.cassandra_session.session.execute(bound)
+        prepared = self.cassandra_session.session.prepare(schema.INSERT_POINTS_BY_TEAM_MATCH_TABLE)
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                date = row["fecha"]
+                team_a_name = row["equipo_local"]
+                team_b_name = row["equipo_visitante"]
+                match = mongo_service.obtener_partido_por_fecha_y_equipos(date, team_a_name, team_b_name)
+                return match
+                # match_id = UUID(row["match_id"])
+                # total_points = int(row["total_points"])
+                # bound = prepared.bind((match_id, team_id, total_points))
+                # self.cassandra_session.session.execute(bound)
 
     def _insert_points_by_player_match(self):
         """
