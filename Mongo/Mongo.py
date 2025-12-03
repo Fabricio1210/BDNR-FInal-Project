@@ -41,6 +41,12 @@ class MongoSingleton:
             self._client.close()
             log.info("Conexión Singleton a MongoDB cerrada.")
 
+    def populate(self):
+        """
+        Método para poblar MongoDB desde CSV
+        """
+        algo()
+
 class MongoService:
     def __init__(self):
         self.db = MongoSingleton()

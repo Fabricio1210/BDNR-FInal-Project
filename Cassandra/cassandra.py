@@ -106,21 +106,8 @@ class CassandraService:
         """
         No docstring :)
         """
-        base_path = os.path.dirname(os.path.abspath(__file__))
-        csv_path = os.path.join(base_path, "..", "data", "partidos.csv")
-        prepared = self.cassandra_session.session.prepare(schema.INSERT_POINTS_BY_TEAM_MATCH_TABLE)
-        with open(csv_path, newline="", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                date = row["fecha"]
-                team_a_name = row["equipo_local"]
-                team_b_name = row["equipo_visitante"]
-                match = mongo_service.obtener_partido_por_fecha_y_equipos(date, team_a_name, team_b_name)
-                return match
-                # match_id = UUID(row["match_id"])
-                # total_points = int(row["total_points"])
-                # bound = prepared.bind((match_id, team_id, total_points))
-                # self.cassandra_session.session.execute(bound)
+        # Método incompleto - comentado para no bloquear populate
+        pass
 
     def _insert_points_by_player_match(self):
         """
@@ -175,7 +162,7 @@ class CassandraService:
         No docstring :)
         """
         base_path = os.path.dirname(os.path.abspath(__file__))
-        csv_path = os.path.join(base_path, "..", "data", "sanctions_by_team_season.csv")
+        csv_path = os.path.join(base_path, "..", "data", "sanciones_por_equipo_temporada.csv")
         prepared = self.cassandra_session.session.prepare(
             schema.INSERT_SANCTIONS_BY_TEAM_SEASON_TABLE
         )
@@ -188,7 +175,7 @@ class CassandraService:
                     raise ValueError(
                         "El equipo no esta registrado en la base de datos de mongo aun"
                     )
-                team_id = team[0].get("_id")
+                team_id = team.get("_id")
                 season_id = row["temporada"]
                 sanction_type = row["tipo_sancion"]
                 description = row["descripcion"]
@@ -214,7 +201,7 @@ class CassandraService:
                     raise ValueError(
                         "El equipo no esta registrado en la base de datos de mongo aun"
                     )
-                team_id = team[0].get("_id")
+                team_id = team.get("_id")
                 season_id = row["temporada"]
                 player_name = row["nombre_jugador"]
                 player_last_name = row["apellido_jugador"]
@@ -431,8 +418,8 @@ class CassandraService:
             team_b_obj = mongo_service.obtener_equipo(team_b)
             if not team_a_obj or not team_b_obj:
                 raise ValueError("El equipo no se encuentra aun en la base de datos de mongo")
-            team_a_id = team_a_obj[0].get("_id")
-            team_b_id = team_b_obj[0].get("_id")
+            team_a_id = team_a_obj.get("_id")
+            team_b_id = team_b_obj.get("_id")
             if stats["count"] >= 2:
                 bound = prepared.bind((
                     UUID(team_a_id),

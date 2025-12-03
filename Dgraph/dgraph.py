@@ -243,126 +243,43 @@ class DgraphService:
                 finally:
                     txn.discard()
 
-            # 4. Poblar Temporadas desde temporadas.csv
+            # 4. Poblar Temporadas
             log.info("Poblando nodo Temporada...")
-            temporada_file = os.path.join("data", "temporadas.csv")
-            temporada_uids = {}
+            temporadas_file = os.path.join("data", "temporadas.csv")
+            with open(temporadas_file, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                txn = self._dgraph_client.client.txn()
+                try:
+                    for row in reader:
+                        temporada = {
+                            "dgraph.type": "Temporada",
+                            "anio": int(row['anio']),
+                            "nombre": row['nombre'],
+                            "liga": row['liga'],
+                            "fechaInicio": row['fechaInicio'] + "T00:00:00Z",
+                            "fechaFin": row['fechaFin'] + "T23:59:59Z"
+                        }
 
-            # Mapa para buscar temporadas por torneo y nombre
-            temporada_map = {}
+                        response = txn.mutate(set_obj=temporada, commit_now=False)
+                        uid = list(response.uids.values())[0]
+                        # Crear clave única para la temporada
+                        temp_key = f"{row['liga']}_{row['nombre']}"
+                        temporada_uids[temp_key] = uid
+                    txn.commit()
+                    log.info(f"Temporadas insertadas: {len(temporada_uids)}")
+                finally:
+                    txn.discard()
 
-            if os.path.exists(temporada_file):
-                with open(temporada_file, 'r', encoding='utf-8') as f:
-                    reader = csv.DictReader(f)
-                    txn = self._dgraph_client.client.txn()
-                    try:
-                        for row in reader:
-                            torneo_nombre = row['torneo_nombre']
-                            nombre_temporada = row['temporada']
+            # 5. Pre-cargar mapeo de campos por equipo (optimización)
+            log.info("Pre-cargando mapeo campos-equipos...")
+            campos_por_equipo = {}
+            if os.path.exists(campos_file):
+                with open(campos_file, 'r', encoding='utf-8') as cf:
+                    campos_reader = csv.DictReader(cf)
+                    for campo_row in campos_reader:
+                        campos_por_equipo[campo_row['equipo_local_csv_id']] = campo_row['nombre']
 
-                            # Calcular el año de la temporada
-                            try:
-                                if '-' in nombre_temporada:
-                                    if 'Apertura' in nombre_temporada or 'Clausura' in nombre_temporada:
-                                        anio_temp = int(nombre_temporada.split('-')[0])
-                                    else:
-                                        # Formato "2024-2025", tomar el primer año
-                                        anio_temp = int(nombre_temporada.split('-')[0])
-                                else:
-                                    anio_temp = int(nombre_temporada)
-                            except:
-                                anio_temp = 2024
-
-                            temporada = {
-                                "dgraph.type": "Temporada",
-                                "anio": anio_temp,
-                                "nombre": nombre_temporada,
-                                "liga": torneo_nombre,
-                                "fechaInicio": row['fecha_inicio'] + "T00:00:00Z",
-                                "fechaFin": row['fecha_fin'] + "T23:59:59Z"
-                            }
-
-                            response = txn.mutate(set_obj=temporada, commit_now=False)
-                            uid = list(response.uids.values())[0]
-
-                            # Crear clave única para la temporada
-                            key = f"{torneo_nombre}_{nombre_temporada}"
-                            temporada_uids[key] = uid
-                            temporada_map[key] = {
-                                'uid': uid,
-                                'torneo': torneo_nombre,
-                                'nombre': nombre_temporada,
-                                'anio': anio_temp
-                            }
-                        txn.commit()
-                        log.info(f"Temporadas insertadas: {len(temporada_uids)}")
-                    finally:
-                        txn.discard()
-            else:
-                log.warning("No se encontró archivo temporadas.csv, creando temporadas desde partidos.csv")
-                # Si no existe el archivo, crear temporadas desde partidos.csv
-                partidos_file = os.path.join("data", "partidos.csv")
-                if os.path.exists(partidos_file):
-                    with open(partidos_file, 'r', encoding='utf-8') as f:
-                        reader = csv.DictReader(f)
-                        temporadas_creadas = set()
-                        txn = self._dgraph_client.client.txn()
-                        try:
-                            for row in reader:
-                                # Verificar si tiene columna temporada
-                                if 'temporada' in row:
-                                    temporada_nombre = row['temporada']
-                                else:
-                                    # Si no tiene, usar un valor por defecto basado en torneo
-                                    torneo_nombre = row['torneo_nombre']
-                                    deporte = row['deporte']
-                                    
-                                    if torneo_nombre == "Liga MX":
-                                        temporada_nombre = "2024-Apertura"
-                                    elif torneo_nombre == "NBA":
-                                        temporada_nombre = "2024-2025"
-                                    else:
-                                        temporada_nombre = "2024"
-                                
-                                torneo_nombre = row['torneo_nombre']
-                                key = f"{torneo_nombre}_{temporada_nombre}"
-                                
-                                if key not in temporadas_creadas:
-                                    # Calcular el año de la temporada
-                                    try:
-                                        if '-' in temporada_nombre:
-                                            if 'Apertura' in temporada_nombre or 'Clausura' in temporada_nombre:
-                                                anio_temp = int(temporada_nombre.split('-')[0])
-                                            else:
-                                                anio_temp = int(temporada_nombre.split('-')[0])
-                                        else:
-                                            anio_temp = int(temporada_nombre)
-                                    except:
-                                        anio_temp = 2024
-
-                                    # Fechas por defecto
-                                    fecha_inicio = f"{anio_temp}-01-01T00:00:00Z"
-                                    fecha_fin = f"{anio_temp}-12-31T23:59:59Z"
-
-                                    temporada = {
-                                        "dgraph.type": "Temporada",
-                                        "anio": anio_temp,
-                                        "nombre": temporada_nombre,
-                                        "liga": torneo_nombre,
-                                        "fechaInicio": fecha_inicio,
-                                        "fechaFin": fecha_fin
-                                    }
-
-                                    response = txn.mutate(set_obj=temporada, commit_now=False)
-                                    uid = list(response.uids.values())[0]
-                                    temporada_uids[key] = uid
-                                    temporadas_creadas.add(key)
-                            txn.commit()
-                            log.info(f"Temporadas creadas desde partidos: {len(temporada_uids)}")
-                        finally:
-                            txn.discard()
-
-            # 5. Poblar Enfrentamientos
+            # 6. Poblar Enfrentamientos
             log.info("Poblando nodo Enfrentamiento...")
             partidos_file = os.path.join("data", "partidos.csv")
             with open(partidos_file, 'r', encoding='utf-8') as f:
@@ -370,28 +287,24 @@ class DgraphService:
                 txn = self._dgraph_client.client.txn()
                 try:
                     for row in reader:
-                        # Generar asistencia aleatoria basada en el deporte
-                        import random
-                        if row['deporte'] == 'Futbol':
-                            asistencia = random.randint(10000, 60000)
-                        else:  # Baloncesto
-                            asistencia = random.randint(15000, 21000)
+                        # Determinar resultado
+                        goles_local = int(row['goles_local'])
+                        goles_visitante = int(row['goles_visitante'])
+
+                        if goles_local > goles_visitante:
+                            resultado = "Victoria Local"
+                        elif goles_local < goles_visitante:
+                            resultado = "Victoria Visitante"
+                        else:
+                            resultado = "Empate"
 
                         enfrentamiento = {
                             "dgraph.type": "Enfrentamiento",
                             "fecha": row['fecha'] + "T00:00:00Z",
-                            "marcadorLocal": int(row['goles_local']),
-                            "marcadorVisitante": int(row['goles_visitante']),
-                            "asistencia": asistencia
+                            "marcadorLocal": goles_local,
+                            "marcadorVisitante": goles_visitante,
+                            "resultado": resultado
                         }
-
-                        # Determinar resultado
-                        if int(row['goles_local']) > int(row['goles_visitante']):
-                            enfrentamiento["resultado"] = "Victoria Local"
-                        elif int(row['goles_local']) < int(row['goles_visitante']):
-                            enfrentamiento["resultado"] = "Victoria Visitante"
-                        else:
-                            enfrentamiento["resultado"] = "Empate"
 
                         # Conectar equipos
                         if row['equipo_local_csv_id'] in equipo_uids:
@@ -399,49 +312,19 @@ class DgraphService:
                         if row['equipo_visitante_csv_id'] in equipo_uids:
                             enfrentamiento["equipo_visitante"] = {"uid": equipo_uids[row['equipo_visitante_csv_id']]}
 
-                        # Conectar campo (el del equipo local)
-                        if os.path.exists(campos_file):
-                            with open(campos_file, 'r', encoding='utf-8') as cf:
-                                campos_reader = csv.DictReader(cf)
-                                for campo_row in campos_reader:
-                                    if campo_row['equipo_local_csv_id'] == row['equipo_local_csv_id']:
-                                        if campo_row['nombre'] in campo_uids:
-                                            enfrentamiento["campo"] = {"uid": campo_uids[campo_row['nombre']]}
-                                        break
+                        # Conectar campo (usando mapeo pre-cargado)
+                        campo_nombre = campos_por_equipo.get(row['equipo_local_csv_id'])
+                        if campo_nombre and campo_nombre in campo_uids:
+                            enfrentamiento["campo"] = {"uid": campo_uids[campo_nombre]}
 
                         # Conectar temporada
-                        torneo_nombre = row['torneo_nombre']
-
-                        # Determinar nombre de temporada
-                        if 'temporada' in row:
-                            temporada_nombre = row['temporada']
-                        else:
-                            # Si no tiene columna temporada, usar un valor por defecto
-                            if torneo_nombre == "Liga MX":
-                                temporada_nombre = "2024-Apertura"
-                            elif torneo_nombre == "NBA":
-                                temporada_nombre = "2024-2025"
-                            else:
-                                temporada_nombre = "2024"
-
-                        temp_key = f"{torneo_nombre}_{temporada_nombre}"
+                        temp_key = f"{row['torneo_nombre']}_{row['temporada']}"
 
                         if temp_key in temporada_uids:
                             enfrentamiento["temporada"] = {"uid": temporada_uids[temp_key]}
                         else:
-                            # Si no existe la temporada, buscar una del mismo torneo
-                            encontrada = False
-                            for key in temporada_uids.keys():
-                                if key.startswith(torneo_nombre + "_"):
-                                    enfrentamiento["temporada"] = {"uid": temporada_uids[key]}
-                                    encontrada = True
-                                    break
-
-                            if not encontrada and temporada_uids:
-                                # Si no se encuentra ninguna, usar la primera disponible
-                                primera_key = list(temporada_uids.keys())[0]
-                                enfrentamiento["temporada"] = {"uid": temporada_uids[primera_key]}
-                                log.warning(f"Usando temporada por defecto para {temp_key}")
+                            log.warning(f"Temporada no encontrada: {temp_key}. Partido omitido.")
+                            continue
 
                         txn.mutate(set_obj=enfrentamiento, commit_now=False)
                     txn.commit()
@@ -449,7 +332,7 @@ class DgraphService:
                 finally:
                     txn.discard()
 
-            # 6. Crear rivalidades entre equipos que se han enfrentado
+            # 7. Crear rivalidades entre equipos que se han enfrentado
             log.info("Creando rivalidades...")
             self._crear_rivalidades(equipo_uids)
 

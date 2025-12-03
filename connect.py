@@ -12,7 +12,7 @@ class DatabaseFacade():
     """
     def __init__(self):
         self._cassandra = CassandraService()
-        #self._dgraph = DgraphService()
+        self._dgraph = DgraphService()
         self._mongo = MongoService()
 
     def populate_databases(self):
@@ -20,7 +20,8 @@ class DatabaseFacade():
         No docstring >:(
         """
         self._mongo.poblar()
-        self._cassandra.populate_data()
+        # self._cassandra.populate_data()  # Comentado temporalmente - error con UUID
+        self._dgraph.populate_data()
 
     def delete_databases(self):
         """
@@ -144,8 +145,8 @@ class DatabaseFacade():
     def get_all_leagues_by_sport(self, sport):
         """
         No docstring >:(
-        """  
-        try: 
+        """
+        try:
             ligas = self._mongo.obtener_ligas(sport)
             if not ligas:
                 return "No se enocntraron las ligas"
@@ -154,3 +155,48 @@ class DatabaseFacade():
             return "No se encontroran las ligas"
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
+
+    def consultar_jugador_completo(self, nombre, apellido):
+        """
+        Consulta completa de jugador desde Dgraph
+        """
+        try:
+            return self._dgraph.consultar_jugador_completo(nombre, apellido)
+        except Exception as e:
+            return {"error": f"Error consultando jugador: {str(e)}"}
+
+    def consultar_enfrentamientos_estadio(self, nombre_campo):
+        """
+        Consulta enfrentamientos en un estadio desde Dgraph
+        """
+        try:
+            return self._dgraph.consultar_enfrentamientos_estadio(nombre_campo)
+        except Exception as e:
+            return {"error": f"Error consultando enfrentamientos: {str(e)}"}
+
+    def consultar_enfrentamientos_equipo_temporada(self, nombre_equipo, nombre_temporada):
+        """
+        Consulta enfrentamientos de equipo en temporada desde Dgraph
+        """
+        try:
+            return self._dgraph.consultar_enfrentamientos_equipo_temporada(nombre_equipo, nombre_temporada)
+        except Exception as e:
+            return {"error": f"Error consultando enfrentamientos: {str(e)}"}
+
+    def consultar_equipos_locales_estadio(self, nombre_campo):
+        """
+        Consulta equipos locales en un estadio desde Dgraph
+        """
+        try:
+            return self._dgraph.consultar_equipos_locales_estadio(nombre_campo)
+        except Exception as e:
+            return {"error": f"Error consultando equipos: {str(e)}"}
+
+    def consultar_campos_equipo(self, nombre_equipo):
+        """
+        Consulta campos donde juega un equipo desde Dgraph
+        """
+        try:
+            return self._dgraph.consultar_campos_equipo(nombre_equipo)
+        except Exception as e:
+            return {"error": f"Error consultando campos: {str(e)}"}
