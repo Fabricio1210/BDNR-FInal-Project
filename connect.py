@@ -5,13 +5,14 @@ from Cassandra.cassandra import CassandraService
 from Dgraph.dgraph import DgraphService
 from Mongo.Mongo import MongoService
 
+
 class DatabaseFacade():
     """
     No docstring >:(
     """
     def __init__(self):
         self._cassandra = CassandraService()
-        self._dgraph = DgraphService()
+        #self._dgraph = DgraphService()
         self._mongo = MongoService()
 
     def populate_databases(self):
@@ -32,11 +33,10 @@ class DatabaseFacade():
         """
         try:
             jugadores = self._mongo.obtener_jugadores(name, last_name)
-            jugadores += self._dgraph.consultar_jugador_completo(name, last_name)
-            if not jugadores:
-                return "No se encontro ningun jugador con ese nombre y aplleido."
-            else:
-                return jugadores
+            #jugadores += self._dgraph.consultar_jugador_completo(name, last_name)
+            return jugadores
+        except ValueError as e:
+            return "No se encontro el perfil"
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
 
@@ -66,6 +66,13 @@ class DatabaseFacade():
         """
         No docstring >:(
         """
+        try:
+            matches = self._mongo.obtener_partidos(sport, date)
+            if not matches:
+                return "No se encontraron partidos en esa fecha para ese deporte."
+            return matches
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
     
     def get_matches_by_date_and_teams(self, date, home_team, away_team):
         """

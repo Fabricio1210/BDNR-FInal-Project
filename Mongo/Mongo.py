@@ -2,6 +2,7 @@ import logging
 from pymongo import MongoClient
 from Mongo.populate import poblar
 from datetime import datetime
+from bson import ObjectId
 
 log = logging.getLogger()
 
@@ -47,21 +48,40 @@ class MongoService:
     def poblar(self):
         poblar()
 
+    def to_dict(self, obj):
+        if isinstance(obj, ObjectId):
+            return str(obj)
+
+        if isinstance(obj, dict):
+            return {k: self.to_dict(v) for k, v in obj.items()}
+
+        if isinstance(obj, list):
+            return [self.to_dict(i) for i in obj]
+
+        return obj
+
     def obtener_jugadores(self, nombre, apellido):
         jugadores = self.db.db.jugadores.find({
             "nombre": nombre,
             "apellido": apellido
         })
-
-        return list(jugadores)
+        jugadores = [self.to_dict(j) for j in jugadores]
+        if not jugadores or len(jugadores) == 0:
+            raise ValueError("No se encontraron jugadores con ese nombre y apellido.")
+        else:
+            return jugadores
 
     def obtener_partidos(self, deporte, fecha):
+        fecha_iso = datetime.strptime(fecha, "%Y-%m-%d")
         partidos = self.db.db.partidos.find({
             "deporte": deporte,
-            "fecha": fecha
+            "fecha": fecha_iso
         })
-
-        return list(partidos)
+        partidos = [self.to_dict(j) for j in partidos]
+        if not partidos or len(partidos) == 0:
+            raise ValueError("No se encontraron partidos en esa fecha para ese deporte.")
+        else:
+            return partidos
 
     def obtener_equipo(self, nombre_equipo):
         equipo = self.db.db.equipos.find_one({
