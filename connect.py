@@ -126,15 +126,33 @@ class DatabaseFacade():
         No docstring >:(
         """
 
-    def get_team_reanking_by_sport(self, sport):
+    def get_team_ranking_by_sport(self, sport):
         """
         No docstring >:(
         """
+        try:
+            ranking = self._mongo.obtener_puntajes_por_deporte(sport)
+            if not ranking:
+                return "No se enocntraron los equipos para formar el ranking"
+            return ranking
+        except ValueError as e:
+            return "No se encontraron los equipos"
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
 
     def get_first_places_from_all_sports(self):
         """
         No docstring >:(
         """
+        try:
+            ranking = self._mongo.obtener_primer_lugar_por_deporte()
+            if not ranking:
+                return "No se encontraron los equipos para formar el ranking"
+            return ranking
+        except ValueError as e:
+            return "No se encontraron los equipos"
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
 
     def get_league_stats_by_season(self, league, season):
         """
@@ -148,9 +166,47 @@ class DatabaseFacade():
         try: 
             ligas = self._mongo.obtener_ligas(sport)
             if not ligas:
-                return "No se enocntraron las ligas"
+                return "No se encontraron las ligas"
             return ligas
         except ValueError as e:
             return "No se encontroran las ligas"
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
+
+    def add_player(self, nombre, apellido, numero, fecha_nacimiento, deporte, pais_origen, posicion, altura_cm, equipo_nombre):
+        """
+        No docstring >:(
+        """  
+        try:
+            resultado = self._mongo.agregar_jugador(
+                nombre,
+                apellido,
+                numero,
+                fecha_nacimiento,
+                deporte,
+                pais_origen,
+                posicion,
+                altura_cm,
+                equipo_nombre
+            )
+
+            if "error" in resultado:
+                return "Error: " + resultado["error"]
+
+            return f"Jugador agregado correctamente al equipo {equipo_nombre}. ID: {resultado['jugador_id']}"
+
+        except ValueError:
+            return "Error: datos inválidos para agregar jugador."
+        except Exception as e:
+            return "Error en la base de datos: " + str(e)
+
+    def delete_mongo(self):
+        """
+            No docstring >:(
+        """  
+        try:
+            resultado = self._mongo.eliminar_base_de_datos()
+            return resultado.get("mensaje", "Operación de eliminación de base de datos exitosa.")
+            
+        except Exception as e:
+            return "Hubo un error al intentar eliminar la base de datos. Error: " + str(e)

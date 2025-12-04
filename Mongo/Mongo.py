@@ -154,3 +154,138 @@ class MongoService:
             partido_dict['fecha'] = partido_dict['fecha'].strftime("%Y-%m-%d")
 
         return partido_dict
+
+    def obtener_puntajes_por_deporte(self, deporte_arg):
+
+        pipeline = [
+            {
+                "$match": {
+                    "deporte": deporte_arg
+                }
+            },
+            {
+                "$lookup": {
+                    "from": "equipos",
+                    "localField": "equipo_id",
+                    "foreignField": "_id",
+                    "as": "equipo"
+                }
+            },
+            { "$unwind": "$equipo" },
+            {
+                "$project": {
+                    "_id": 0,
+                    "equipo": "$equipo.nombre",
+                    "deporte": 1,
+                    "liga": "$torneo_nombre",
+                    "temporada": 1,
+                    "puntos": "$metricas.puntos"
+                }
+            },
+            {
+                "$sort": {
+                    "puntos": -1
+                }
+            }
+        ]
+
+        resultado = list(self.db.db.estadisticas_torneos.aggregate(pipeline))
+
+        if not resultado:
+            raise ValueError("No se encontraron puntajes para ese deporte.")
+
+        puntajes = [self.to_dict(doc) for doc in resultado]
+        return puntajes
+
+    def obtener_primer_lugar_por_deporte(self):
+
+        pipeline = [
+            {
+                "$lookup": {
+                    "from": "equipos",
+                    "localField": "equipo_id",
+                    "foreignField": "_id",
+                    "as": "equipo"
+                }
+            },
+            { "$unwind": "$equipo" },
+            {
+                "$project": {
+                    "_id": 0,
+                    "equipo": "$equipo.nombre",
+                    "deporte": 1,
+                    "liga": "$torneo_nombre",
+                    "temporada": 1,
+                    "puntos": "$metricas.puntos"
+                }
+            },
+            { "$sort": { "deporte": 1, "puntos": -1 } },
+            {
+                "$group": {
+                    "_id": "$deporte",
+                    "equipo": { "$first": "$equipo" },
+                    "liga": { "$first": "$liga" },
+                    "temporada": { "$first": "$temporada" },
+                    "puntos": { "$first": "$puntos" }
+                }
+            },
+            { "$sort": { "_id": 1 } }
+        ]
+
+        resultado = list(self.db.db.estadisticas_torneos.aggregate(pipeline))
+
+        if not resultado:
+            raise ValueError("No hay estadísticas registradas.")
+
+        return [self.to_dict(doc) for doc in resultado]
+
+
+    def agregar_jugador(self, nombre, apellido, numero, fecha_nacimiento, deporte, pais_origen, posicion, altura_cm, equipo_nombre):
+        try:
+            equipo = self.db.db.equipos.find_one({"nombre": equipo_nombre})
+
+            if not equipo:
+                return {"error": f"El equipo '{equipo_nombre}' no existe"}
+            try:
+                fecha_dt = datetime.strptime(fecha_nacimiento, "%Y-%m-%d")
+            except ValueError:
+                return {"error": "El formato de fecha de nacimiento es incorrecto. Use AAAA-MM-DD."}
+                
+            nuevo_jugador = {
+                "nombre": nombre,
+                "apellido": apellido,
+                "numero": numero,
+                "fecha_nacimiento": fecha_dt, 
+                "deporte": deporte,
+                "pais_origen": pais_origen,
+                "equipo_id": equipo["_id"],
+                "atributos_adicionales": {
+                    "posicion": posicion,
+                    "altura_cm": altura_cm
+                }
+            }
+
+            jugador_id = self.db.db.jugadores.insert_one(nuevo_jugador).inserted_id
+            self.db.db.equipos.update_one(
+                {"_id": equipo["_id"]},
+                {"$push": {"jugadores_ids": jugador_id}}
+            )
+
+            return {
+                "mensaje": "Jugador agregado correctamente",
+                "jugador_id": str(jugador_id),
+                "equipo_actualizado": equipo_nombre
+            }
+
+        except Exception as e:
+            return {"error": str(e)}
+
+    def eliminar_base_de_datos(self):
+        db_name = self.db.DEFAULT_DB
+        
+        try:
+            self.db._client.drop_database(db_name)            
+            return {"mensaje": f"La base de datos '{db_name}' ha sido eliminada correctamente."}
+
+        except Exception as e:
+            raise Exception(f"Error al intentar eliminar la base de datos '{db_name}': {e}")

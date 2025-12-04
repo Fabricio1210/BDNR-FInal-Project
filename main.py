@@ -197,7 +197,7 @@ if __name__ == "__main__":
                     continue
                 if response == 5:
                     deporte = input("Deporte: ")
-                    print(database_controller.get_team_reanking_by_sport(deporte))
+                    print(database_controller.get_team_ranking_by_sport(deporte))
                     continue
                 if response == 6:
                     print(database_controller.get_first_places_from_all_sports())
