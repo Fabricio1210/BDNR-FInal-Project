@@ -26,6 +26,7 @@ class DatabaseFacade():
         """
         No docstring >:(
         """
+        self._mongo.eliminar_base_de_datos()
         self._cassandra.borrar_base_de_datos()
 
     def get_player_info(self, name, last_name):
@@ -200,14 +201,3 @@ class DatabaseFacade():
             return "Error: datos inválidos para agregar jugador."
         except Exception as e:
             return "Error en la base de datos: " + str(e)
-
-    def delete_mongo(self):
-        """
-            No docstring >:(
-        """  
-        try:
-            resultado = self._mongo.eliminar_base_de_datos()
-            return resultado.get("mensaje", "Operación de eliminación de base de datos exitosa.")
-            
-        except Exception as e:
-            return "Hubo un error al intentar eliminar la base de datos. Error: " + str(e)
