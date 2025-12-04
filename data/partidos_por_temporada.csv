@@ -1,7 +1,7 @@
-deporte,fecha,torneo_nombre,equipo_local_csv_id,equipo_local,temporada,equipo_visitante_csv_id,equipo_visitante,goles_local,goles_visitante
-Futbol,2024-11-01,Liga MX,ID_PSG_001,Paris Saint-Germain,2024-Apertura,ID_FCB_004,FC Barcelona Femenino,3,1
-Futbol,2024-11-10,Champions League,ID_FCB_004,FC Barcelona Femenino,2024,ID_PSG_001,Paris Saint-Germain,2,2
-Futbol,2024-11-15,Liga Profesional Saudí,ID_ALN_006,Al Nassr FC,2024,ID_PSG_001,Paris Saint-Germain,1,0
-Baloncesto,2024-11-20,NBA,ID_LAL_002,Los Angeles Lakers,2024,ID_GSW_003,Golden State Warriors,118,112
-Baloncesto,2024-11-22,NBA,ID_CHI_005,Chicago Bulls,2024,ID_LAL_002,Los Angeles Lakers,104,121
-Futbol,2024-11-25,Liga Femenina,ID_FCB_004,FC Barcelona Femenino,2024,ID_ALN_006,Al Nassr FC,4,1
+deporte,fecha,torneo_nombre,equipo_local_csv_id,equipo_local,temporada,equipo_visitante_csv_id,equipo_visitante,goles_local,goles_visitante,estadio
+Futbol,2024-11-01,Liga MX,ID_PSG_001,Paris Saint-Germain,2024-Apertura,ID_FCB_004,FC Barcelona Femenino,3,1,Parc des Princes
+Futbol,2024-11-10,Champions League,ID_FCB_004,FC Barcelona Femenino,2024,ID_PSG_001,Paris Saint-Germain,2,2,Camp Nou
+Futbol,2024-11-15,Liga Profesional Saudí,ID_ALN_006,Al Nassr FC,2024,ID_PSG_001,Paris Saint-Germain,1,0,Mrsool Park
+Baloncesto,2024-11-20,NBA,ID_LAL_002,Los Angeles Lakers,2024,ID_GSW_003,Golden State Warriors,118,112,Crypto.com Arena
+Baloncesto,2024-11-22,NBA,ID_CHI_005,Chicago Bulls,2024,ID_LAL_002,Los Angeles Lakers,104,121,United Center
+Futbol,2024-11-25,Liga Femenina,ID_FCB_004,FC Barcelona Femenino,2024,ID_ALN_006,Al Nassr FC,4,1,Camp Nou

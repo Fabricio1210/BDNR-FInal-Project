@@ -1,0 +1,67 @@
+deporte,fecha_partido,nombre_equipo,nombre_jugador,apellido_jugador,posicion
+Futbol,2024-11-01,Paris Saint-Germain,Lionel,Messi,Delantero
+Futbol,2024-11-01,Paris Saint-Germain,Kylian,Mbappé,Extremo
+Futbol,2024-11-01,Paris Saint-Germain,Neymar,Jr,Extremo
+Futbol,2024-11-01,Paris Saint-Germain,Marco,Verratti,Centrocampista
+Futbol,2024-11-01,Paris Saint-Germain,Sergio,Ramos,Defensa
+Futbol,2024-11-01,FC Barcelona Femenino,Alexia,Putellas,Centrocampista
+Futbol,2024-11-01,FC Barcelona Femenino,Carla,Gómez,Delantero
+Futbol,2024-11-01,FC Barcelona Femenino,Arturo,López,Extremo
+Futbol,2024-11-01,FC Barcelona Femenino,Aitana,Bonmatí,Centrocampista
+Futbol,2024-11-01,FC Barcelona Femenino,Caroline,Graham Hansen,Extremo
+Futbol,2024-11-01,FC Barcelona Femenino,Irene,Paredes,Defensa
+Futbol,2024-11-01,FC Barcelona Femenino,Mapi,León,Defensa
+Futbol,2024-11-10,FC Barcelona Femenino,Alexia,Putellas,Centrocampista
+Futbol,2024-11-10,FC Barcelona Femenino,Carla,Gómez,Delantero
+Futbol,2024-11-10,FC Barcelona Femenino,Arturo,López,Extremo
+Futbol,2024-11-10,FC Barcelona Femenino,Aitana,Bonmatí,Centrocampista
+Futbol,2024-11-10,FC Barcelona Femenino,Caroline,Graham Hansen,Extremo
+Futbol,2024-11-10,FC Barcelona Femenino,Irene,Paredes,Defensa
+Futbol,2024-11-10,FC Barcelona Femenino,Mapi,León,Defensa
+Futbol,2024-11-10,Paris Saint-Germain,Lionel,Messi,Delantero
+Futbol,2024-11-10,Paris Saint-Germain,Kylian,Mbappé,Extremo
+Futbol,2024-11-10,Paris Saint-Germain,Neymar,Jr,Extremo
+Futbol,2024-11-10,Paris Saint-Germain,Marco,Verratti,Centrocampista
+Futbol,2024-11-10,Paris Saint-Germain,Sergio,Ramos,Defensa
+Futbol,2024-11-15,Al Nassr FC,Cristiano,Ronaldo,Delantero
+Futbol,2024-11-15,Al Nassr FC,Sadio,Mané,Extremo
+Futbol,2024-11-15,Al Nassr FC,Anderson,Talisca,Media Punta
+Futbol,2024-11-15,Al Nassr FC,Marcelo,Vieira,Lateral Izquierdo
+Futbol,2024-11-15,Al Nassr FC,David,Ospina,Portero
+Futbol,2024-11-15,Paris Saint-Germain,Lionel,Messi,Delantero
+Futbol,2024-11-15,Paris Saint-Germain,Kylian,Mbappé,Extremo
+Futbol,2024-11-15,Paris Saint-Germain,Neymar,Jr,Extremo
+Futbol,2024-11-15,Paris Saint-Germain,Marco,Verratti,Centrocampista
+Futbol,2024-11-15,Paris Saint-Germain,Sergio,Ramos,Defensa
+Baloncesto,2024-11-20,Los Angeles Lakers,LeBron,James,Alero
+Baloncesto,2024-11-20,Los Angeles Lakers,Anthony,Davis,Ala-Pívot
+Baloncesto,2024-11-20,Los Angeles Lakers,D'Angelo,Russell,Base
+Baloncesto,2024-11-20,Los Angeles Lakers,Austin,Reaves,Escolta
+Baloncesto,2024-11-20,Los Angeles Lakers,Rui,Hachimura,Alero
+Baloncesto,2024-11-20,Golden State Warriors,Stephen,Curry,Base
+Baloncesto,2024-11-20,Golden State Warriors,Klay,Thompson,Escolta
+Baloncesto,2024-11-20,Golden State Warriors,Draymond,Green,Ala-Pívot
+Baloncesto,2024-11-20,Golden State Warriors,Andrew,Wiggins,Alero
+Baloncesto,2024-11-20,Golden State Warriors,Kevon,Looney,Pívot
+Baloncesto,2024-11-22,Chicago Bulls,Michael,Jordan,Escolta
+Baloncesto,2024-11-22,Chicago Bulls,Scottie,Pippen,Alero
+Baloncesto,2024-11-22,Chicago Bulls,Dennis,Rodman,Ala-Pívot
+Baloncesto,2024-11-22,Chicago Bulls,Steve,Kerr,Base
+Baloncesto,2024-11-22,Chicago Bulls,Toni,Kukoč,Alero
+Baloncesto,2024-11-22,Los Angeles Lakers,LeBron,James,Alero
+Baloncesto,2024-11-22,Los Angeles Lakers,Anthony,Davis,Ala-Pívot
+Baloncesto,2024-11-22,Los Angeles Lakers,D'Angelo,Russell,Base
+Baloncesto,2024-11-22,Los Angeles Lakers,Austin,Reaves,Escolta
+Baloncesto,2024-11-22,Los Angeles Lakers,Rui,Hachimura,Alero
+Futbol,2024-11-25,FC Barcelona Femenino,Alexia,Putellas,Centrocampista
+Futbol,2024-11-25,FC Barcelona Femenino,Carla,Gómez,Delantero
+Futbol,2024-11-25,FC Barcelona Femenino,Arturo,López,Extremo
+Futbol,2024-11-25,FC Barcelona Femenino,Aitana,Bonmatí,Centrocampista
+Futbol,2024-11-25,FC Barcelona Femenino,Caroline,Graham Hansen,Extremo
+Futbol,2024-11-25,FC Barcelona Femenino,Irene,Paredes,Defensa
+Futbol,2024-11-25,FC Barcelona Femenino,Mapi,León,Defensa
+Futbol,2024-11-25,Al Nassr FC,Cristiano,Ronaldo,Delantero
+Futbol,2024-11-25,Al Nassr FC,Sadio,Mané,Extremo
+Futbol,2024-11-25,Al Nassr FC,Anderson,Talisca,Media Punta
+Futbol,2024-11-25,Al Nassr FC,Marcelo,Vieira,Lateral Izquierdo
+Futbol,2024-11-25,Al Nassr FC,David,Ospina,Portero

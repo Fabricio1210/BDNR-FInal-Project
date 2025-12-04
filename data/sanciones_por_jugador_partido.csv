@@ -1,0 +1,11 @@
+nombre,apellido,deporte,fecha_partido,minuto_sancion,tipo_sancion,descripcion
+Scottie,Pippen,Baloncesto,2024-11-22,29:55,Saques de esquina concedidos,Despejes forzados por ataque rival
+Steve,Kerr,Baloncesto,2024-11-22,41:22,Tarjeta amarilla,Faltas tácticas en mediocampo
+Alexia,Putellas,Futbol,2024-11-25,52:44,Saques de banda concedidos,Pérdidas de posesión por presión rival
+Stephen,Curry,Baloncesto,2024-11-20,33:55,Tiros libres concedidos,Entradas tardías en medio campo
+Dennis,Rodman,Baloncesto,2024-11-22,07:17,Pérdidas de balón,Malas entregas en transición ofensiva
+LeBron,James,Baloncesto,2024-11-22,33:19,Tarjeta amarilla,Infracciones por juego brusco
+Steve,Kerr,Baloncesto,2024-11-22,05:06,Violación de pasos,Manejo de balón en arranques rápidos
+Anthony,Davis,Baloncesto,2024-11-22,30:55,Violación de pasos,Manejo de balón en arranques rápidos
+Anderson,Talisca,Futbol,2024-11-25,17:08,Penales concedidos,Derribos dentro del área
+Scottie,Pippen,Baloncesto,2024-11-22,09:05,Pérdidas de balón,Malas entregas en transición ofensiva

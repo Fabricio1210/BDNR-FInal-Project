@@ -3,5 +3,9 @@ from Mongo.Mongo import MongoService
 from connect import DatabaseFacade
 import Cassandra.schema as schema
 import json
-facade = DatabaseFacade()
-print(facade.agregar_jugador("Javier","Hernandez",14,"1996-12-13","Futbol","Mexico","Delantero",175,"Al Nassr FC"))
+from tabulate import tabulate
+service = CassandraService()
+service.cassandra_session.session.execute(schema.CREATE_KEYSPACE)
+service.cassandra_session.session.execute("USE analisis_deportivo;")
+service.cassandra_session.session.execute(schema.CREATE_POINTS_BY_TEAM_MATCH_TABLE)
+print(json.dumps(service._insert_points_by_team_match(), indent=4))

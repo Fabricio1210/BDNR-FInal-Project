@@ -1,0 +1,6 @@
+nombre,apellido,deporte,fecha_partido,equipo,minuto_evento,tipo_evento,detalle_evento
+Toni,Kukoč,Baloncesto,2024-11-22,Chicago Bulls,27:01,Violación de pasos,Manejo de balón en arranques rápidos
+Stephen,Curry,Baloncesto,2024-11-20,Golden State Warriors,05:25,Rebote defensivo,Control de la pelota tras tiro fallido del rival
+Scottie,Pippen,Baloncesto,2024-11-22,Chicago Bulls,01:36,Pérdidas de balón,Malas entregas en transición ofensiva
+D'Angelo,Russell,Baloncesto,2024-11-20,Los Angeles Lakers,18:32,Tiros libres concedidos,Entradas tardías en medio campo
+Alexia,Putellas,Futbol,2024-11-10,FC Barcelona Femenino,28:42,Tiro a puerta,Remate detenido por el portero
