@@ -1,6 +1,7 @@
 """
 Connections to the databases
 """
+import json
 from Cassandra.cassandra import CassandraService
 from Dgraph.dgraph import DgraphService
 from Mongo.Mongo import MongoService
@@ -70,20 +71,19 @@ class DatabaseFacade():
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
 
-    def get_points_scored_by_player_match(self, name, last_name, match_id):
+    def get_points_scored_by_player_match(self, name, last_name, date_match, local_team, visitor_team):
         """
         No docstring >:(
         """
         try:
             player = self._mongo.obtener_jugadores(name, last_name)
-            if not player:
-                return "No se encontraron jugadores con ese nombre y aplleido."
-            player_id = None
-            data = self._cassandra.obtener_puntos_por_jugador_partido(match_id, player_id)
-            if not data:
-                return "No se encontraron datos de ese partido"
-            else:
-                return data
+            player_id = player[0].get("_id")
+            match = self._mongo.obtener_partido_por_fecha_y_equipos(date_match, local_team, visitor_team)
+            data = self._cassandra.obtener_puntos_por_jugador_partido(match.get("_id"), player_id)
+            for row in data:
+                row_dict = row._asdict()
+                for k, v in row_dict.items():
+                    print(f"{k}: {v}")
         except ValueError as e:
             return "No se encontro el partido"
         except Exception as e:
@@ -93,6 +93,12 @@ class DatabaseFacade():
         """
         No docstring >:(
         """
+        try:
+            result = self._dgraph.consultar_companeros_jugador(name, last_name)
+            print(json.dumps(result, indent=4))
+            return ""
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
 
     def get_matches_by_date_sport(self, sport, date):
         """
@@ -100,9 +106,8 @@ class DatabaseFacade():
         """
         try:
             matches = self._mongo.obtener_partidos(sport, date)
-            if not matches:
-                return "No se encontraron partidos en esa fecha para ese deporte."
-            return matches
+            print(json.dumps(matches, indent=4))
+            return "matches"
         except ValueError as e:
             return "No se encontro el partido"
         except Exception as e:
@@ -114,23 +119,45 @@ class DatabaseFacade():
         """
         try:
             match = self._mongo.obtener_partido_por_fecha_y_equipos(date, home_team, away_team)
-            if not match:
-                return "No se encontró un partido con esos datos"
-            return match
+            print(json.dumps(match, indent=4))
+            return ""
         except ValueError as e:
             return "No se encontro el partido"
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
 
-    def get_events_by_team_match(self, team, match_id):
+    def get_events_by_team_match(self, team, date_match, local_team, visitor_team):
         """
         No docstring >:(
         """
-
+        try:
+            match = self._mongo.obtener_partido_por_fecha_y_equipos(date_match, local_team, visitor_team)
+            team_obj = self._mongo.obtener_equipo(team)
+            team_id = team_obj.get("_id")
+            result = self._cassandra.obtener_eventos_por_equipo_partido(match.get("_id"), team_id)
+            for row in result:
+                row_dict = row._asdict()
+                print(f"Tiempo del evento: {row_dict['event_time']}")
+                print(f"Tipo de evento: {row_dict['event_type']}")
+                print(f"Descripcion: {row_dict['description']}")
+                print(f"Id del jugador: {row_dict['player_id']}")
+            return ""
+        except ValueError as e:
+            return "No se encontro el partido con ese equipo: " + str(e)
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
+        
     def get_matches_by_stadium(self, stadium):
         """
         No docstring >:(
         """
+        try:
+            result = self._dgraph.consultar_enfrentamientos_estadio(stadium)
+            print(json.dumps(result, indent=4))
+            return ""
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
+
 
     def get_team_info(self, team):
         """
@@ -138,9 +165,8 @@ class DatabaseFacade():
         """
         try:
             equipo = self._mongo.obtener_equipo(team)
-            if not equipo:
-                return "No se encontro el equipo deseado"
-            return equipo
+            print(json.dumps(equipo, indent=4))
+            return ""
         except ValueError as e:
             return "No se encontro el equipo"
         except Exception as e:
@@ -176,13 +202,19 @@ class DatabaseFacade():
                         print(f"    Estadio: {campo.get('nombre', 'N/A')} - {campo.get('pais', 'N/A')}")
                         print(f"    Tipo: {campo.get('tipo', 'N/A')} | Capacidad: {campo.get('capacidad', 'N/A'):,}")
             return ""
-        except Exception:
+        except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
 
     def get_teams_by_stadium(self, stadium):
         """
         No docstring >:(
         """
+        try:
+            result = self._dgraph.consultar_equipos_locales_estadio(stadium)
+            print(json.dumps(result, indent=4))
+            return ""
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
 
     def get_team_ranking_by_sport(self, sport):
         """
@@ -190,9 +222,8 @@ class DatabaseFacade():
         """
         try:
             ranking = self._mongo.obtener_puntajes_por_deporte(sport)
-            if not ranking:
-                return "No se enocntraron los equipos para formar el ranking"
-            return ranking
+            print(json.dumps(ranking, indent=4))
+            return ""
         except ValueError as e:
             return "No se encontraron los equipos"
         except Exception as e:
@@ -204,9 +235,8 @@ class DatabaseFacade():
         """
         try:
             ranking = self._mongo.obtener_primer_lugar_por_deporte()
-            if not ranking:
-                return "No se encontraron los equipos para formar el ranking"
-            return ranking
+            print(json.dumps(ranking, indent=4))
+            return ""
         except ValueError as e:
             return "No se encontraron los equipos"
         except Exception as e:
@@ -217,15 +247,15 @@ class DatabaseFacade():
         No docstring >:(
         """  
 
+
     def get_all_leagues_by_sport(self, sport):
         """
         No docstring >:(
         """  
         try: 
             ligas = self._mongo.obtener_ligas(sport)
-            if not ligas:
-                return "No se encontraron las ligas"
-            return ligas
+            print(json.dumps(ligas, indent=4))
+            return ""
         except ValueError as e:
             return "No se encontroran las ligas"
         except Exception as e:
