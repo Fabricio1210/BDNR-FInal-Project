@@ -21,6 +21,7 @@ class DatabaseFacade():
         """
         self._mongo.poblar()
         self._cassandra.populate_data()
+        self._dgraph.populate_data()
 
     def delete_databases(self):
         """
