@@ -12,7 +12,7 @@ class DatabaseFacade():
     """
     def __init__(self):
         self._cassandra = CassandraService()
-        #self._dgraph = DgraphService()
+        self._dgraph = DgraphService()
         self._mongo = MongoService()
 
     def populate_databases(self):
@@ -26,6 +26,7 @@ class DatabaseFacade():
         """
         No docstring >:(
         """
+        self._cassandra.borrar_base_de_datos()
 
     def get_player_info(self, name, last_name):
         """

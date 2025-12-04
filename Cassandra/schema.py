@@ -9,8 +9,8 @@ CREATE_KEYSPACE = """
 
 CREATE_POINTS_BY_TEAM_MATCH_TABLE = """
         CREATE TABLE IF NOT EXISTS points_by_team_match (
-            match_id uuid,
-            team_id uuid,
+            match_id text,
+            team_id text,
             total_points int,
             PRIMARY KEY ((match_id, team_id))
         );
@@ -18,8 +18,8 @@ CREATE_POINTS_BY_TEAM_MATCH_TABLE = """
 
 CREATE_POINTS_BY_PLAYER_MATCH_TABLE = """
         CREATE TABLE IF NOT EXISTS points_by_player_match (
-            match_id uuid,
-            player_id uuid,
+            match_id text,
+            player_id text,
             total_points int,
             PRIMARY KEY ((match_id, player_id))
         );
@@ -27,8 +27,8 @@ CREATE_POINTS_BY_PLAYER_MATCH_TABLE = """
 
 CREATE_SANCTIONS_BY_PLAYER_MATCH_TABLE = """
         CREATE TABLE IF NOT EXISTS sanctions_by_player_match (
-            match_id uuid,
-            player_id uuid,
+            match_id text,
+            player_id text,
             sanction_time text,
             sanction_type text,
             description text,
@@ -38,7 +38,7 @@ CREATE_SANCTIONS_BY_PLAYER_MATCH_TABLE = """
 
 CREATE_SANCTIONS_BY_TEAM_SEASON_TABLE = """
         CREATE TABLE IF NOT EXISTS sanctions_by_team_season (
-            team_id uuid,
+            team_id text,
             season_id text,
             sanction_type text,
             description text,
@@ -49,20 +49,20 @@ CREATE_SANCTIONS_BY_TEAM_SEASON_TABLE = """
 
 CREATE_MVP_BY_TEAM_SEASON_TABLE = """
         CREATE TABLE IF NOT EXISTS mvp_by_team_season (
-            team_id uuid,
+            team_id text,
             season_id text,
-            player_id uuid,
+            player_id text,
             PRIMARY KEY ((team_id, season_id))
         );
         """
 
 CREATE_EVENTS_BY_TEAM_MATCH_TABLE = """
         CREATE TABLE IF NOT EXISTS events_by_team_match (
-            match_id uuid,
-            team_id uuid,
+            match_id text,
+            team_id text,
             event_time text,
             event_type text,
-            player_id uuid,
+            player_id text,
             description text,
             PRIMARY KEY ((match_id, team_id), event_time)
         );
@@ -70,8 +70,8 @@ CREATE_EVENTS_BY_TEAM_MATCH_TABLE = """
 
 CREATE_PERFORMANCE_BY_PLAYER_MATCH_TABLE = """
         CREATE TABLE IF NOT EXISTS  performance_by_player_match (
-            match_id uuid,
-            player_id uuid,
+            match_id text,
+            player_id text,
             distance_moved float,
             possesion float,
             points_scored int,
@@ -82,7 +82,7 @@ CREATE_PERFORMANCE_BY_PLAYER_MATCH_TABLE = """
 
 CREATE_HISTORICAL_PERFORMANCE_BY_PLAYER_TABLE = """
         CREATE TABLE IF NOT EXISTS historical_performance_by_player (
-            player_id uuid,
+            player_id text,
             matches_played int,
             total_points int,
             total_assists int,
@@ -93,9 +93,9 @@ CREATE_HISTORICAL_PERFORMANCE_BY_PLAYER_TABLE = """
 
 CREATE_LINEUP_BY_TEAM_MATCH_TABLE = """
         CREATE TABLE IF NOT EXISTS lineup_by_team_match (
-            match_id uuid,
-            team_id uuid,
-            player_id uuid,
+            match_id text,
+            team_id text,
+            player_id text,
             position text,
             last_update timestamp,
             PRIMARY KEY ((match_id, team_id), player_id)
@@ -104,8 +104,8 @@ CREATE_LINEUP_BY_TEAM_MATCH_TABLE = """
 
 CREATE_PLAYER_CURRENT_POSITION_TABLE = """
         CREATE TABLE IF NOT EXISTS player_current_position (
-            player_id uuid,
-            match_id uuid,
+            player_id text,
+            match_id text,
             updated timestamp,
             position text,
             ball_possession boolean,
@@ -115,11 +115,11 @@ CREATE_PLAYER_CURRENT_POSITION_TABLE = """
 
 CREATE_MATCHES_BY_TEAM_SEASON_TABLE = """
         CREATE TABLE IF NOT EXISTS matches_by_team_season (
-            team_id uuid,
+            team_id text,
             season_id text,
             match_datetime timestamp,
-            match_id uuid,
-            opponent_team_id uuid,
+            match_id text,
+            opponent_team_id text,
             location text,
             PRIMARY KEY ((team_id, season_id), match_datetime)
         ) WITH CLUSTERING ORDER BY (match_datetime ASC);
@@ -127,17 +127,17 @@ CREATE_MATCHES_BY_TEAM_SEASON_TABLE = """
 
 CREATE_MATCHES_BY_PLAYER_TABLE = """
         CREATE TABLE IF NOT EXISTS matches_by_player (
-            player_id uuid,
+            player_id text,
             match_datetime timestamp,
-            match_id uuid,
+            match_id text,
             PRIMARY KEY ((player_id), match_datetime)
         ) WITH CLUSTERING ORDER BY (match_datetime DESC);
         """
 
 CREATE_HEAD_TO_HEAD_TEAMS_TABLE = """
         CREATE TABLE IF NOT EXISTS head_to_head_teams (
-            team_a_id uuid,
-            team_b_id uuid,
+            team_a_id text,
+            team_b_id text,
             wins_a int,
             wins_b int,
             draws int,

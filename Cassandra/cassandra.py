@@ -4,7 +4,6 @@
 import csv
 import os
 import logging
-from uuid import UUID
 from datetime import datetime
 from collections import defaultdict
 
@@ -72,35 +71,38 @@ class CassandraService:
         """
         No docstring :)
         """
-        log.info("Creating keyspace:  with replication factor 1")
-        self.cassandra_session.session.execute(schema.CREATE_KEYSPACE)
-        self.cassandra_session.session.execute("USE analisis_deportivo;")
-        log.info("Creating logistics schema")
-        self.cassandra_session.session.execute(schema.CREATE_POINTS_BY_TEAM_MATCH_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_POINTS_BY_PLAYER_MATCH_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_SANCTIONS_BY_PLAYER_MATCH_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_SANCTIONS_BY_TEAM_SEASON_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_MVP_BY_TEAM_SEASON_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_EVENTS_BY_TEAM_MATCH_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_PERFORMANCE_BY_PLAYER_MATCH_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_HISTORICAL_PERFORMANCE_BY_PLAYER_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_LINEUP_BY_TEAM_MATCH_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_PLAYER_CURRENT_POSITION_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_MATCHES_BY_TEAM_SEASON_TABLE )
-        self.cassandra_session.session.execute(schema.CREATE_MATCHES_BY_PLAYER_TABLE)
-        self.cassandra_session.session.execute(schema.CREATE_HEAD_TO_HEAD_TEAMS_TABLE)
-        self._insert_points_by_player_match()
-        self._insert_sanctions_by_player_match()
-        self._insert_sanctions_by_team_season()
-        self._insert_mvp_by_team_season()
-        self._insert_events_by_team_match()
-        self._insert_performance_by_player_match()
-        self._insert_historical_performance_by_player()
-        self._insert_lineup_by_team_match()
-        self._insert_player_current_position()
-        self._insert_matches_by_team_season()
-        self._insert_matches_by_player()
-        self._insert_head_to_head_teams()
+        try:
+            log.info("Creating keyspace:  with replication factor 1")
+            self.cassandra_session.session.execute(schema.CREATE_KEYSPACE)
+            self.cassandra_session.session.execute("USE analisis_deportivo;")
+            log.info("Creating logistics schema")
+            self.cassandra_session.session.execute(schema.CREATE_POINTS_BY_TEAM_MATCH_TABLE)
+            self.cassandra_session.session.execute(schema.CREATE_POINTS_BY_PLAYER_MATCH_TABLE)
+            self.cassandra_session.session.execute(schema.CREATE_SANCTIONS_BY_PLAYER_MATCH_TABLE)
+            self.cassandra_session.session.execute(schema.CREATE_SANCTIONS_BY_TEAM_SEASON_TABLE)
+            self.cassandra_session.session.execute(schema.CREATE_MVP_BY_TEAM_SEASON_TABLE)
+            self.cassandra_session.session.execute(schema.CREATE_EVENTS_BY_TEAM_MATCH_TABLE)
+            self.cassandra_session.session.execute(schema.CREATE_PERFORMANCE_BY_PLAYER_MATCH_TABLE)
+            self.cassandra_session.session.execute(schema.CREATE_HISTORICAL_PERFORMANCE_BY_PLAYER_TABLE)
+            self.cassandra_session.session.execute(schema.CREATE_LINEUP_BY_TEAM_MATCH_TABLE)
+            self.cassandra_session.session.execute(schema.CREATE_PLAYER_CURRENT_POSITION_TABLE)
+            self.cassandra_session.session.execute(schema.CREATE_MATCHES_BY_TEAM_SEASON_TABLE )
+            self.cassandra_session.session.execute(schema.CREATE_MATCHES_BY_PLAYER_TABLE)
+            self.cassandra_session.session.execute(schema.CREATE_HEAD_TO_HEAD_TEAMS_TABLE)
+            self._insert_points_by_player_match()
+            self._insert_sanctions_by_player_match()
+            self._insert_sanctions_by_team_season()
+            self._insert_mvp_by_team_season()
+            self._insert_events_by_team_match()
+            self._insert_performance_by_player_match()
+            self._insert_historical_performance_by_player()
+            self._insert_lineup_by_team_match()
+            self._insert_player_current_position()
+            self._insert_matches_by_team_season()
+            self._insert_matches_by_player()
+            self._insert_head_to_head_teams()
+        except Exception as e:
+            print("Ha ocurrido un error al poblar la base de datos de cassandra:" + str(e))
 
     def _insert_points_by_player_match(self):
         """
@@ -118,11 +120,11 @@ class CassandraService:
                 if not jugador:
                     raise ValueError("El jugador no existe aun en la base de datos de mongo")
                 jugador = jugador[0]
-                jugador_id = UUID(jugador.get("_id"))
+                jugador_id = jugador.get("_id")
                 total_points = int(row["puntos_anotados"])
                 match = mongo_service.obtener_partidos(row["deporte"], row["fecha"])
                 match = match[0]
-                match_id = UUID(match.get("_id"))
+                match_id = match.get("_id")
                 bound = prepared.bind((match_id, jugador_id, total_points))
                 self.cassandra_session.session.execute(bound)
 
@@ -139,13 +141,13 @@ class CassandraService:
             reader = csv.DictReader(f)
             for row in reader:
                 sport = row["deporte"]
-                date = row["fecha"]
+                date = row["fecha_partido"]
                 match = mongo_service.obtener_partidos(sport, date)
-                match_id = UUID(match[0].get("_id"))
+                match_id = match[0].get("_id")
                 player_name= row["nombre"]
                 player_last_name= row["apellido"]
                 player = mongo_service.obtener_jugadores(player_name, player_last_name)
-                player_id = UUID(player[0].get("_id"))
+                player_id = player[0].get("_id")
                 sanction_time = row["minuto_sancion"]
                 sanction_type = row["tipo_sancion"]
                 description = row["descripcion"]
@@ -167,8 +169,9 @@ class CassandraService:
             reader = csv.DictReader(f)
             for row in reader:
                 team_name = row["nombre_equipo"]
+                print( "Equipo: ", team_name)
                 team = mongo_service.obtener_equipo(team_name)
-                team_id = UUID(team[0].get("_id"))
+                team_id = team.get("_id")
                 season_id = row["temporada"]
                 sanction_type = row["tipo_sancion"]
                 description = row["descripcion"]
@@ -190,12 +193,12 @@ class CassandraService:
             for row in reader:
                 team_name = row["nombre_equipo"]
                 team = mongo_service.obtener_equipo(team_name)
-                team_id = UUID(team[0].get("_id"))
+                team_id = team.get("_id")
                 season_id = row["temporada"]
                 player_name = row["nombre_jugador"]
                 player_last_name = row["apellido_jugador"]
                 player = mongo_service.obtener_jugadores(player_name, player_last_name)
-                player_id = UUID(player[0].get("_id"))
+                player_id = player[0].get("_id")
                 bound = prepared.bind((team_id, season_id, player_id))
                 self.cassandra_session.session.execute(bound)
 
@@ -212,16 +215,16 @@ class CassandraService:
                 sport = row["deporte"]
                 date = row["fecha_partido"]
                 match = mongo_service.obtener_partidos(sport, date)
-                match_id = UUID(match[0].get("_id"))
+                match_id = match[0].get("_id")
                 team_name = row["equipo"]
                 team = mongo_service.obtener_equipo(team_name)
-                team_id = UUID(team[0].get("_id"))
+                team_id = team.get("_id")
                 event_time = row["minuto_evento"]
                 event_type = row["tipo_evento"]
                 player_name = row["nombre"]
                 player_last_name = row["apellido"]
                 player = mongo_service.obtener_jugadores(player_name, player_last_name)
-                player_id = UUID(player[0].get("_id"))
+                player_id = player[0].get("_id")
                 description = row["detalle_evento"]
                 bound = prepared.bind(
                     (match_id, team_id, event_time, event_type, player_id, description)
@@ -243,11 +246,11 @@ class CassandraService:
                 sport = row["deporte"]
                 date = row["fecha_partido"]
                 match = mongo_service.obtener_partidos(sport, date)
-                match_id = UUID(match[0].get("_id"))
+                match_id = match[0].get("_id")
                 player_name = row["nombre"]
                 player_last_name = row["apellido"]
                 player = mongo_service.obtener_jugadores(player_name, player_last_name)
-                player_id = UUID(player[0].get("_id"))
+                player_id = player[0].get("_id")
                 distance_moved = float(row["distancia_recorrida_km"])
                 possesion = float(row["porcentaje_posesion"])
                 points_scored = int(row["puntos_anotados"])
@@ -272,7 +275,7 @@ class CassandraService:
                 player_name = row["nombre"]
                 player_last_name = row["apellido"]
                 player = mongo_service.obtener_jugadores(player_name, player_last_name)
-                player_id = UUID(player[0].get("_id"))
+                player_id = player[0].get("_id")
                 matches_played = int(row["partidos_jugados"])
                 total_points = int(row["puntos_totales"])
                 total_assists = int(row["asistencias_totales"])
@@ -295,14 +298,14 @@ class CassandraService:
                 sport = row["deporte"]
                 date = row["fecha_partido"]
                 match = mongo_service.obtener_partidos(sport, date)
-                match_id = UUID(match[0].get("_id"))
+                match_id = match[0].get("_id")
                 team_name = row["nombre_equipo"]
                 team = mongo_service.obtener_equipo(team_name)
-                team_id = UUID(team[0].get("_id"))
+                team_id = team.get("_id")
                 player_name = row["nombre_jugador"]
                 player_last_name = row["apellido_jugador"]
                 player = mongo_service.obtener_jugadores(player_name, player_last_name)
-                player_id = UUID(player[0].get("_id"))
+                player_id = player[0].get("_id")
                 position = row["posicion"]
                 last_update = datetime.now()
                 bound = prepared.bind((match_id, team_id, player_id, position, last_update))
@@ -323,11 +326,11 @@ class CassandraService:
                 sport = row["deporte"]
                 date = row["fecha_partido"]
                 match = mongo_service.obtener_partidos(sport, date)
-                match_id = UUID(match[0].get('_id'))
+                match_id = match[0].get('_id')
                 player_name = row["nombre_jugador"]
                 player_last_name = row["apellido_jugador"]
                 player = mongo_service.obtener_jugadores(player_name, player_last_name)
-                player_id = UUID(player[0].get("_id"))
+                player_id = player[0].get("_id")
                 updated = datetime.now()
                 position = row["posicion_cancha"]
                 ball_possession = row["posesion_balon"].lower() == "true"
@@ -350,13 +353,15 @@ class CassandraService:
                 visitor_team_name = row["equipo_visitante"]
                 equipo_local = mongo_service.obtener_equipo(local_team_name)
                 equipo_visitante = mongo_service.obtener_equipo(visitor_team_name)
-                local_team_id = UUID(equipo_local[0].get("_id"))
-                visitor_team_id = UUID(equipo_visitante[0].get("_id"))
+                local_team_id = equipo_local[0].get("_id")
+                visitor_team_id = equipo_visitante[0].get("_id")
                 season_id = row["temporada"]
                 match_date = row["fecha"]
                 match_datetime = datetime.strptime(match_date, "%Y-%m-%d")
-                match = mongo_service.obtener_partido_por_fecha_y_equipos(match_date, local_team_name, visitor_team_name)
-                match_id = UUID(match.get("_id"))
+                match = mongo_service.obtener_partido_por_fecha_y_equipos(
+                    match_date, local_team_name, visitor_team_name
+                )
+                match_id = match.get("_id")
                 location = row["estadio"]
                 bound = prepared.bind(
                     (local_team_id, season_id, match_datetime, match_id, visitor_team_id, location)
@@ -380,12 +385,12 @@ class CassandraService:
                 player_name = row["nombre_jugador"]
                 player_last_name = row["apellido_jugador"]
                 player = mongo_service.obtener_jugadores(player_name, player_last_name)
-                player_id = UUID(player[0].get("_id"))
+                player_id = player[0].get("_id")
                 match_date = row["fecha_partido"]
                 match_datetime = datetime.strptime(match_date, "%Y-%m-%d")
                 sport = row["deporte"]
                 match = mongo_service.obtener_partidos(sport, match_date)
-                match_id = UUID(match[0].get("_id"))
+                match_id = match[0].get("_id")
                 bound = prepared.bind((player_id, match_datetime, match_id))
                 self.cassandra_session.session.execute(bound)
 
@@ -404,14 +409,14 @@ class CassandraService:
             for row in reader:
                 team_a = row["equipo_local"]
                 team_b = row["equipo_visitante"]
-                
+
                 key = tuple(sorted([team_a, team_b]))
-                
+
                 goles_a = int(row["goles_local"])
                 goles_b = int(row["goles_visitante"])
-                
+
                 h2h[key]["count"] += 1
-                
+
                 if goles_a > goles_b:
                     if team_a == key[0]:
                         h2h[key]["wins_a"] += 1
@@ -432,8 +437,8 @@ class CassandraService:
             team_b_id = team_b_obj[0].get("_id")
             if stats["count"] >= 2:
                 bound = prepared.bind((
-                    UUID(team_a_id),
-                    UUID(team_b_id),
+                    team_a_id,
+                    team_b_id,
                     stats["wins_a"],
                     stats["wins_b"],
                     stats["draws"]
@@ -445,16 +450,14 @@ class CassandraService:
         No docstring :)
         """
         prepared = self.cassandra_session.session.prepare(schema.QUERY_POINTS_BY_TEAM_MATCH_TABLE)
-        match_uuid = UUID(match_id)
-        team_uuid = UUID(team_id)
-        return self.cassandra_session.session.execute(prepared, (match_uuid, team_uuid))
+        return self.cassandra_session.session.execute(prepared, (match_id, team_id))
 
     def obtener_puntos_por_jugador_partido(self, match_id: str, player_id: str):
         """
         No docstring :)
         """
         prepared = self.cassandra_session.session.prepare(schema.QUERY_POINTS_BY_PLAYER_MATCH_TABLE)
-        return self.cassandra_session.session.execute(prepared, (UUID(match_id), UUID(player_id)))
+        return self.cassandra_session.session.execute(prepared, (match_id, player_id))
 
 
     def obtener_sanciones_por_jugador_partido(self, match_id: str, player_id: str):
@@ -464,7 +467,7 @@ class CassandraService:
         prepared = self.cassandra_session.session.prepare(
             schema.QUERY_SANCTIONS_BY_PLAYER_MATCH_TABLE
         )
-        return self.cassandra_session.session.execute(prepared, (UUID(match_id), UUID(player_id)))
+        return self.cassandra_session.session.execute(prepared, (match_id, player_id))
 
     def obtener_sanciones_por_equipo_temporada(self, team_id: str, season_id: str):
         """
@@ -473,21 +476,21 @@ class CassandraService:
         prepared = self.cassandra_session.session.prepare(
             schema.QUERY_SANCTIONS_BY_TEAM_SEASON_TABLE
         )
-        return self.cassandra_session.session.execute(prepared, (UUID(team_id), UUID(season_id)))
+        return self.cassandra_session.session.execute(prepared, (team_id, season_id))
 
     def obtener_mvp_por_equipo_temporada(self, team_id: str, season_id: str):
         """
         No docstring :)
         """
         prepared = self.cassandra_session.session.prepare(schema.QUERY_MVP_BY_TEAM_SEASON_TABLE)
-        return self.cassandra_session.session.execute(prepared, (UUID(team_id), UUID(season_id)))
+        return self.cassandra_session.session.execute(prepared, (team_id, season_id))
 
     def obtener_eventos_por_equipo_partido(self, match_id: str, team_id: str):
         """
         No docstring :)
         """
         prepared = self.cassandra_session.session.prepare(schema.QUERY_EVENTS_BY_TEAM_MATCH_TABLE)
-        return self.cassandra_session.session.execute(prepared, (UUID(match_id), UUID(team_id)))
+        return self.cassandra_session.session.execute(prepared, (match_id, team_id))
 
     def obtener_rendimiento_por_jugador_partido(self, match_id: str, player_id: str):
         """
@@ -496,7 +499,7 @@ class CassandraService:
         prepared = self.cassandra_session.session.prepare(
             schema.QUERY_PERFORMANCE_BY_PLAYER_MATCH_TABLE
         )
-        return self.cassandra_session.session.execute(prepared, (UUID(match_id), UUID(player_id)))
+        return self.cassandra_session.session.execute(prepared, (match_id, player_id))
 
     def obtener_rendimiento_historico_jugador(self, player_id: str):
         """
@@ -505,14 +508,14 @@ class CassandraService:
         prepared = self.cassandra_session.session.prepare(
             schema.QUERY_HISTORICAL_PERFORMANCE_BY_PLAYER_TABLE
         )
-        return self.cassandra_session.session.execute(prepared, (UUID(player_id),))
+        return self.cassandra_session.session.execute(prepared, (player_id))
 
     def obtener_alineacion_por_equipo_partido(self, match_id: str, team_id: str):
         """
         No docstring :)
         """
         prepared = self.cassandra_session.session.prepare(schema.QUERY_LINEUP_BY_TEAM_MATCH_TABLE)
-        return self.cassandra_session.session.execute(prepared, (UUID(match_id), UUID(team_id)))
+        return self.cassandra_session.session.execute(prepared, (match_id, team_id))
 
     def obtener_posicion_actual_jugador(self, player_id: str):
         """
@@ -521,25 +524,32 @@ class CassandraService:
         prepared = self.cassandra_session.session.prepare(
             schema.QUERY_PLAYER_CURRENT_POSITION_TABLE
         )
-        return self.cassandra_session.session.execute(prepared, (UUID(player_id),))
+        return self.cassandra_session.session.execute(prepared, (player_id))
 
     def obtener_partidos_por_equipo_temporada(self, team_id: str, season_id: str):
         """
         No docstring :)
         """
         prepared = self.cassandra_session.session.prepare(schema.QUERY_MATCHES_BY_TEAM_SEASON_TABLE)
-        return self.cassandra_session.session.execute(prepared, (UUID(team_id), UUID(season_id)))
+        return self.cassandra_session.session.execute(prepared, (team_id, season_id))
 
     def obtener_partidos_por_jugador(self, player_id: str):
         """
         No docstring :)
         """
         prepared = self.cassandra_session.session.prepare(schema.QUERY_MATCHES_BY_PLAYER_TABLE)
-        return self.cassandra_session.session.execute(prepared, (UUID(player_id),))
+        return self.cassandra_session.session.execute(prepared, (player_id))
 
     def obtener_head_to_head(self, team_a_id: str, team_b_id: str):
         """
         No docstring :)
         """
         prepared = self.cassandra_session.session.prepare(schema.QUERY_HEAD_TO_HEAD_TEAMS_TABLE)
-        return self.cassandra_session.session.execute(prepared, (UUID(team_a_id), UUID(team_b_id)))
+        return self.cassandra_session.session.execute(prepared, (team_a_id, team_b_id))
+    
+    def borrar_base_de_datos(self):
+        """
+        No docstring :)
+        """
+        self.cassandra_session.session.execute("DROP KEYSPACE IF EXISTS analisis_deportivo;")
+        log.info("Base de datos de cassandra borrada exitosamente")
