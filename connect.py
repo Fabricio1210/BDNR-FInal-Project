@@ -37,9 +37,35 @@ class DatabaseFacade():
         """
         try:
             jugadores = self._mongo.obtener_jugadores(name, last_name)
-            #jugadores += self._dgraph.consultar_jugador_completo(name, last_name)
-            return jugadores
-        except ValueError as e:
+            jugador_dgraph = self._dgraph.consultar_jugador_completo(name, last_name)
+            print(f"Numero: {jugadores[0].get('numero')}")
+            print(f"Fecha de nacimiento: {jugadores[0].get('fecha_nacimiento')}")
+            print(f"Deporte: {jugadores[0].get('deporte')}")
+            print(f"Pais de origen: {jugadores[0].get('pais_origen')}")
+            print(f"Atributos adicionales: ")
+            for atributo, valor in jugadores[0].get("atributos_adicionales").items():
+                print(f"{atributo}: {valor}") 
+            if not jugadores[0].get("atributos_adicionales"):
+                print("Ninguno")
+            if jugador_dgraph.get('jugador'):
+                for jugador in jugador_dgraph['jugador']:
+                    if jugador.get('juega_para'):
+                        print("\nHISTORIAL DE EQUIPOS:")
+                        for i, equipo in enumerate(jugador['juega_para'], 1):
+                            print(f"\n  [{i}] {equipo.get('nombre', 'N/A')}")
+                            print(f"      Liga: {equipo.get('liga', 'N/A')}")
+                            print(f"      País: {equipo.get('pais', 'N/A')}")
+                            print(f"      Ciudad: {equipo.get('ciudad', 'N/A')}")
+                            if 'juega_para|fechaInicio' in equipo:
+                                print(f"      Fecha Inicio: {equipo.get('juega_para|fechaInicio', 'N/A')}")
+                            if 'juega_para|fechaFin' in equipo:
+                                print(f"      Fecha Fin: {equipo.get('juega_para|fechaFin', 'N/A')}")
+
+                            if equipo.get('campo_local'):
+                                campo = equipo['campo_local']
+                                print(f"      Estadio Local: {campo.get('nombre', 'N/A')} ({campo.get('pais', 'N/A')})")
+            return ""
+        except ValueError:
             return "No se encontro el perfil"
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
