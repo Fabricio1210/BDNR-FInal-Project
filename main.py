@@ -28,8 +28,9 @@ MENU = """
     3- Consultar partidos
     4- Consultar equipos
     5- Consultar ligas
-    6- Borrar base de datos
-    7- Salir
+    6- Crear datos
+    7- Borrar base de datos
+    8- Salir
 ------------------------------------------------------------
 """
 
@@ -80,11 +81,24 @@ MENU_LEAGUES = """
     3- Regresar
 ------------------------------------------------------------
 """
+
+MENU_CREATE = """
+------------------------------------------------------------
+    CREAR DATOS:
+    ++++++++++++++++++
+    1- Guardar un nuevo jugador
+    2- Guardar un nuevo equipo
+    3- Regresar
+------------------------------------------------------------
+"""
+
+
 OPCIONES = {
     2: "PLAYERS",
     3: "MATCHES",
     4: "TEAMS",
-    5: "LEAGUES"
+    5: "LEAGUES",
+    6: "CREATE"
 }
 
 if __name__ == "__main__":
@@ -104,10 +118,10 @@ if __name__ == "__main__":
                 if int(response) == 1:
                     database_controller.populate_databases()
                     continue
-                if int(response) == 6:
+                if int(response) == 7:
                     database_controller.delete_databases()
                     continue
-                if int(response) == 7:
+                if int(response) == 8:
                     sys.exit()
                 print("Opcion invalida. Seleccione una opcion del 1-7")
 
@@ -237,6 +251,43 @@ if __name__ == "__main__":
                 if response == 2:
                     deporte = input("Deporte: ")
                     print(database_controller.get_all_leagues_by_sport(deporte))
+                    continue
+                if response == 3:
+                    estado = "MENU"
+                    continue
+                print("Opcion invalida. Seleccione una opcion del 1-3")
+
+            case "CREATE":
+                print(MENU_CREATE)
+                response = input()
+                if not response.isdigit():
+                    print("Por favor, responde con el numero de la opcion que necesites")
+                    continue
+                response = int(response)
+                if response == 1:
+                    nombre = input("Nombre del jugador: ")
+                    apellido = input("Apellido del jugador: ")
+                    numero = int(input("Numero del jugador: "))
+                    fecha_nacimiento = input("Fecha de nacimient del jugador (AAAA-MM-DD): ")
+                    deporte = input("Deporte: ")
+                    pais_origen = input("Pais de origen: ")
+                    posicion = input("Posicion: ")
+                    altura_cm = int(input("Altura en cm: "))
+                    equipo_nombre = input("Nombre del equipo: ")
+                    print(database_controller.add_player(
+                        nombre,
+                        apellido,
+                        numero,
+                        fecha_nacimiento,
+                        deporte,
+                        pais_origen,
+                        posicion,
+                        altura_cm,
+                        equipo_nombre
+                        ))
+                    continue
+                if response == 2:
+                    print("No implementado aun :)")
                     continue
                 if response == 3:
                     estado = "MENU"
