@@ -84,6 +84,7 @@ class DatabaseFacade():
                 row_dict = row._asdict()
                 for k, v in row_dict.items():
                     print(f"{k}: {v}")
+            return ""
         except ValueError as e:
             return "No se encontro el partido"
         except Exception as e:
@@ -106,7 +107,7 @@ class DatabaseFacade():
         """
         try:
             matches = self._mongo.obtener_partidos(sport, date)
-            print(json.dumps(matches, indent=4))
+            print(matches)
             return "matches"
         except ValueError as e:
             return "No se encontro el partido"
