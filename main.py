@@ -53,7 +53,7 @@ MENU_MATCHES = """
     2- Consultar los puntos que ha anotado un jugador en un partido por nombre de jugador e id de partido
     3- Obtener los eventos que ha tenido un equipo en cierto partido por nombre de equipo e id de partido
     4- Obtener todos los enfrentamientos que ha habido en un estadio
-    5- Obtener los parrtidos en cierta fecha y dos equipos
+    5- Obtener los partidos en cierta fecha y con ciertos equipos
     6- Regresar
 ------------------------------------------------------------
 """
