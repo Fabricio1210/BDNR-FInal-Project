@@ -2,6 +2,21 @@
 Main file that interacts with the user
 """
 import sys
+import logging
+
+log = logging.getLogger("ProyectoBases")
+log.setLevel(logging.DEBUG)
+
+handler = logging.StreamHandler()
+handler.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter(
+    "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+)
+handler.setFormatter(formatter)
+
+log.addHandler(handler)
+
 from connect import DatabaseFacade
 
 MENU = """

@@ -6,13 +6,14 @@ import os
 import logging
 from datetime import datetime
 from collections import defaultdict
-
+import traceback
 from cassandra.cluster import Cluster
 from cassandra.query import BatchStatement
 from Cassandra import schema
 from Mongo.Mongo import MongoService
 
-log = logging.getLogger()
+log = logging.getLogger("ProyectoBases")
+log.propagate = False
 mongo_service = MongoService()
 
 class CassandraSingleton:
@@ -101,8 +102,10 @@ class CassandraService:
             self._insert_matches_by_team_season()
             self._insert_matches_by_player()
             self._insert_head_to_head_teams()
+            log.info("Base de datos de cassandra poblada exitosamente")
         except Exception as e:
             print("Ha ocurrido un error al poblar la base de datos de cassandra:" + str(e))
+            log.error(traceback.format_exc())
 
     def _insert_points_by_player_match(self):
         """
@@ -169,7 +172,6 @@ class CassandraService:
             reader = csv.DictReader(f)
             for row in reader:
                 team_name = row["nombre_equipo"]
-                print( "Equipo: ", team_name)
                 team = mongo_service.obtener_equipo(team_name)
                 team_id = team.get("_id")
                 season_id = row["temporada"]
@@ -353,8 +355,8 @@ class CassandraService:
                 visitor_team_name = row["equipo_visitante"]
                 equipo_local = mongo_service.obtener_equipo(local_team_name)
                 equipo_visitante = mongo_service.obtener_equipo(visitor_team_name)
-                local_team_id = equipo_local[0].get("_id")
-                visitor_team_id = equipo_visitante[0].get("_id")
+                local_team_id = equipo_local.get("_id")
+                visitor_team_id = equipo_visitante.get("_id")
                 season_id = row["temporada"]
                 match_date = row["fecha"]
                 match_datetime = datetime.strptime(match_date, "%Y-%m-%d")
@@ -433,8 +435,8 @@ class CassandraService:
         for (team_a, team_b), stats in h2h.items():
             team_a_obj = mongo_service.obtener_equipo(team_a)
             team_b_obj = mongo_service.obtener_equipo(team_b)
-            team_a_id = team_a_obj[0].get("_id")
-            team_b_id = team_b_obj[0].get("_id")
+            team_a_id = team_a_obj.get("_id")
+            team_b_id = team_b_obj.get("_id")
             if stats["count"] >= 2:
                 bound = prepared.bind((
                     team_a_id,
