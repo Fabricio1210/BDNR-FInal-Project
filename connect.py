@@ -20,13 +20,16 @@ class DatabaseFacade():
         No docstring >:(
         """
         self._mongo.poblar()
-        # self._cassandra.populate_data()  # Comentado temporalmente - error con UUID
+        self._cassandra.populate_data()
         self._dgraph.populate_data()
 
     def delete_databases(self):
         """
         No docstring >:(
         """
+        self._mongo.eliminar_base_de_datos()
+        self._cassandra.borrar_base_de_datos()
+        self._dgraph.drop_all()
 
     def get_player_info(self, name, last_name):
         """
@@ -34,7 +37,7 @@ class DatabaseFacade():
         """
         try:
             jugadores = self._mongo.obtener_jugadores(name, last_name)
-            #jugadores += self._dgraph.consultar_jugador_completo(name, last_name)
+            jugadores += self._dgraph.consultar_jugador_completo(name, last_name)
             return jugadores
         except ValueError as e:
             return "No se encontro el perfil"
@@ -65,9 +68,14 @@ class DatabaseFacade():
         No docstring >:(
         """
         try:
-            return self._dgraph.consultar_companeros_jugador(name, last_name)
+            companeros = self._dgraph.consultar_companeros_jugador(name, last_name)
+            if not companeros:
+                return "No se encontraron compañeros para ese jugador"
+            return companeros
+        except ValueError as e:
+            return "No se encontro el jugador"
         except Exception as e:
-            return {"error": f"Error consultando compañeros: {str(e)}"}
+            return "Hubo un error en la base de datos. Error: " + str(e)
 
     def get_matches_by_date_sport(self, sport, date):
         """
@@ -101,11 +109,22 @@ class DatabaseFacade():
         """
         No docstring >:(
         """
+        # TODO: Implementar cuando se defina la fuente de datos para eventos
+        return "Funcionalidad no implementada aún"
 
     def get_matches_by_stadium(self, stadium):
         """
         No docstring >:(
         """
+        try:
+            enfrentamientos = self._dgraph.consultar_enfrentamientos_estadio(stadium)
+            if not enfrentamientos:
+                return "No se encontraron enfrentamientos en ese estadio"
+            return enfrentamientos
+        except ValueError as e:
+            return "No se encontro el estadio"
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
 
     def get_team_info(self, team):
         """
@@ -125,82 +144,102 @@ class DatabaseFacade():
         """
         No docstring >:(
         """
+        try:
+            enfrentamientos = self._dgraph.consultar_enfrentamientos_equipo_temporada(team, season)
+            if not enfrentamientos:
+                return "No se encontraron enfrentamientos para ese equipo en esa temporada"
+            return enfrentamientos
+        except ValueError as e:
+            return "No se encontro el equipo o la temporada"
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
 
     def get_teams_by_stadium(self, stadium):
         """
         No docstring >:(
         """
+        try:
+            equipos = self._dgraph.consultar_equipos_locales_estadio(stadium)
+            if not equipos:
+                return "No se encontraron equipos en ese estadio"
+            return equipos
+        except ValueError as e:
+            return "No se encontro el estadio"
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
 
-    def get_team_reanking_by_sport(self, sport):
+    def get_team_ranking_by_sport(self, sport):
         """
         No docstring >:(
         """
+        try:
+            ranking = self._mongo.obtener_puntajes_por_deporte(sport)
+            if not ranking:
+                return "No se enocntraron los equipos para formar el ranking"
+            return ranking
+        except ValueError as e:
+            return "No se encontraron los equipos"
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
 
     def get_first_places_from_all_sports(self):
         """
         No docstring >:(
         """
+        try:
+            ranking = self._mongo.obtener_primer_lugar_por_deporte()
+            if not ranking:
+                return "No se encontraron los equipos para formar el ranking"
+            return ranking
+        except ValueError as e:
+            return "No se encontraron los equipos"
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
 
     def get_league_stats_by_season(self, league, season):
         """
         No docstring >:(
-        """  
+        """
+        # TODO: Implementar cuando se defina la fuente de datos para estadísticas de ligas
+        return "Funcionalidad no implementada aún"  
 
     def get_all_leagues_by_sport(self, sport):
         """
         No docstring >:(
-        """
-        try:
+        """  
+        try: 
             ligas = self._mongo.obtener_ligas(sport)
             if not ligas:
-                return "No se enocntraron las ligas"
+                return "No se encontraron las ligas"
             return ligas
         except ValueError as e:
             return "No se encontroran las ligas"
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
 
-    def consultar_jugador_completo(self, nombre, apellido):
+    def add_player(self, nombre, apellido, numero, fecha_nacimiento, deporte, pais_origen, posicion, altura_cm, equipo_nombre):
         """
-        Consulta completa de jugador desde Dgraph
-        """
+        No docstring >:(
+        """  
         try:
-            return self._dgraph.consultar_jugador_completo(nombre, apellido)
-        except Exception as e:
-            return {"error": f"Error consultando jugador: {str(e)}"}
+            resultado = self._mongo.agregar_jugador(
+                nombre,
+                apellido,
+                numero,
+                fecha_nacimiento,
+                deporte,
+                pais_origen,
+                posicion,
+                altura_cm,
+                equipo_nombre
+            )
 
-    def consultar_enfrentamientos_estadio(self, nombre_campo):
-        """
-        Consulta enfrentamientos en un estadio desde Dgraph
-        """
-        try:
-            return self._dgraph.consultar_enfrentamientos_estadio(nombre_campo)
-        except Exception as e:
-            return {"error": f"Error consultando enfrentamientos: {str(e)}"}
+            if "error" in resultado:
+                return "Error: " + resultado["error"]
 
-    def consultar_enfrentamientos_equipo_temporada(self, nombre_equipo, nombre_temporada):
-        """
-        Consulta enfrentamientos de equipo en temporada desde Dgraph
-        """
-        try:
-            return self._dgraph.consultar_enfrentamientos_equipo_temporada(nombre_equipo, nombre_temporada)
-        except Exception as e:
-            return {"error": f"Error consultando enfrentamientos: {str(e)}"}
+            return f"Jugador agregado correctamente al equipo {equipo_nombre}. ID: {resultado['jugador_id']}"
 
-    def consultar_equipos_locales_estadio(self, nombre_campo):
-        """
-        Consulta equipos locales en un estadio desde Dgraph
-        """
-        try:
-            return self._dgraph.consultar_equipos_locales_estadio(nombre_campo)
+        except ValueError:
+            return "Error: datos inválidos para agregar jugador."
         except Exception as e:
-            return {"error": f"Error consultando equipos: {str(e)}"}
-
-    def consultar_campos_equipo(self, nombre_equipo):
-        """
-        Consulta campos donde juega un equipo desde Dgraph
-        """
-        try:
-            return self._dgraph.consultar_campos_equipo(nombre_equipo)
-        except Exception as e:
-            return {"error": f"Error consultando campos: {str(e)}"}
+            return "Error en la base de datos: " 

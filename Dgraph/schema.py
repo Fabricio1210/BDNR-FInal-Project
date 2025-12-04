@@ -277,4 +277,4 @@ query companeros($nombre: string, $apellido: string) {
         }
     }
 }
-"""
+""" 

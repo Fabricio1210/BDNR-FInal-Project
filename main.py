@@ -2,7 +2,21 @@
 Main file that interacts with the user
 """
 import sys
-import json
+import logging
+
+log = logging.getLogger("ProyectoBases")
+log.setLevel(logging.DEBUG)
+
+handler = logging.StreamHandler()
+handler.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter(
+    "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+)
+handler.setFormatter(formatter)
+
+log.addHandler(handler)
+
 from connect import DatabaseFacade
 
 MENU = """
@@ -14,8 +28,9 @@ MENU = """
     3- Consultar partidos
     4- Consultar equipos
     5- Consultar ligas
-    6- Borrar base de datos
-    7- Salir
+    6- Crear datos
+    7- Borrar base de datos
+    8- Salir
 ------------------------------------------------------------
 """
 
@@ -38,7 +53,8 @@ MENU_MATCHES = """
     2- Consultar los puntos que ha anotado un jugador en un partido por nombre de jugador e id de partido
     3- Obtener los eventos que ha tenido un equipo en cierto partido por nombre de equipo e id de partido
     4- Obtener todos los enfrentamientos que ha habido en un estadio
-    5- Regresar
+    5- Obtener los parrtidos en cierta fecha y dos equipos
+    6- Regresar
 ------------------------------------------------------------
 """
 
@@ -61,15 +77,28 @@ MENU_LEAGUES = """
     CONSULTAR LIGAS:
     ++++++++++++++++++
     1- Consultar todas las estadisticas de un torneo por su nombre y su temporada
-    2- Obtener los eventos que ha tenido un equipo en cierto partido por nombre de equipo e id de partido
+    2- Obtener todas las ligas de un deporte
     3- Regresar
 ------------------------------------------------------------
 """
+
+MENU_CREATE = """
+------------------------------------------------------------
+    CREAR DATOS:
+    ++++++++++++++++++
+    1- Guardar un nuevo jugador
+    2- Guardar un nuevo equipo
+    3- Regresar
+------------------------------------------------------------
+"""
+
+
 OPCIONES = {
     2: "PLAYERS",
     3: "MATCHES",
     4: "TEAMS",
-    5: "LEAGUES"
+    5: "LEAGUES",
+    6: "CREATE"
 }
 
 if __name__ == "__main__":
@@ -89,10 +118,10 @@ if __name__ == "__main__":
                 if int(response) == 1:
                     database_controller.populate_databases()
                     continue
-                if int(response) == 6:
+                if int(response) == 7:
                     database_controller.delete_databases()
                     continue
-                if int(response) == 7:
+                if int(response) == 8:
                     sys.exit()
                 print("Opcion invalida. Seleccione una opcion del 1-7")
 
@@ -104,43 +133,9 @@ if __name__ == "__main__":
                     continue
                 response = int(response)
                 if response == 1:
-                    # Consultar toda la información de un jugador
-                    nombre = input("Ingrese el nombre del jugador: ").strip()
-                    apellido = input("Ingrese el apellido del jugador: ").strip()
-                    try:
-                        resultado = database_controller.consultar_jugador_completo(nombre, apellido)
-                        if resultado.get('jugador'):
-                            print("\n" + "="*60)
-                            print("INFORMACIÓN DEL JUGADOR")
-                            print("="*60)
-                            for jugador in resultado['jugador']:
-                                print(f"\nNombre: {jugador.get('nombre', '')} {jugador.get('apellido', '')}")
-                                print(f"Número: {jugador.get('numero', 'N/A')}")
-                                print(f"País: {jugador.get('pais', 'N/A')}")
-                                print(f"Fecha de Nacimiento: {jugador.get('fechaNacimiento', 'N/A')}")
-
-                                if jugador.get('juega_para'):
-                                    print("\nHISTORIAL DE EQUIPOS:")
-                                    for i, equipo in enumerate(jugador['juega_para'], 1):
-                                        print(f"\n  [{i}] {equipo.get('nombre', 'N/A')}")
-                                        print(f"      Liga: {equipo.get('liga', 'N/A')}")
-                                        print(f"      País: {equipo.get('pais', 'N/A')}")
-                                        print(f"      Ciudad: {equipo.get('ciudad', 'N/A')}")
-
-                                        # Mostrar facets si existen
-                                        if 'juega_para|fechaInicio' in equipo:
-                                            print(f"      Fecha Inicio: {equipo.get('juega_para|fechaInicio', 'N/A')}")
-                                        if 'juega_para|fechaFin' in equipo:
-                                            print(f"      Fecha Fin: {equipo.get('juega_para|fechaFin', 'N/A')}")
-
-                                        if equipo.get('campo_local'):
-                                            campo = equipo['campo_local']
-                                            print(f"      Estadio Local: {campo.get('nombre', 'N/A')} ({campo.get('pais', 'N/A')})")
-                            print("="*60 + "\n")
-                        else:
-                            print(f"\nNo se encontró ningún jugador con nombre '{nombre} {apellido}'\n")
-                    except Exception as e:
-                        print(f"\nError al consultar jugador: {e}\n")
+                    nombre = input("Nombre del jugador: ")
+                    apellido = input("Apellido del jugador: ")
+                    print(database_controller.get_player_info(nombre, apellido))
                     continue
                 if response == 2:
                     nombre = input("Nombre del jugador: ")
@@ -153,27 +148,9 @@ if __name__ == "__main__":
                     )
                     continue
                 if response == 3:
-                    nombre = input("Nombre del jugador: ").strip()
-                    apellido = input("Apellido del jugador: ").strip()
-                    try:
-                        resultado = database_controller.get_player_teammates(nombre, apellido)
-                        if resultado.get('companeros'):
-                            print("\n" + "="*60)
-                            print(f"COMPAÑEROS DE {nombre.upper()} {apellido.upper()}")
-                            print("="*60)
-                            for equipo in resultado['companeros']:
-                                if equipo.get('~juega_para'):
-                                    print(f"\nEquipo: {equipo.get('nombre', 'N/A')}")
-                                    print(f"Compañeros:")
-                                    for companero in equipo['~juega_para']:
-                                        print(f"  - {companero.get('nombre', '')} {companero.get('apellido', '')}")
-                                        print(f"    Número: {companero.get('numero', 'N/A')}")
-                                        print(f"    País: {companero.get('pais', 'N/A')}")
-                            print("="*60)
-                        else:
-                            print("No se encontraron compañeros o el jugador no existe")
-                    except Exception as e:
-                        print(f"Error al consultar compañeros: {e}")
+                    nombre = input("Nombre del jugador: ")
+                    apellido = input("Apellido del jugador: ")
+                    print(database_controller.get_player_teammates(nombre, apellido))
                     continue
                 if response == 4:
                     estado = "MENU"
@@ -208,36 +185,16 @@ if __name__ == "__main__":
                     print(database_controller.get_events_by_team_match(equipo, partido_id))
                     continue
                 if response == 4:
-                    # Obtener todos los enfrentamientos en un estadio
-                    nombre_campo = input("Ingrese el nombre del estadio: ").strip()
-                    try:
-                        resultado = database_controller.consultar_enfrentamientos_estadio(nombre_campo)
-                        if resultado.get('enfrentamientos'):
-                            print("\n" + "="*60)
-                            print(f"ENFRENTAMIENTOS EN {nombre_campo.upper()}")
-                            print("="*60)
-                            for i, partido in enumerate(resultado['enfrentamientos'], 1):
-                                print(f"\n[{i}] {partido.get('fecha', 'N/A')}")
-                                local = partido.get('equipo_local', {})
-                                visitante = partido.get('equipo_visitante', {})
-                                print(f"    {local.get('nombre', 'N/A')} vs {visitante.get('nombre', 'N/A')}")
-                                print(f"    Marcador: {partido.get('marcadorLocal', 0)} - {partido.get('marcadorVisitante', 0)}")
-                                print(f"    Resultado: {partido.get('resultado', 'N/A')}")
-
-                                if partido.get('temporada'):
-                                    temp = partido['temporada']
-                                    print(f"    Temporada: {temp.get('nombre', 'N/A')} - {temp.get('liga', 'N/A')} ({temp.get('anio', 'N/A')})")
-
-                                if partido.get('campo'):
-                                    campo = partido['campo']
-                                    print(f"    Estadio: {campo.get('nombre', 'N/A')} (Capacidad: {campo.get('capacidad', 'N/A'):,})")
-                            print("\n" + "="*60 + "\n")
-                        else:
-                            print(f"\nNo se encontraron enfrentamientos en el estadio '{nombre_campo}'\n")
-                    except Exception as e:
-                        print(f"\nError al consultar enfrentamientos: {e}\n")
-                    continue
+                    estadio = input("Nombre del estadio: ")
+                    print(database_controller.get_matches_by_stadium(estadio))
+                    continue 
                 if response == 5:
+                    fecha = input("Fecha: ")
+                    equipo_local = input("Nombre del equipo local: ")
+                    equipo_visitante = input("Nombre del equipo visitante: ")
+                    print(database_controller.get_matches_by_date_and_teams(fecha, equipo_local, equipo_visitante))
+                    continue
+                if response == 6:
                     estado = "MENU"
                     continue
                 print("Opcion invalida. Seleccione una opcion del 1-5")
@@ -259,132 +216,17 @@ if __name__ == "__main__":
                     print(database_controller.get_events_by_team_match(equipo, partido_id))
                     continue
                 if response == 3:
-                    # Obtener enfrentamientos de un equipo en cierta temporada
-                    nombre_equipo = input("Ingrese el nombre del equipo: ").strip()
-                    nombre_temporada = input("Ingrese el nombre de la temporada: ").strip()
-                    try:
-                        resultado = database_controller.consultar_enfrentamientos_equipo_temporada(nombre_equipo, nombre_temporada)
-                        if resultado.get('enfrentamientos'):
-                            print("\n" + "="*60)
-                            print(f"ENFRENTAMIENTOS DE {nombre_equipo.upper()}")
-                            print(f"TEMPORADA: {nombre_temporada}")
-                            print("="*60)
-                            for i, partido in enumerate(resultado['enfrentamientos'], 1):
-                                print(f"\n[{i}] {partido.get('fecha', 'N/A')}")
-                                local = partido.get('equipo_local', {})
-                                visitante = partido.get('equipo_visitante', {})
-
-                                # Determinar si el equipo consultado es local o visitante
-                                es_local = local.get('nombre', '') == nombre_equipo
-                                rival = visitante if es_local else local
-
-                                print(f"    {local.get('nombre', 'N/A')} vs {visitante.get('nombre', 'N/A')}")
-                                print(f"    Marcador: {partido.get('marcadorLocal', 0)} - {partido.get('marcadorVisitante', 0)}")
-                                print(f"    Resultado: {partido.get('resultado', 'N/A')}")
-                                print(f"    Rival: {rival.get('nombre', 'N/A')} ({rival.get('pais', 'N/A')})")
-
-                                if partido.get('campo'):
-                                    campo = partido['campo']
-                                    print(f"    Estadio: {campo.get('nombre', 'N/A')} - {campo.get('pais', 'N/A')}")
-                                    print(f"    Tipo: {campo.get('tipo', 'N/A')} | Capacidad: {campo.get('capacidad', 'N/A'):,}")
-                            print("\n" + "="*60 + "\n")
-                        else:
-                            print(f"\nNo se encontraron enfrentamientos para '{nombre_equipo}' en la temporada '{nombre_temporada}'\n")
-                    except Exception as e:
-                        print(f"\nError al consultar enfrentamientos: {e}\n")
+                    equipo = input("Nombre del equipo: ")
+                    temporada = input("Temporada: ")
+                    print(database_controller.get_matches_by_team_season(equipo, temporada))
                     continue
                 if response == 4:
-                    # Obtener equipos locales en un estadio o campos de un equipo
-                    print("\nSeleccione una opción:")
-                    print("1- Equipos que juegan como locales en un estadio")
-                    print("2- Campos donde juega un equipo")
-                    opcion = input("Opción: ").strip()
-
-                    if opcion == "1":
-                        # Equipos locales en un estadio
-                        nombre_campo = input("Ingrese el nombre del estadio: ").strip()
-                        try:
-                            resultado = database_controller.consultar_equipos_locales_estadio(nombre_campo)
-                            if resultado.get('campo'):
-                                for campo in resultado['campo']:
-                                    print("\n" + "="*60)
-                                    print(f"ESTADIO: {campo.get('nombre', 'N/A').upper()}")
-                                    print("="*60)
-                                    print(f"País: {campo.get('pais', 'N/A')}")
-                                    print(f"Capacidad: {campo.get('capacidad', 'N/A'):,}")
-                                    print(f"Tipo: {campo.get('tipo', 'N/A')}")
-
-                                    if campo.get('equipos_locales'):
-                                        print(f"\nEQUIPOS LOCALES ({len(campo['equipos_locales'])}):")
-                                        for i, equipo in enumerate(campo['equipos_locales'], 1):
-                                            print(f"\n  [{i}] {equipo.get('nombre', 'N/A')}")
-                                            print(f"      Liga: {equipo.get('liga', 'N/A')}")
-                                            print(f"      País: {equipo.get('pais', 'N/A')}")
-                                            print(f"      Ciudad: {equipo.get('ciudad', 'N/A')}")
-
-                                            if equipo.get('jugadores'):
-                                                print(f"      Plantel ({len(equipo['jugadores'])} jugadores):")
-                                                for j, jugador in enumerate(equipo['jugadores'], 1):
-                                                    print(f"        {j}. {jugador.get('nombre', '')} {jugador.get('apellido', '')} "
-                                                          f"(#{jugador.get('numero', 'N/A')}) - {jugador.get('pais', 'N/A')}")
-                                    else:
-                                        print("\n  No hay equipos locales registrados en este estadio")
-                                    print("="*60 + "\n")
-                            else:
-                                print(f"\nNo se encontró el estadio '{nombre_campo}'\n")
-                        except Exception as e:
-                            print(f"\nError al consultar equipos locales: {e}\n")
-
-                    elif opcion == "2":
-                        # Campos donde juega un equipo
-                        nombre_equipo = input("Ingrese el nombre del equipo: ").strip()
-                        try:
-                            resultado = database_controller.consultar_campos_equipo(nombre_equipo)
-                            if resultado.get('equipo'):
-                                for equipo in resultado['equipo']:
-                                    print("\n" + "="*60)
-                                    print(f"EQUIPO: {equipo.get('nombre', 'N/A').upper()}")
-                                    print("="*60)
-                                    print(f"País: {equipo.get('pais', 'N/A')}")
-
-                                    if equipo.get('campo_local'):
-                                        campo = equipo['campo_local']
-                                        print(f"\nESTADIO LOCAL:")
-                                        print(f"  Nombre: {campo.get('nombre', 'N/A')}")
-                                        print(f"  País: {campo.get('pais', 'N/A')}")
-                                        print(f"  Capacidad: {campo.get('capacidad', 'N/A'):,}")
-                                        print(f"  Tipo: {campo.get('tipo', 'N/A')}")
-
-                                # Recopilar campos de enfrentamientos
-                                campos_visitados = set()
-                                for enfr_tipo in ['enfrentamientos_local', 'enfrentamientos_visitante']:
-                                    if resultado.get(enfr_tipo):
-                                        for partido in resultado[enfr_tipo]:
-                                            if partido.get('campo'):
-                                                campo = partido['campo']
-                                                campos_visitados.add((
-                                                    campo.get('nombre', 'N/A'),
-                                                    campo.get('pais', 'N/A'),
-                                                    campo.get('capacidad', 0),
-                                                    campo.get('tipo', 'N/A')
-                                                ))
-
-                                if campos_visitados:
-                                    print(f"\nOTROS CAMPOS DONDE HA JUGADO ({len(campos_visitados)}):")
-                                    for i, (nombre, pais, capacidad, tipo) in enumerate(sorted(campos_visitados), 1):
-                                        print(f"  [{i}] {nombre} - {pais}")
-                                        print(f"      Capacidad: {capacidad:,} | Tipo: {tipo}")
-                                print("="*60 + "\n")
-                            else:
-                                print(f"\nNo se encontró el equipo '{nombre_equipo}'\n")
-                        except Exception as e:
-                            print(f"\nError al consultar campos del equipo: {e}\n")
-                    else:
-                        print("\nOpción inválida\n")
+                    estadio = input("Estadio: ")
+                    print(database_controller.get_teams_by_stadium(estadio))
                     continue
                 if response == 5:
                     deporte = input("Deporte: ")
-                    print(database_controller.get_team_reanking_by_sport(deporte))
+                    print(database_controller.get_team_ranking_by_sport(deporte))
                     continue
                 if response == 6:
                     print(database_controller.get_first_places_from_all_sports())
@@ -409,6 +251,43 @@ if __name__ == "__main__":
                 if response == 2:
                     deporte = input("Deporte: ")
                     print(database_controller.get_all_leagues_by_sport(deporte))
+                    continue
+                if response == 3:
+                    estado = "MENU"
+                    continue
+                print("Opcion invalida. Seleccione una opcion del 1-3")
+
+            case "CREATE":
+                print(MENU_CREATE)
+                response = input()
+                if not response.isdigit():
+                    print("Por favor, responde con el numero de la opcion que necesites")
+                    continue
+                response = int(response)
+                if response == 1:
+                    nombre = input("Nombre del jugador: ")
+                    apellido = input("Apellido del jugador: ")
+                    numero = int(input("Numero del jugador: "))
+                    fecha_nacimiento = input("Fecha de nacimient del jugador (AAAA-MM-DD): ")
+                    deporte = input("Deporte: ")
+                    pais_origen = input("Pais de origen: ")
+                    posicion = input("Posicion: ")
+                    altura_cm = int(input("Altura en cm: "))
+                    equipo_nombre = input("Nombre del equipo: ")
+                    print(database_controller.add_player(
+                        nombre,
+                        apellido,
+                        numero,
+                        fecha_nacimiento,
+                        deporte,
+                        pais_origen,
+                        posicion,
+                        altura_cm,
+                        equipo_nombre
+                        ))
+                    continue
+                if response == 2:
+                    print("No implementado aun :)")
                     continue
                 if response == 3:
                     estado = "MENU"
