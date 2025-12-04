@@ -1,5 +1,6 @@
 from Cassandra.cassandra import CassandraService
 from Mongo.Mongo import MongoService
+from connect import DatabaseFacade
 import Cassandra.schema as schema
 import json
 from tabulate import tabulate
