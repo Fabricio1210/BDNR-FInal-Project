@@ -28,6 +28,7 @@ class CassandraSingleton:
         ips = raw_ips.split(",")
         self._cluster = Cluster(ips)
         self.session = self._cluster.connect()
+        log.info("Conexion a Cassandra exitosa")
 
     def __new__(cls):
         if cls._instance:
@@ -88,7 +89,6 @@ class CassandraService:
         self.cassandra_session.session.execute(schema.CREATE_MATCHES_BY_TEAM_SEASON_TABLE )
         self.cassandra_session.session.execute(schema.CREATE_MATCHES_BY_PLAYER_TABLE)
         self.cassandra_session.session.execute(schema.CREATE_HEAD_TO_HEAD_TEAMS_TABLE)
-        self._insert_points_by_team_match()
         self._insert_points_by_player_match()
         self._insert_sanctions_by_player_match()
         self._insert_sanctions_by_team_season()
@@ -102,80 +102,64 @@ class CassandraService:
         self._insert_matches_by_player()
         self._insert_head_to_head_teams()
 
-    def _insert_points_by_team_match(self):
-        """
-        No docstring :)
-        """
-        base_path = os.path.dirname(os.path.abspath(__file__))
-        csv_path = os.path.join(base_path, "..", "data", "partidos.csv")
-        prepared = self.cassandra_session.session.prepare(schema.INSERT_POINTS_BY_TEAM_MATCH_TABLE)
-        with open(csv_path, newline="", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                date = row["fecha"]
-                team_a_name = row["equipo_local"]
-                team_b_name = row["equipo_visitante"]
-                match = mongo_service.obtener_partido_por_fecha_y_equipos(date, team_a_name, team_b_name)
-                return match
-                # match_id = UUID(row["match_id"])
-                # total_points = int(row["total_points"])
-                # bound = prepared.bind((match_id, team_id, total_points))
-                # self.cassandra_session.session.execute(bound)
-
     def _insert_points_by_player_match(self):
         """
-        No docstring :)
+        Funcion terminada
         """
         base_path = os.path.dirname(os.path.abspath(__file__))
         csv_path = os.path.join(base_path, "..", "data", "puntos_por_jugador_partido.csv")
-        # prepared = self.cassandra_session.session.prepare(schema.INSERT_POINTS_BY_PLAYER_MATCH_TABLE)
-        # with open(csv_path, newline="", encoding="utf-8") as f:
-        #     reader = csv.DictReader(f)
-        #     for row in reader:
-        #         nombre_jugador = row["nombre"]
-        #         apellido_jugador = row["apellido"]
-        #         jugador = mongo_service.obtener_jugadores(nombre_jugador, apellido_jugador)
-        #         if not jugador:
-        #             raise ValueError("El jugador no existe aun en la base de datos de mongo")
-        #         jugador = jugador[0]
-        #         jugador_id = jugador.get("_id")
-        #         total_points = int(row["puntos_anotados"])
-        #         match = mongo_service.obtener_partidos(??, row["fecha"])
-        #         if not jugador:
-        #             raise ValueError("La partida no existe aun en la base de datos de mongo")
-        #         match = match[0]
-        #         match_id = match.get("_id")
-        #         bound = prepared.bind((match_id, jugador_id, total_points))
-        #         self.cassandra_session.session.execute(bound)
+        prepared = self.cassandra_session.session.prepare(schema.INSERT_POINTS_BY_PLAYER_MATCH_TABLE)
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                nombre_jugador = row["nombre"]
+                apellido_jugador = row["apellido"]
+                jugador = mongo_service.obtener_jugadores(nombre_jugador, apellido_jugador)
+                if not jugador:
+                    raise ValueError("El jugador no existe aun en la base de datos de mongo")
+                jugador = jugador[0]
+                jugador_id = UUID(jugador.get("_id"))
+                total_points = int(row["puntos_anotados"])
+                match = mongo_service.obtener_partidos(row["deporte"], row["fecha"])
+                match = match[0]
+                match_id = UUID(match.get("_id"))
+                bound = prepared.bind((match_id, jugador_id, total_points))
+                self.cassandra_session.session.execute(bound)
 
     def _insert_sanctions_by_player_match(self):
         """
-        No docstring :)
+        Funcion terminada
         """
         base_path = os.path.dirname(os.path.abspath(__file__))
-        csv_path = os.path.join(base_path, "..", "data", "sanctions_by_player_match.csv")
-        # prepared = self.cassandra_session.session.prepare(
-        #     schema.INSERT_SANCTIONS_BY_PLAYER_MATCH_TABLE
-        # )
-        # with open(csv_path, newline=", encoding="utf-8") as f:
-        #     reader = csv.DictReader(f)
-        #     for row in reader:
-        #         match_id = UUID(row["match_id"])
-        #         player_id = UUID(row["player_id"])
-        #         sanction_time = datetime.fromisoformat(row["sanction_time"])
-        #         sanction_type = row["sanction_type"]
-        #         description = row["description"]
-        #         bound = prepared.bind(
-        #             (match_id, player_id, sanction_time, sanction_type, description)
-        #         )
-        #         self.cassandra_session.session.execute(bound)
+        csv_path = os.path.join(base_path, "..", "data", "sanciones_por_jugador_partido.csv")
+        prepared = self.cassandra_session.session.prepare(
+            schema.INSERT_SANCTIONS_BY_PLAYER_MATCH_TABLE
+        )
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                sport = row["deporte"]
+                date = row["fecha"]
+                match = mongo_service.obtener_partidos(sport, date)
+                match_id = UUID(match[0].get("_id"))
+                player_name= row["nombre"]
+                player_last_name= row["apellido"]
+                player = mongo_service.obtener_jugadores(player_name, player_last_name)
+                player_id = UUID(player[0].get("_id"))
+                sanction_time = row["minuto_sancion"]
+                sanction_type = row["tipo_sancion"]
+                description = row["descripcion"]
+                bound = prepared.bind(
+                    (match_id, player_id, sanction_time, sanction_type, description)
+                )
+                self.cassandra_session.session.execute(bound)
 
     def _insert_sanctions_by_team_season(self):
         """
-        No docstring :)
+        Funcion terminada
         """
         base_path = os.path.dirname(os.path.abspath(__file__))
-        csv_path = os.path.join(base_path, "..", "data", "sanctions_by_team_season.csv")
+        csv_path = os.path.join(base_path, "..", "data", "sanciones_por_equipo_temporada.csv")
         prepared = self.cassandra_session.session.prepare(
             schema.INSERT_SANCTIONS_BY_TEAM_SEASON_TABLE
         )
@@ -184,11 +168,7 @@ class CassandraService:
             for row in reader:
                 team_name = row["nombre_equipo"]
                 team = mongo_service.obtener_equipo(team_name)
-                if not team:
-                    raise ValueError(
-                        "El equipo no esta registrado en la base de datos de mongo aun"
-                    )
-                team_id = team[0].get("_id")
+                team_id = UUID(team[0].get("_id"))
                 season_id = row["temporada"]
                 sanction_type = row["tipo_sancion"]
                 description = row["descripcion"]
@@ -200,7 +180,7 @@ class CassandraService:
 
     def _insert_mvp_by_team_season(self):
         """
-        No docstring :)
+        Funcion terminada
         """
         base_path = os.path.dirname(os.path.abspath(__file__))
         csv_path = os.path.join(base_path, "..", "data", "mvp_por_equipo_temporada.csv")
@@ -210,70 +190,76 @@ class CassandraService:
             for row in reader:
                 team_name = row["nombre_equipo"]
                 team = mongo_service.obtener_equipo(team_name)
-                if not team:
-                    raise ValueError(
-                        "El equipo no esta registrado en la base de datos de mongo aun"
-                    )
-                team_id = team[0].get("_id")
+                team_id = UUID(team[0].get("_id"))
                 season_id = row["temporada"]
                 player_name = row["nombre_jugador"]
                 player_last_name = row["apellido_jugador"]
                 player = mongo_service.obtener_jugadores(player_name, player_last_name)
-                if not player:
-                    raise ValueError(
-                        "El jugador no esta registrado en la base de datos de mongo aun"
-                    )
-                player_id = player[0].get("_id")
+                player_id = UUID(player[0].get("_id"))
                 bound = prepared.bind((team_id, season_id, player_id))
                 self.cassandra_session.session.execute(bound)
 
     def _insert_events_by_team_match(self):
         """
-        No docstring :)
+        Funcion terminada
         """
         base_path = os.path.dirname(os.path.abspath(__file__))
-        csv_path = os.path.join(base_path, "..", "data", "events_by_team_match.csv")
-        # prepared = self.cassandra_session.session.prepare(schema.INSERT_EVENTS_BY_TEAM_MATCH_TABLE)
-        # with open(csv_path, newline="", encoding="utf-8") as f:
-        #     reader = csv.DictReader(f)
-        #     for row in reader:
-        #         match_id = UUID(row["match_id"])
-        #         team_id = UUID(row["team_id"])
-        #         event_time = datetime.fromisoformat(row["event_time"])
-        #         event_type = row["event_type"]
-        #         player_id = UUID(row["player_id"])
-        #         description = row["description"]
-        #         bound = prepared.bind(
-        #             (match_id, team_id, event_time, event_type, player_id, description)
-        #         )
-        #         self.cassandra_session.session.execute(bound)
+        csv_path = os.path.join(base_path, "..", "data", "eventos_por_equipo_partido.csv")
+        prepared = self.cassandra_session.session.prepare(schema.INSERT_EVENTS_BY_TEAM_MATCH_TABLE)
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                sport = row["deporte"]
+                date = row["fecha_partido"]
+                match = mongo_service.obtener_partidos(sport, date)
+                match_id = UUID(match[0].get("_id"))
+                team_name = row["equipo"]
+                team = mongo_service.obtener_equipo(team_name)
+                team_id = UUID(team[0].get("_id"))
+                event_time = row["minuto_evento"]
+                event_type = row["tipo_evento"]
+                player_name = row["nombre"]
+                player_last_name = row["apellido"]
+                player = mongo_service.obtener_jugadores(player_name, player_last_name)
+                player_id = UUID(player[0].get("_id"))
+                description = row["detalle_evento"]
+                bound = prepared.bind(
+                    (match_id, team_id, event_time, event_type, player_id, description)
+                )
+                self.cassandra_session.session.execute(bound)
 
     def _insert_performance_by_player_match(self):
         """
-        No docstring :)
+        Funcion terminada
         """
         base_path = os.path.dirname(os.path.abspath(__file__))
-        csv_path = os.path.join(base_path, "..", "data", "performance_by_player_match.csv")
-        # prepared = self.cassandra_session.session.prepare(
-        #     schema.INSERT_PERFORMANCE_BY_PLAYER_MATCH_TABLE
-        # )
-        # with open(csv_path, newline="", encoding="utf-8") as f:
-        #     reader = csv.DictReader(f)
-        #     for row in reader:
-        #         match_id = UUID(row["match_id"])
-        #         player_id = UUID(row["player_id"])
-        #         distance_moved = float(row["distance_moved"])
-        #         possesion = float(row["possesion"])
-        #         points_scored = int(row["points_scored"])
-        #         assists = int(row["assists"])
-        #         bound = prepared.bind(
-        #             (match_id, player_id, distance_moved, possesion, points_scored, assists)
-        #         )
-        #         self.cassandra_session.session.execute(bound)
+        csv_path = os.path.join(base_path, "..", "data", "rendimiento_por_jugador_partido.csv")
+        prepared = self.cassandra_session.session.prepare(
+            schema.INSERT_PERFORMANCE_BY_PLAYER_MATCH_TABLE
+        )
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                sport = row["deporte"]
+                date = row["fecha_partido"]
+                match = mongo_service.obtener_partidos(sport, date)
+                match_id = UUID(match[0].get("_id"))
+                player_name = row["nombre"]
+                player_last_name = row["apellido"]
+                player = mongo_service.obtener_jugadores(player_name, player_last_name)
+                player_id = UUID(player[0].get("_id"))
+                distance_moved = float(row["distancia_recorrida_km"])
+                possesion = float(row["porcentaje_posesion"])
+                points_scored = int(row["puntos_anotados"])
+                assists = int(row["asistencias"])
+                bound = prepared.bind(
+                    (match_id, player_id, distance_moved, possesion, points_scored, assists)
+                )
+                self.cassandra_session.session.execute(bound)
 
     def _insert_historical_performance_by_player(self):
         """
-        No docstring :)
+        Funcion terminada
         """
         base_path = os.path.dirname(os.path.abspath(__file__))
         csv_path = os.path.join(base_path, "..", "data", "rendimiento_historico_jugador.csv")
@@ -286,11 +272,7 @@ class CassandraService:
                 player_name = row["nombre"]
                 player_last_name = row["apellido"]
                 player = mongo_service.obtener_jugadores(player_name, player_last_name)
-                if not player:
-                    raise ValueError(
-                        "El jugador no esta registrado en la base de datos de mongo aun"
-                    )
-                player_id = player[0].get("_id")
+                player_id = UUID(player[0].get("_id"))
                 matches_played = int(row["partidos_jugados"])
                 total_points = int(row["puntos_totales"])
                 total_assists = int(row["asistencias_totales"])
@@ -302,97 +284,114 @@ class CassandraService:
 
     def _insert_lineup_by_team_match(self):
         """
-        No docstring :)
+        Funcion terminada
         """
         base_path = os.path.dirname(os.path.abspath(__file__))
-        csv_path = os.path.join(base_path, "..", "data", "lineup_by_team_match.csv")
-        # prepared = self.cassandra_session.session.prepare(schema.INSERT_LINEUP_BY_TEAM_MATCH_TABLE)
-        # with open(csv_path, newline="", encoding="utf-8") as f:
-        #     reader = csv.DictReader(f)
-        #     for row in reader:
-        #         match_id = UUID(row["match_id"])
-        #         team_id = UUID(row["team_id"])
-        #         player_id = UUID(row["player_id"])
-        #         position = row["position"]
-        #         last_update = datetime.fromisoformat(row["last_update"])
-        #         bound = prepared.bind((match_id, team_id, player_id, position, last_update))
-        #         self.cassandra_session.session.execute(bound)
+        csv_path = os.path.join(base_path, "..", "data", "alineacion_por_equipo_partido.csv")
+        prepared = self.cassandra_session.session.prepare(schema.INSERT_LINEUP_BY_TEAM_MATCH_TABLE)
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                sport = row["deporte"]
+                date = row["fecha_partido"]
+                match = mongo_service.obtener_partidos(sport, date)
+                match_id = UUID(match[0].get("_id"))
+                team_name = row["nombre_equipo"]
+                team = mongo_service.obtener_equipo(team_name)
+                team_id = UUID(team[0].get("_id"))
+                player_name = row["nombre_jugador"]
+                player_last_name = row["apellido_jugador"]
+                player = mongo_service.obtener_jugadores(player_name, player_last_name)
+                player_id = UUID(player[0].get("_id"))
+                position = row["posicion"]
+                last_update = datetime.now()
+                bound = prepared.bind((match_id, team_id, player_id, position, last_update))
+                self.cassandra_session.session.execute(bound)
 
     def _insert_player_current_position(self):
         """
-        No docstring :)
+        Funcion terminada
         """
         base_path = os.path.dirname(os.path.abspath(__file__))
-        csv_path = os.path.join(base_path, "..", "data", "player_current_position.csv")
-        # prepared = self.cassandra_session.session.prepare(
-        #     schema.INSERT_PLAYER_CURRENT_POSITION_TABLE
-        # )
-        # with open(csv_path, newline="", encoding="utf-8") as f:
-        #     reader = csv.DictReader(f)
-        #     for row in reader:
-        #         player_id = UUID(row["player_id"])
-        #         match_id = UUID(row["match_id"])
-        #         updated = datetime.fromisoformat(row["updated"])
-        #         position = row["position"]
-        #         ball_possession = row["ball_possession"].lower() == "true"
-        #         bound = prepared.bind((player_id, match_id, updated, position, ball_possession))
-        #         self.cassandra_session.session.execute(bound)
+        csv_path = os.path.join(base_path, "..", "data", "posicion_actual_jugador.csv")
+        prepared = self.cassandra_session.session.prepare(
+            schema.INSERT_PLAYER_CURRENT_POSITION_TABLE
+        )
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                sport = row["deporte"]
+                date = row["fecha_partido"]
+                match = mongo_service.obtener_partidos(sport, date)
+                match_id = UUID(match[0].get('_id'))
+                player_name = row["nombre_jugador"]
+                player_last_name = row["apellido_jugador"]
+                player = mongo_service.obtener_jugadores(player_name, player_last_name)
+                player_id = UUID(player[0].get("_id"))
+                updated = datetime.now()
+                position = row["posicion_cancha"]
+                ball_possession = row["posesion_balon"].lower() == "true"
+                bound = prepared.bind((player_id, match_id, updated, position, ball_possession))
+                self.cassandra_session.session.execute(bound)
 
     def _insert_matches_by_team_season(self):
         """
-        No docstring :)
+        Funcion terminada
         """
         base_path = os.path.dirname(os.path.abspath(__file__))
         csv_path = os.path.join(base_path, "..", "data", "partidos_por_temporada.csv")
-        # prepared = self.cassandra_session.session.prepare(
-        #     schema.INSERT_MATCHES_BY_TEAM_SEASON_TABLE
-        # )
-        # with open(csv_path, newline="", encoding="utf-8") as f:
-        #     reader = csv.DictReader(f)
-        #     for row in reader:
-        #         local_team_name = row["equipo_local"]
-        #         visitor_team_name = row["equipo_visitante"]
-        #         equipo_local = mongo_service.obtener_equipo(local_team_name)
-        #         equipo_visitante = mongo_service.obtener_equipo(visitor_team_name)
-        #         if not equipo_local or not equipo_visitante:
-        #             raise ValueError("El equipo no se encuentra aun en la base de datos de mongo")
-        #         local_team_id = equipo_local[0].get("_id")
-        #         visitor_team_id = equipo_visitante[0].get("_id")
-        #         season_id = row["temporada"]
-        #         match_datetime = datetime.fromisoformat(row["fecha"])
-
-
-        #         match_id = UUID(row["match_id"])
-        #         opponent_team_id = UUID(row["opponent_team_id"])
-        #         location = row["location"]
-        #         bound = prepared.bind(
-        #             (local_team_id, season_id, match_datetime, match_id, opponent_team_id, location)
-        #         )
-        #         self.cassandra_session.session.execute(bound)
-        #         bound = prepared.bind(
-        #             (visitor_team_id, season_id, match_datetime, match_id, opponent_team_id, location)
-        #         )
-        #         self.cassandra_session.session.execute(bound)
+        prepared = self.cassandra_session.session.prepare(
+            schema.INSERT_MATCHES_BY_TEAM_SEASON_TABLE
+        )
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                local_team_name = row["equipo_local"]
+                visitor_team_name = row["equipo_visitante"]
+                equipo_local = mongo_service.obtener_equipo(local_team_name)
+                equipo_visitante = mongo_service.obtener_equipo(visitor_team_name)
+                local_team_id = UUID(equipo_local[0].get("_id"))
+                visitor_team_id = UUID(equipo_visitante[0].get("_id"))
+                season_id = row["temporada"]
+                match_date = row["fecha"]
+                match_datetime = datetime.strptime(match_date, "%Y-%m-%d")
+                match = mongo_service.obtener_partido_por_fecha_y_equipos(match_date, local_team_name, visitor_team_name)
+                match_id = UUID(match.get("_id"))
+                location = row["estadio"]
+                bound = prepared.bind(
+                    (local_team_id, season_id, match_datetime, match_id, visitor_team_id, location)
+                )
+                self.cassandra_session.session.execute(bound)
+                bound = prepared.bind(
+                    (visitor_team_id, season_id, match_datetime, match_id, local_team_id, location)
+                )
+                self.cassandra_session.session.execute(bound)
 
     def _insert_matches_by_player(self):
         """
-        No docstring :)
+        Funcion terminada
         """
         base_path = os.path.dirname(os.path.abspath(__file__))
-        csv_path = os.path.join(base_path, "..", "data", "matches_by_player.csv")
-        # prepared = self.cassandra_session.session.prepare(schema.INSERT_MATCHES_BY_PLAYER_TABLE)
-        # with open(csv_path, newline="", encoding="utf-8") as f:
-        #     reader = csv.DictReader(f)
-        #     for row in reader:
-        #         player_id = UUID(row["player_id"])
-        #         match_datetime = datetime.fromisoformat(row["match_datetime"])
-        #         match_id = UUID(row["match_id"])
-        #         bound = prepared.bind((player_id, match_datetime, match_id))
-        #         self.cassandra_session.session.execute(bound)
+        csv_path = os.path.join(base_path, "..", "data", "alineacion_por_equipo_partido.csv")
+        prepared = self.cassandra_session.session.prepare(schema.INSERT_MATCHES_BY_PLAYER_TABLE)
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                player_name = row["nombre_jugador"]
+                player_last_name = row["apellido_jugador"]
+                player = mongo_service.obtener_jugadores(player_name, player_last_name)
+                player_id = UUID(player[0].get("_id"))
+                match_date = row["fecha_partido"]
+                match_datetime = datetime.strptime(match_date, "%Y-%m-%d")
+                sport = row["deporte"]
+                match = mongo_service.obtener_partidos(sport, match_date)
+                match_id = UUID(match[0].get("_id"))
+                bound = prepared.bind((player_id, match_datetime, match_id))
+                self.cassandra_session.session.execute(bound)
 
     def _insert_head_to_head_teams(self):
         """
-        No docstring :)
+        Funcion terminada
         """
         base_path = os.path.dirname(os.path.abspath(__file__))
         csv_path = os.path.join(base_path, "..", "data", "partidos.csv")
@@ -429,8 +428,6 @@ class CassandraService:
         for (team_a, team_b), stats in h2h.items():
             team_a_obj = mongo_service.obtener_equipo(team_a)
             team_b_obj = mongo_service.obtener_equipo(team_b)
-            if not team_a_obj or not team_b_obj:
-                raise ValueError("El equipo no se encuentra aun en la base de datos de mongo")
             team_a_id = team_a_obj[0].get("_id")
             team_b_id = team_b_obj[0].get("_id")
             if stats["count"] >= 2:

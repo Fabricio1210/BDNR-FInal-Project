@@ -29,7 +29,7 @@ CREATE_SANCTIONS_BY_PLAYER_MATCH_TABLE = """
         CREATE TABLE IF NOT EXISTS sanctions_by_player_match (
             match_id uuid,
             player_id uuid,
-            sanction_time timestamp,
+            sanction_time text,
             sanction_type text,
             description text,
             PRIMARY KEY ((match_id, player_id), sanction_time)
@@ -60,7 +60,7 @@ CREATE_EVENTS_BY_TEAM_MATCH_TABLE = """
         CREATE TABLE IF NOT EXISTS events_by_team_match (
             match_id uuid,
             team_id uuid,
-            event_time timestamp,
+            event_time text,
             event_type text,
             player_id uuid,
             description text,

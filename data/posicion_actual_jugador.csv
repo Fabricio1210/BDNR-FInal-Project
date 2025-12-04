@@ -1,0 +1,67 @@
+deporte,fecha_partido,nombre_jugador,apellido_jugador,posicion_cancha,posesion_balon
+Futbol,2024-11-01,Lionel,Messi,Extremo Derecho,False
+Futbol,2024-11-01,Kylian,Mbappé,Extremo Izquierdo,False
+Futbol,2024-11-01,Neymar,Jr,Extremo Izquierdo,False
+Futbol,2024-11-01,Marco,Verratti,Mediocampo,False
+Futbol,2024-11-01,Sergio,Ramos,Banda Derecha,False
+Futbol,2024-11-01,Alexia,Putellas,Banda Izquierda,False
+Futbol,2024-11-01,Carla,Gómez,Extremo Derecho,False
+Futbol,2024-11-01,Arturo,López,Tres Cuartos,True
+Futbol,2024-11-01,Aitana,Bonmatí,Tres Cuartos,False
+Futbol,2024-11-01,Caroline,Graham Hansen,Extremo Derecho,False
+Futbol,2024-11-01,Irene,Paredes,Defensa Central,False
+Futbol,2024-11-01,Mapi,León,Banda Izquierda,False
+Futbol,2024-11-10,Alexia,Putellas,Banda Derecha,False
+Futbol,2024-11-10,Carla,Gómez,Tres Cuartos,False
+Futbol,2024-11-10,Arturo,López,Tres Cuartos,False
+Futbol,2024-11-10,Aitana,Bonmatí,Tres Cuartos,False
+Futbol,2024-11-10,Caroline,Graham Hansen,Extremo Izquierdo,False
+Futbol,2024-11-10,Irene,Paredes,Banda Izquierda,False
+Futbol,2024-11-10,Mapi,León,Banda Derecha,False
+Futbol,2024-11-10,Lionel,Messi,Extremo Derecho,True
+Futbol,2024-11-10,Kylian,Mbappé,Extremo Izquierdo,False
+Futbol,2024-11-10,Neymar,Jr,Extremo Izquierdo,False
+Futbol,2024-11-10,Marco,Verratti,Banda Derecha,False
+Futbol,2024-11-10,Sergio,Ramos,Defensa Central,False
+Futbol,2024-11-15,Cristiano,Ronaldo,Área de Penal,False
+Futbol,2024-11-15,Sadio,Mané,Tres Cuartos,False
+Futbol,2024-11-15,Anderson,Talisca,Extremo Izquierdo,True
+Futbol,2024-11-15,Marcelo,Vieira,Área de Meta,False
+Futbol,2024-11-15,David,Ospina,Área de Meta,False
+Futbol,2024-11-15,Lionel,Messi,Extremo Izquierdo,False
+Futbol,2024-11-15,Kylian,Mbappé,Tres Cuartos,False
+Futbol,2024-11-15,Neymar,Jr,Extremo Derecho,False
+Futbol,2024-11-15,Marco,Verratti,Tres Cuartos,False
+Futbol,2024-11-15,Sergio,Ramos,Banda Izquierda,False
+Baloncesto,2024-11-20,LeBron,James,Poste Bajo,False
+Baloncesto,2024-11-20,Anthony,Davis,Zona Pintada,False
+Baloncesto,2024-11-20,D'Angelo,Russell,Esquina,False
+Baloncesto,2024-11-20,Austin,Reaves,Esquina,False
+Baloncesto,2024-11-20,Rui,Hachimura,Banquillo,False
+Baloncesto,2024-11-20,Stephen,Curry,Esquina,False
+Baloncesto,2024-11-20,Klay,Thompson,Media Cancha,False
+Baloncesto,2024-11-20,Draymond,Green,Poste Alto,False
+Baloncesto,2024-11-20,Andrew,Wiggins,Poste Bajo,False
+Baloncesto,2024-11-20,Kevon,Looney,Poste Alto,True
+Baloncesto,2024-11-22,Michael,Jordan,Media Cancha,False
+Baloncesto,2024-11-22,Scottie,Pippen,Alero,False
+Baloncesto,2024-11-22,Dennis,Rodman,Bajo el Aro,False
+Baloncesto,2024-11-22,Steve,Kerr,Cabecera (Top of Key),False
+Baloncesto,2024-11-22,Toni,Kukoč,Alero,False
+Baloncesto,2024-11-22,LeBron,James,Banquillo,True
+Baloncesto,2024-11-22,Anthony,Davis,Poste Bajo,False
+Baloncesto,2024-11-22,D'Angelo,Russell,Alero,False
+Baloncesto,2024-11-22,Austin,Reaves,Esquina,False
+Baloncesto,2024-11-22,Rui,Hachimura,Zona Pintada,False
+Futbol,2024-11-25,Alexia,Putellas,Banda Derecha,False
+Futbol,2024-11-25,Carla,Gómez,Área de Penal,False
+Futbol,2024-11-25,Arturo,López,Área de Penal,False
+Futbol,2024-11-25,Aitana,Bonmatí,Mediocampo,False
+Futbol,2024-11-25,Caroline,Graham Hansen,Tres Cuartos,False
+Futbol,2024-11-25,Irene,Paredes,Defensa Central,True
+Futbol,2024-11-25,Mapi,León,Banda Izquierda,False
+Futbol,2024-11-25,Cristiano,Ronaldo,Área de Penal,False
+Futbol,2024-11-25,Sadio,Mané,Extremo Derecho,False
+Futbol,2024-11-25,Anderson,Talisca,Portería,False
+Futbol,2024-11-25,Marcelo,Vieira,Defensa Central,False
+Futbol,2024-11-25,David,Ospina,Área de Meta,False
