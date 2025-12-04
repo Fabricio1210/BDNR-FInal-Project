@@ -39,7 +39,7 @@ MENU_PLAYERS = """
     CONSULTAR JUGADORES:
     ++++++++++++++++++
     1- Consultar toda la informacion de un jugador por su nombre y apellido
-    2- Consultar lo puntos que ha anotado un jugador en un partido por nombre de jugador e id de partido
+    2- Consultar lo puntos que ha anotado un jugador en un partido 
     3- Consultar todos los compañeros de cierto jugador por su nombre y apellido
     4- Regresar
 ------------------------------------------------------------
@@ -50,8 +50,8 @@ MENU_MATCHES = """
     CONSULTAR PARTIDOS:
     ++++++++++++++++++
     1- Consultar partidos en cierta fecha en cierto deporte
-    2- Consultar los puntos que ha anotado un jugador en un partido por nombre de jugador e id de partido
-    3- Obtener los eventos que ha tenido un equipo en cierto partido por nombre de equipo e id de partido
+    2- Consultar los puntos que ha anotado un jugador en un partido
+    3- Obtener los eventos que ha tenido un equipo en cierto partido
     4- Obtener todos los enfrentamientos que ha habido en un estadio
     5- Obtener los partidos en cierta fecha y con ciertos equipos
     6- Regresar
@@ -63,7 +63,7 @@ MENU_TEAMS = """
     CONSULTAR EQUIPOS:
     ++++++++++++++++++
     1- Consultar toda la informacion (nombre, deporte, pais, region, jugadores) de un equipo por su nombre
-    2- Obtener los eventos que ha tenido un equipo en cierto partido por nombre de equipo e id de partido
+    2- Obtener los eventos que ha tenido un equipo en cierto partido
     3- Obtener los enfrentamientos de un equipo en cierta temporada
     4- Obtener los equipos que juegan como locales en cierto estadio o viceversa
     5- Ranking de equipos por deporte
@@ -140,10 +140,12 @@ if __name__ == "__main__":
                 if response == 2:
                     nombre = input("Nombre del jugador: ")
                     apellido = input("Apellido del jugador: ")
-                    partido_id = input("Id del partido: ")
+                    fecha = input("Fecha (AAAA-MM-DD): ")
+                    equipo_local = input("Nombre del equipo local: ")
+                    equipo_visitante = input("Nombre del equipo visitante: ")
                     print(
                         database_controller.get_points_scored_by_player_match(
-                            nombre, apellido, partido_id
+                            nombre, apellido, fecha, equipo_local, equipo_visitante
                         )
                     )
                     continue
@@ -166,23 +168,27 @@ if __name__ == "__main__":
                 response = int(response)
                 if response == 1:
                     deporte = input("Deporte: ")
-                    fecha = input("Fecha: ")
+                    fecha = input("Fecha (AAAA-MM-DD): ")
                     print(database_controller.get_matches_by_date_sport(deporte, fecha))
                     continue
                 if response == 2:
                     nombre = input("Nombre del jugador: ")
                     apellido = input("Apellido del jugador: ")
-                    partido_id = input("Id del partido: ")
+                    fecha = input("Fecha (AAAA-MM-DD): ")
+                    equipo_local = input("Nombre del equipo local: ")
+                    equipo_visitante = input("Nombre del equipo visitante: ")
                     print(
                         database_controller.get_points_scored_by_player_match(
-                            nombre, apellido, partido_id
+                            nombre, apellido, fecha, equipo_local, equipo_visitante
                         )
                     )
                     continue
                 if response == 3:
                     equipo = input("Nombre del equipo: ")
-                    partido_id = input("Id del partido: ")
-                    print(database_controller.get_events_by_team_match(equipo, partido_id))
+                    fecha = input("Fecha (AAAA-MM-DD): ")
+                    equipo_local = input("Nombre del equipo local: ")
+                    equipo_visitante = input("Nombre del equipo visitante: ")
+                    print(database_controller.get_events_by_team_match(equipo, fecha, equipo_local, equipo_visitante))
                     continue
                 if response == 4:
                     estadio = input("Nombre del estadio: ")
@@ -212,8 +218,10 @@ if __name__ == "__main__":
                     continue
                 if response == 2:
                     equipo = input("Nombre del equipo: ")
-                    partido_id = input("Id del partido: ")
-                    print(database_controller.get_events_by_team_match(equipo, partido_id))
+                    fecha = input("Fecha (AAAA-MM-DD): ")
+                    equipo_local = input("Nombre del equipo local: ")
+                    equipo_visitante = input("Nombre del equipo visitante: ")
+                    print(database_controller.get_events_by_team_match(equipo, fecha, equipo_local, equipo_visitante))
                     continue
                 if response == 3:
                     equipo = input("Nombre del equipo: ")

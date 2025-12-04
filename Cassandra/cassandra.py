@@ -451,6 +451,7 @@ class CassandraService:
         """
         No docstring :)
         """
+        self.cassandra_session.session.execute("USE analisis_deportivo;")
         prepared = self.cassandra_session.session.prepare(schema.QUERY_POINTS_BY_TEAM_MATCH_TABLE)
         return self.cassandra_session.session.execute(prepared, (match_id, team_id))
 
@@ -458,6 +459,7 @@ class CassandraService:
         """
         No docstring :)
         """
+        self.cassandra_session.session.execute("USE analisis_deportivo;")
         prepared = self.cassandra_session.session.prepare(schema.QUERY_POINTS_BY_PLAYER_MATCH_TABLE)
         return self.cassandra_session.session.execute(prepared, (match_id, player_id))
 
@@ -466,6 +468,7 @@ class CassandraService:
         """
         No docstring :)
         """
+        self.cassandra_session.session.execute("USE analisis_deportivo;")
         prepared = self.cassandra_session.session.prepare(
             schema.QUERY_SANCTIONS_BY_PLAYER_MATCH_TABLE
         )
@@ -475,6 +478,7 @@ class CassandraService:
         """
         No docstring :)
         """
+        self.cassandra_session.session.execute("USE analisis_deportivo;")
         prepared = self.cassandra_session.session.prepare(
             schema.QUERY_SANCTIONS_BY_TEAM_SEASON_TABLE
         )
@@ -484,6 +488,7 @@ class CassandraService:
         """
         No docstring :)
         """
+        self.cassandra_session.session.execute("USE analisis_deportivo;")
         prepared = self.cassandra_session.session.prepare(schema.QUERY_MVP_BY_TEAM_SEASON_TABLE)
         return self.cassandra_session.session.execute(prepared, (team_id, season_id))
 
@@ -491,13 +496,20 @@ class CassandraService:
         """
         No docstring :)
         """
+        self.cassandra_session.session.execute("USE analisis_deportivo;")
         prepared = self.cassandra_session.session.prepare(schema.QUERY_EVENTS_BY_TEAM_MATCH_TABLE)
-        return self.cassandra_session.session.execute(prepared, (match_id, team_id))
+        result = self.cassandra_session.session.execute(prepared, (match_id, team_id))
+        print(match_id, team_id)
+        if not result:
+            raise ValueError("Relationship not found in cassandra")
+        else:
+            return result
 
     def obtener_rendimiento_por_jugador_partido(self, match_id: str, player_id: str):
         """
         No docstring :)
         """
+        self.cassandra_session.session.execute("USE analisis_deportivo;")
         prepared = self.cassandra_session.session.prepare(
             schema.QUERY_PERFORMANCE_BY_PLAYER_MATCH_TABLE
         )
@@ -507,6 +519,7 @@ class CassandraService:
         """
         No docstring :)
         """
+        self.cassandra_session.session.execute("USE analisis_deportivo;")
         prepared = self.cassandra_session.session.prepare(
             schema.QUERY_HISTORICAL_PERFORMANCE_BY_PLAYER_TABLE
         )
@@ -516,6 +529,7 @@ class CassandraService:
         """
         No docstring :)
         """
+        self.cassandra_session.session.execute("USE analisis_deportivo;")
         prepared = self.cassandra_session.session.prepare(schema.QUERY_LINEUP_BY_TEAM_MATCH_TABLE)
         return self.cassandra_session.session.execute(prepared, (match_id, team_id))
 
@@ -523,6 +537,7 @@ class CassandraService:
         """
         No docstring :)
         """
+        self.cassandra_session.session.execute("USE analisis_deportivo;")
         prepared = self.cassandra_session.session.prepare(
             schema.QUERY_PLAYER_CURRENT_POSITION_TABLE
         )
@@ -532,6 +547,7 @@ class CassandraService:
         """
         No docstring :)
         """
+        self.cassandra_session.session.execute("USE analisis_deportivo;")
         prepared = self.cassandra_session.session.prepare(schema.QUERY_MATCHES_BY_TEAM_SEASON_TABLE)
         return self.cassandra_session.session.execute(prepared, (team_id, season_id))
 
@@ -539,6 +555,7 @@ class CassandraService:
         """
         No docstring :)
         """
+        self.cassandra_session.session.execute("USE analisis_deportivo;")
         prepared = self.cassandra_session.session.prepare(schema.QUERY_MATCHES_BY_PLAYER_TABLE)
         return self.cassandra_session.session.execute(prepared, (player_id))
 
@@ -546,6 +563,7 @@ class CassandraService:
         """
         No docstring :)
         """
+        self.cassandra_session.session.execute("USE analisis_deportivo;")
         prepared = self.cassandra_session.session.prepare(schema.QUERY_HEAD_TO_HEAD_TEAMS_TABLE)
         return self.cassandra_session.session.execute(prepared, (team_a_id, team_b_id))
     

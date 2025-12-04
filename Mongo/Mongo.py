@@ -52,6 +52,9 @@ class MongoService:
         if isinstance(obj, ObjectId):
             return str(obj)
 
+        if isinstance(obj, datetime):
+            return obj.isoformat() 
+
         if isinstance(obj, dict):
             return {k: self.to_dict(v) for k, v in obj.items()}
 
