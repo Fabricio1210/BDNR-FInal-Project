@@ -117,6 +117,18 @@ class MongoService:
             )
         return ligas_dict
 
+    def estadisticas_liga(self, liga, temporada):
+        stats_ligas = self.db.db.estadisticas_torneos.find({
+            "torneo_nombre": liga,
+            "temporada": temporada
+        })
+        stats_ligas_dict = [self.to_dict(doc) for doc in stats_ligas]
+        if not stats_ligas_dict:
+            raise ValueError(
+                f"No se encontraron ligas para el deporte."
+            )
+        return stats_ligas_dict
+
     def obtener_partido_por_fecha_y_equipos(self, fecha_str, nombre_local, nombre_visitante):
         fecha = datetime.strptime(fecha_str, "%Y-%m-%d")
 

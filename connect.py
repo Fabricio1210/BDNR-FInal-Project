@@ -245,7 +245,15 @@ class DatabaseFacade():
     def get_league_stats_by_season(self, league, season):
         """
         No docstring >:(
-        """  
+        """ 
+        try:
+            estadisticas = self._mongo.estadisticas_liga(league,season)
+            print(json.dumps(estadisticas, indent=4))
+            return ""
+        except ValueError as e:
+            return "No se encontraron las ligas"
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
 
 
     def get_all_leagues_by_sport(self, sport):
