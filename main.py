@@ -153,9 +153,27 @@ if __name__ == "__main__":
                     )
                     continue
                 if response == 3:
-                    nombre = input("Nombre del jugador: ")
-                    apellido = input("Apellido del jugador: ")
-                    print(database_controller.get_player_teammates(nombre, apellido))
+                    nombre = input("Nombre del jugador: ").strip()
+                    apellido = input("Apellido del jugador: ").strip()
+                    try:
+                        resultado = database_controller.get_player_teammates(nombre, apellido)
+                        if resultado.get('companeros'):
+                            print("\n" + "="*60)
+                            print(f"COMPAÑEROS DE {nombre.upper()} {apellido.upper()}")
+                            print("="*60)
+                            for equipo in resultado['companeros']:
+                                if equipo.get('~juega_para'):
+                                    print(f"\nEquipo: {equipo.get('nombre', 'N/A')}")
+                                    print(f"Compañeros:")
+                                    for companero in equipo['~juega_para']:
+                                        print(f"  - {companero.get('nombre', '')} {companero.get('apellido', '')}")
+                                        print(f"    Número: {companero.get('numero', 'N/A')}")
+                                        print(f"    País: {companero.get('pais', 'N/A')}")
+                            print("="*60)
+                        else:
+                            print("No se encontraron compañeros o el jugador no existe")
+                    except Exception as e:
+                        print(f"Error al consultar compañeros: {e}")
                     continue
                 if response == 4:
                     estado = "MENU"

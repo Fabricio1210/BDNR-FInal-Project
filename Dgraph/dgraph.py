@@ -95,6 +95,15 @@ class DgraphService:
         finally:
             txn.discard()
 
+    def consultar_companeros_jugador(self, nombre, apellido):
+        """Compañeros de equipo de un jugador"""
+        txn = self._dgraph_client.client.txn(read_only=True)
+        try:
+            res = txn.query(schema.QUERY_COMPANEROS_JUGADOR, variables={'$nombre': nombre, '$apellido': apellido})
+            return json.loads(res.json)
+        finally:
+            txn.discard()
+
     # ==================== ADMIN ====================
 
     def drop_all(self):

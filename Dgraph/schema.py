@@ -3,12 +3,12 @@ Statements de Dgraph - Schema simplificado según especificación
 """
 
 SCHEMA = """
-nombre: string @index(term) .
+nombre: string @index(term, exact) .
 apellido: string @index(term) .
 numero: int .
 fechaNacimiento: datetime .
 pais: string @index(term) .
-juega_para: [uid] .
+juega_para: [uid] @reverse .
 
 liga: string @index(exact) .
 fundacion: datetime .
@@ -18,7 +18,7 @@ campo_local: uid .
 rivalidad: [uid] .
 
 capacidad: int .
-tipo: string .
+tipo: string @index(term) .
 equipos_locales: [uid] @reverse .
 enfrentamientos: [uid] @reverse .
 
@@ -255,6 +255,25 @@ query enfrentamientos_campo($nombre_campo: string) {
             nombre
             pais
             capacidad
+        }
+    }
+}
+"""
+
+QUERY_COMPANEROS_JUGADOR = """
+query companeros($nombre: string, $apellido: string) {
+    var(func: type(Jugador)) @filter(eq(nombre, $nombre) AND eq(apellido, $apellido)) {
+        E as juega_para
+    }
+
+    companeros(func: uid(E)) {
+        nombre
+        liga
+        ~juega_para @filter(NOT (eq(nombre, $nombre) AND eq(apellido, $apellido))) {
+            nombre
+            apellido
+            numero
+            pais
         }
     }
 }

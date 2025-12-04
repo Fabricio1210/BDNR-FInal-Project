@@ -64,6 +64,10 @@ class DatabaseFacade():
         """
         No docstring >:(
         """
+        try:
+            return self._dgraph.consultar_companeros_jugador(name, last_name)
+        except Exception as e:
+            return {"error": f"Error consultando compañeros: {str(e)}"}
 
     def get_matches_by_date_sport(self, sport, date):
         """
