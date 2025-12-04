@@ -29,6 +29,7 @@ class DatabaseFacade():
         """
         self._mongo.eliminar_base_de_datos()
         self._cassandra.borrar_base_de_datos()
+        self._dgraph.drop_all()
 
     def get_player_info(self, name, last_name):
         """
