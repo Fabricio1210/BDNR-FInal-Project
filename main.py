@@ -40,8 +40,9 @@ MENU_PLAYERS = """
     ++++++++++++++++++
     1- Consultar toda la informacion de un jugador por su nombre y apellido
     2- Consultar lo puntos que ha anotado un jugador en un partido 
-    3- Consultar todos los compañeros de cierto jugador por su nombre y apellido
-    4- Regresar
+    3- Consultar las sanciones que ha tenido un jugador en un partido
+    4- Consultar todos los compañeros de cierto jugador por su nombre y apellido
+    5- Regresar
 ------------------------------------------------------------
 """
 
@@ -152,9 +153,20 @@ if __name__ == "__main__":
                 if response == 3:
                     nombre = input("Nombre del jugador: ")
                     apellido = input("Apellido del jugador: ")
+                    fecha = input("Fecha (AAAA-MM-DD): ")
+                    equipo_local = input("Nombre del equipo local: ")
+                    equipo_visitante = input("Nombre del equipo visitante: ")
+                    print(
+                        database_controller.get_sanctions_by_player_match(
+                            nombre, apellido, fecha, equipo_local, equipo_visitante
+                        )
+                    )
+                if response == 4:
+                    nombre = input("Nombre del jugador: ")
+                    apellido = input("Apellido del jugador: ")
                     print(database_controller.get_player_teammates(nombre, apellido))
                     continue
-                if response == 4:
+                if response == 5:
                     estado = "MENU"
                     continue
                 print("Opcion invalida. Seleccione una opcion del 1-5")

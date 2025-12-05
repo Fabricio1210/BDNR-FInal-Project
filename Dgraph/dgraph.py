@@ -332,7 +332,7 @@ class DgraphService:
                         if temp_key in temporada_uids:
                             enfrentamiento["temporada"] = {"uid": temporada_uids[temp_key]}
                         else:
-                            log.warning(f"Temporada no encontrada: {temp_key}. Partido omitido.")
+                            #log.warning(f"Temporada no encontrada: {temp_key}. Partido omitido.")
                             continue
 
                         txn.mutate(set_obj=enfrentamiento, commit_now=False)

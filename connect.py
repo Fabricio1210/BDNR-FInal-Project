@@ -248,7 +248,7 @@ class DatabaseFacade():
         No docstring >:(
         """ 
         try:
-            estadisticas = self._mongo.estadisticas_liga(league,season)
+            estadisticas = self._mongo.estadisticas_liga(league, season)
             print(json.dumps(estadisticas, indent=4))
             return ""
         except ValueError as e:
@@ -256,6 +256,24 @@ class DatabaseFacade():
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
 
+    def get_sanctions_by_player_match(self, name, last_name, date_match, local_team, visitor_team):
+        """
+        No docstring >:(
+        """
+        try:
+            player = self._mongo.obtener_jugadores(name, last_name)
+            player_id = player[0].get("_id")
+            match = self._mongo.obtener_partido_por_fecha_y_equipos(date_match, local_team, visitor_team)
+            data = self._cassandra.obtener_sanciones_por_jugador_partido(match.get("_id"), player_id)
+            for row in data:
+                row_dict = row._asdict()
+                for k, v in row_dict.items():
+                    print(f"{k}: {v}")
+            return ""
+        except ValueError as e:
+            return "No se encontroran las ligas"
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
 
     def get_all_leagues_by_sport(self, sport):
         """

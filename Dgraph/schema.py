@@ -29,7 +29,7 @@ fechaFin: datetime .
 equipo_local: uid .
 equipo_visitante: uid .
 campo: uid @reverse .
-temporada: uid @reverse .
+temporada: uid @reverse .get_team_ranking_by_sport
 fecha: datetime @index(year) .
 marcadorLocal: int .
 marcadorVisitante: int .
