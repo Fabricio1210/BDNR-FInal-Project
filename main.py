@@ -69,7 +69,8 @@ MENU_TEAMS = """
     4- Obtener los equipos que juegan como locales en cierto estadio o viceversa
     5- Ranking de equipos por deporte
     6- Obtener los primeros lugares de todos los deportes
-    7- Regresar
+    7- Obtener las sanciones que ha tenido un equipo en una temporada
+    8- Regresar
 ------------------------------------------------------------
 """
 
@@ -252,6 +253,11 @@ if __name__ == "__main__":
                     print(database_controller.get_first_places_from_all_sports())
                     continue
                 if response == 7:
+                    equipo = input("Nombre del equipo: ")
+                    temporada = input("Temporada: ")
+                    print(database_controller.get_matches_by_team_season(equipo, temporada))
+                    continue
+                if response == 8:
                     estado = "MENU"
                     continue
                 print("Opcion invalida. Seleccione una opcion del 1-8")

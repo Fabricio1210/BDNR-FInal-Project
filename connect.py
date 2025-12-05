@@ -287,6 +287,24 @@ class DatabaseFacade():
             return "No se encontroran las ligas"
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
+        
+    def get_sanctions_by_team_season(self, team, season):
+        """
+        No docstring >:(
+        """  
+        try:
+            team_obj = self._mongo.obtener_equipo(team)
+            team_id = team_obj.get("_id")
+            data = self._cassandra.obtener_sanciones_por_equipo_temporada(team_id, season)
+            for row in data:
+                row_dict = row._asdict()
+                for k, v in row_dict.items():
+                    print(f"{k}: {v}")
+            return ""
+        except ValueError as e:
+            return "No se encontro el partido"
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
 
     def add_player(self, nombre, apellido, numero, fecha_nacimiento, deporte, pais_origen, posicion, altura_cm, equipo_nombre):
         """
