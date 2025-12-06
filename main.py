@@ -47,7 +47,8 @@ MENU_PLAYERS = """
     7- Consultar antigüedad de un jugador en temporadas
     8- Consultar el rendimiento de un jugador en un partido
     9- Consultar el rendimiento de un jugador durante su carrera
-    10- Regresar
+    10- Consultar la posicion de un jugador en tiempo real
+    11- Regresar
 ------------------------------------------------------------
 """
 
@@ -61,7 +62,9 @@ MENU_MATCHES = """
     4- Obtener todos los enfrentamientos que ha habido en un estadio
     5- Obtener los partidos en cierta fecha y con ciertos equipos
     6- Obtener la alineacion de un equipo en un partido
-    7- Regresar
+    7- Obtener los partidos de un equipo en cierta temporada
+    8- Consultar los partidos que ha jugado un jugador
+    9- Regresar
 ------------------------------------------------------------
 """
 
@@ -207,6 +210,11 @@ if __name__ == "__main__":
                     print(database_controller.get_historical_performance(nombre, apellido))
                     continue
                 if response == 10:
+                    nombre = input("Nombre del jugador: ")
+                    apellido = input("Apellido del jugador: ")
+                    print(database_controller.get_current_player_position(nombre, apellido))
+                    continue
+                if response == 11:
                     estado = "MENU"
                     continue
                 print("Opcion invalida. Seleccione una opcion del 1-7")
@@ -260,6 +268,15 @@ if __name__ == "__main__":
                     print(database_controller.get_match_lineup_by_team(equipo, fecha, equipo_local, equipo_visitante))
                     continue
                 if response == 7:
+                    equipo = input("Nombre del equipo: ")
+                    temporada = input("Temporada: ")
+                    print(database_controller.get_matches_by_team_season(equipo, temporada))
+                    continue
+                if response == 8:
+                    nombre = input("Nombre del jugador: ")
+                    apellido = input("Apellido del jugador: ")
+                    print(database_controller.get_matches_by_player(nombre, apellido))
+                if response == 9:
                     estado = "MENU"
                     continue
                 print("Opcion invalida. Seleccione una opcion del 1-6")

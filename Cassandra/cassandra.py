@@ -566,7 +566,7 @@ class CassandraService:
         self.cassandra_session.session.execute("USE analisis_deportivo;")
         prepared = self.cassandra_session.session.prepare(schema.QUERY_HEAD_TO_HEAD_TEAMS_TABLE)
         return self.cassandra_session.session.execute(prepared, (team_a_id, team_b_id))
-    
+
     def borrar_base_de_datos(self):
         """
         No docstring :)
