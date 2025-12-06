@@ -2,6 +2,7 @@ import csv
 from datetime import datetime
 from bson import ObjectId
 from pymongo import MongoClient
+import logging
 
 MONGO_URI = "mongodb://localhost:27017/"
 DB_NOMBRE = "sports_db"
@@ -61,6 +62,8 @@ def poblar_jugadores_db(mapa_ids):
     db = client[DB_NOMBRE]
     col = db[COLLECTION_JUGADORES]
 
+    col.create_index([("nombre", 1), ("apellido", 1)])
+
     docs = []
 
     with open(ARCHIVO_JUGADORES, "r", encoding="utf-8") as fd:
@@ -115,6 +118,8 @@ def poblar_estadisticas_equipos(mapa_ids):
     db = client[DB_NOMBRE]
     col = db[COLLECTION_ESTADISTICAS]
 
+    col.create_index([("deporte", 1), ("temporada", 1)])
+
     docs = []
 
     with open(ARCHIVO_ESTADISTICAS, "r", encoding="utf-8") as fd:
@@ -149,6 +154,8 @@ def poblar_partidos_db(mapa_ids):
     client = MongoClient(MONGO_URI)
     db = client[DB_NOMBRE]
     col = db[COLLECTION_PARTIDOS]
+
+    col.create_index([("deporte", 1), ("fecha", 1)])
 
     docs = []
     referencias = []
@@ -192,6 +199,8 @@ def poblar_ligas_db():
     client = MongoClient(MONGO_URI)
     db = client[DB_NOMBRE]
     col = db[COLLECTION_LIGAS]
+
+    col.create_index("nombre_deporte", unique=True)
 
     docs = []
 

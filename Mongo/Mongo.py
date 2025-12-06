@@ -13,6 +13,7 @@ class MongoSingleton:
     DEFAULT_DB = "sports_db"
 
     def _init_instance(self):
+        
         host = self.DEFAULT_HOST
         port = self.DEFAULT_PORT
         db_name = self.DEFAULT_DB
@@ -43,6 +44,7 @@ class MongoSingleton:
 
 class MongoService:
     def __init__(self):
+        log.info("Conexión Singleton a MongoDB establecida")
         self.db = MongoSingleton()
 
     def poblar(self):
@@ -297,7 +299,7 @@ class MongoService:
 
     def eliminar_base_de_datos(self):
         db_name = self.db.DEFAULT_DB
-        
+        log.info("Base de datos de cassandra borrada exitosamente")
         try:
             self.db._client.drop_database(db_name)            
             return {"mensaje": f"La base de datos '{db_name}' ha sido eliminada correctamente."}

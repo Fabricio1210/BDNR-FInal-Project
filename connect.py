@@ -384,7 +384,7 @@ class DatabaseFacade():
             return "Error: datos inválidos para agregar equipo."
         except Exception as e:
             return "Error en la base de datos: " + str(e)
-            
+
     def get_team_rivalries(self, team):
         """
         No docstring >:(
