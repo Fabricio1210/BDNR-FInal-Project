@@ -43,6 +43,7 @@ class DgraphService:
     def __init__(self):
         self._dgraph_client = DgraphSingleton()
         self._dgraph_client.client.alter(pydgraph.Operation(schema=schema.SCHEMA))
+        log.info("Conexión exitosa a Dgraph")
 
     def insert_nodes(self, statement):
         """
@@ -100,6 +101,51 @@ class DgraphService:
         txn = self._dgraph_client.client.txn(read_only=True)
         try:
             res = txn.query(schema.QUERY_COMPANEROS_JUGADOR, variables={'$nombre': nombre, '$apellido': apellido})
+            return json.loads(res.json)
+        finally:
+            txn.discard()
+
+    def consultar_rivalidades_equipo(self, nombre_equipo):
+        """Equipos rivales de un equipo específico"""
+        txn = self._dgraph_client.client.txn(read_only=True)
+        try:
+            res = txn.query(schema.QUERY_RIVALIDADES_EQUIPO, variables={'$nombre_equipo': nombre_equipo})
+            return json.loads(res.json)
+        finally:
+            txn.discard()
+
+    def consultar_jugadores_equipos_rivales(self, nombre, apellido):
+        """Jugadores que han jugado en equipos rivales"""
+        txn = self._dgraph_client.client.txn(read_only=True)
+        try:
+            res = txn.query(schema.QUERY_JUGADORES_EQUIPOS_RIVALES, variables={'$nombre': nombre, '$apellido': apellido})
+            return json.loads(res.json)
+        finally:
+            txn.discard()
+
+    def consultar_antiguedad_jugador(self, nombre, apellido):
+        """Antigüedad de jugador medida en temporadas"""
+        txn = self._dgraph_client.client.txn(read_only=True)
+        try:
+            res = txn.query(schema.QUERY_ANTIGUEDAD_JUGADOR, variables={'$nombre': nombre, '$apellido': apellido})
+            return json.loads(res.json)
+        finally:
+            txn.discard()
+
+    def consultar_impacto_localia(self, nombre_equipo):
+        """Impacto de localía en rendimiento del equipo"""
+        txn = self._dgraph_client.client.txn(read_only=True)
+        try:
+            res = txn.query(schema.QUERY_IMPACTO_LOCALIA, variables={'$nombre_equipo': nombre_equipo})
+            return json.loads(res.json)
+        finally:
+            txn.discard()
+
+    def consultar_temporadas_equipo(self, nombre_equipo):
+        """Todas las temporadas de un equipo con enfrentamientos"""
+        txn = self._dgraph_client.client.txn(read_only=True)
+        try:
+            res = txn.query(schema.QUERY_TEMPORADAS_EQUIPO, variables={'$nombre_equipo': nombre_equipo})
             return json.loads(res.json)
         finally:
             txn.discard()
@@ -218,30 +264,14 @@ class DgraphService:
                 txn = self._dgraph_client.client.txn()
                 try:
                     for row in reader:
-                        # Parsear fecha de nacimiento
-                        fecha_nac = row['fecha_nacimiento']
-                        fecha_nac_dt = datetime.strptime(fecha_nac, "%Y-%m-%d")
-
                         jugador = {
                             "dgraph.type": "Jugador",
                             "nombre": row['nombre'],
                             "apellido": row['apellido'],
                             "numero": int(row['numero']) if row['numero'] else 0,
-                            "fechaNacimiento": fecha_nac + "T00:00:00Z",
+                            "fechaNacimiento": row['fecha_nacimiento'],
                             "pais": row['pais_origen']
                         }
-
-                        # Conectar con equipo actual con facets
-                        equipo_id = row['equipo_id']
-                        if equipo_id in equipo_uids:
-                            # Asumimos que el jugador se unió al equipo actual hace 2 años
-                            fecha_inicio = f"{fecha_nac_dt.year + 18}-01-01T00:00:00Z"
-
-                            jugador["juega_para"] = [{
-                                "uid": equipo_uids[equipo_id],
-                                "juega_para|fechaInicio": fecha_inicio,
-                                "juega_para|fechaFin": "2024-12-31T23:59:59Z"
-                            }]
 
                         response = txn.mutate(set_obj=jugador, commit_now=False)
                         uid = list(response.uids.values())[0]
@@ -251,6 +281,30 @@ class DgraphService:
                     log.info(f"Jugadores insertados: {len(jugador_uids)}")
                 finally:
                     txn.discard()
+
+            # 3.5. Vincular Jugadores con Equipos (historial)
+            log.info("Vinculando jugadores con equipos (historial)...")
+            historial_file = os.path.join("data", "jugadores_equipos_historial.csv")
+            if os.path.exists(historial_file):
+                with open(historial_file, 'r', encoding='utf-8') as f:
+                    reader = csv.DictReader(f)
+                    txn = self._dgraph_client.client.txn()
+                    try:
+                        for row in reader:
+                            jugador_key = f"{row['jugador_nombre']}_{row['jugador_apellido']}"
+                            if jugador_key in jugador_uids and row['equipo_id'] in equipo_uids:
+                                txn.mutate(set_obj={
+                                    "uid": jugador_uids[jugador_key],
+                                    "juega_para": [{
+                                        "uid": equipo_uids[row['equipo_id']],
+                                        "juega_para|fechaInicio": row['fecha_inicio'],
+                                        "juega_para|fechaFin": row['fecha_fin']
+                                    }]
+                                }, commit_now=False)
+                        txn.commit()
+                        log.info("Historial de jugadores vinculado")
+                    finally:
+                        txn.discard()
 
             # 4. Poblar Temporadas
             log.info("Poblando nodo Temporada...")
@@ -265,14 +319,15 @@ class DgraphService:
                             "anio": int(row['anio']),
                             "nombre": row['nombre'],
                             "liga": row['liga'],
-                            "fechaInicio": row['fechaInicio'] + "T00:00:00Z",
-                            "fechaFin": row['fechaFin'] + "T23:59:59Z"
+                            "fechaInicio": row['fechaInicio'],
+                            "fechaFin": row['fechaFin']
                         }
 
                         response = txn.mutate(set_obj=temporada, commit_now=False)
                         uid = list(response.uids.values())[0]
-                        # Crear clave única para la temporada
-                        temp_key = f"{row['liga']}_{row['nombre']}"
+                        # Crear clave única para la temporada usando solo el nombre
+                        # porque partidos.csv usa torneo_nombre y temporada (que es el nombre)
+                        temp_key = row['nombre']
                         temporada_uids[temp_key] = uid
                     txn.commit()
                     log.info(f"Temporadas insertadas: {len(temporada_uids)}")
@@ -309,7 +364,7 @@ class DgraphService:
 
                         enfrentamiento = {
                             "dgraph.type": "Enfrentamiento",
-                            "fecha": row['fecha'] + "T00:00:00Z",
+                            "fecha": row['fecha'],
                             "marcadorLocal": goles_local,
                             "marcadorVisitante": goles_visitante,
                             "resultado": resultado
@@ -326,13 +381,13 @@ class DgraphService:
                         if campo_nombre and campo_nombre in campo_uids:
                             enfrentamiento["campo"] = {"uid": campo_uids[campo_nombre]}
 
-                        # Conectar temporada
-                        temp_key = f"{row['torneo_nombre']}_{row['temporada']}"
+                        # Conectar temporada usando solo el nombre de la temporada
+                        temp_key = row['temporada']
 
                         if temp_key in temporada_uids:
                             enfrentamiento["temporada"] = {"uid": temporada_uids[temp_key]}
                         else:
-                            log.warning(f"Temporada no encontrada: {temp_key}. Partido omitido.")
+                            #log.warning(f"Temporada no encontrada: {temp_key}. Partido omitido.")
                             continue
 
                         txn.mutate(set_obj=enfrentamiento, commit_now=False)

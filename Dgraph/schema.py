@@ -29,7 +29,7 @@ fechaFin: datetime .
 equipo_local: uid .
 equipo_visitante: uid .
 campo: uid @reverse .
-temporada: uid @reverse .
+temporada: uid @reverse .get_team_ranking_by_sport
 fecha: datetime @index(year) .
 marcadorLocal: int .
 marcadorVisitante: int .
@@ -274,6 +274,150 @@ query companeros($nombre: string, $apellido: string) {
             apellido
             numero
             pais
+        }
+    }
+}
+"""
+
+QUERY_RIVALIDADES_EQUIPO = """
+query rivalidades($nombre_equipo: string) {
+    equipo(func: type(Equipo)) @filter(eq(nombre, $nombre_equipo)) {
+        uid
+        nombre
+        liga
+        pais
+        rivalidad {
+            uid
+            nombre
+            liga
+            pais
+        }
+    }
+}
+"""
+
+QUERY_JUGADORES_EQUIPOS_RIVALES = """
+query jugadores_rivales($nombre: string, $apellido: string) {
+    jugador(func: type(Jugador)) @filter(eq(nombre, $nombre) AND eq(apellido, $apellido)) {
+        uid
+        nombre
+        apellido
+        juega_para @facets {
+            uid
+            nombre
+            liga
+            rivalidad {
+                uid
+                nombre
+                liga
+                pais
+            }
+        }
+    }
+}
+"""
+
+QUERY_ANTIGUEDAD_JUGADOR = """
+query antiguedad($nombre: string, $apellido: string) {
+    jugador(func: type(Jugador)) @filter(eq(nombre, $nombre) AND eq(apellido, $apellido)) {
+        uid
+        nombre
+        apellido
+        juega_para @facets {
+            uid
+            nombre
+            liga
+        }
+    }
+
+    var(func: type(Jugador)) @filter(eq(nombre, $nombre) AND eq(apellido, $apellido)) {
+        E as juega_para
+    }
+
+    temporadas(func: type(Enfrentamiento)) @filter(uid_in(equipo_local, uid(E)) OR uid_in(equipo_visitante, uid(E))) {
+        temporada {
+            uid
+            nombre
+            liga
+            anio
+            fechaInicio
+            fechaFin
+        }
+    }
+}
+"""
+
+QUERY_IMPACTO_LOCALIA = """
+query impacto_localia($nombre_equipo: string) {
+    var(func: type(Equipo)) @filter(eq(nombre, $nombre_equipo)) {
+        E as uid
+        C as campo_local
+    }
+
+    equipo(func: uid(E)) {
+        uid
+        nombre
+        liga
+        campo_local {
+            uid
+            nombre
+            pais
+        }
+    }
+
+    local(func: type(Enfrentamiento)) @filter(uid_in(equipo_local, uid(E)) AND uid_in(campo, uid(C))) {
+        uid
+        fecha
+        marcadorLocal
+        marcadorVisitante
+        resultado
+        equipo_visitante {
+            nombre
+        }
+    }
+
+    visitante(func: type(Enfrentamiento)) @filter(uid_in(equipo_local, uid(E)) AND NOT uid_in(campo, uid(C))) {
+        uid
+        fecha
+        marcadorLocal
+        marcadorVisitante
+        resultado
+        equipo_visitante {
+            nombre
+        }
+        campo {
+            nombre
+            pais
+        }
+    }
+}
+"""
+
+QUERY_TEMPORADAS_EQUIPO = """
+query temporadas_equipo($nombre_equipo: string) {
+    var(func: type(Equipo)) @filter(eq(nombre, $nombre_equipo)) {
+        E as uid
+    }
+
+    enfrentamientos(func: type(Enfrentamiento)) @filter(uid_in(equipo_local, uid(E)) OR uid_in(equipo_visitante, uid(E))) {
+        uid
+        fecha
+        marcadorLocal
+        marcadorVisitante
+        resultado
+        equipo_local {
+            nombre
+        }
+        equipo_visitante {
+            nombre
+        }
+        temporada {
+            uid
+            nombre
+            liga
+            anio
+            fechaInicio
+            fechaFin
         }
     }
 }
