@@ -4,7 +4,8 @@ from Mongo.populate import poblar
 from datetime import datetime
 from bson import ObjectId
 
-log = logging.getLogger()
+log = logging.getLogger("ProyectoBases")
+log.propagate = False
 
 class MongoSingleton:
     _instance = None
