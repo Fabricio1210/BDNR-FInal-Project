@@ -296,3 +296,27 @@ class DatabaseFacade():
             return "Error: datos inválidos para agregar jugador."
         except Exception as e:
             return "Error en la base de datos: " + str(e)
+
+    def add_team(self, nombre, deporte, pais, region, trofeos_totales=0, puntos_historicos=0):
+        """
+        No docstring >:( 
+        """
+        try:
+            resultado = self._mongo.agregar_equipo(
+                nombre,
+                deporte,
+                pais,
+                region,
+                trofeos_totales,
+                puntos_historicos
+            )
+
+            if "error" in resultado:
+                return "Error: " + resultado["error"]
+
+            return f"Equipo '{nombre}' agregado correctamente. ID: {resultado['equipo_id']}"
+
+        except ValueError:
+            return "Error: datos inválidos para agregar equipo."
+        except Exception as e:
+            return "Error en la base de datos: " + str(e)

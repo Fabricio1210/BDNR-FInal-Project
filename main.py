@@ -295,7 +295,28 @@ if __name__ == "__main__":
                         ))
                     continue
                 if response == 2:
-                    print("No implementado aun :)")
+                    nombre = input("Nombre del equipo: ")
+                    deporte = input("Deporte: ")
+                    pais = input("País: ")
+                    region = input("Región: ")
+                    try:
+                        trofeos_totales = input("Trofeos totales (opcional, default 0): ")
+                        trofeos_totales = int(trofeos_totales) if trofeos_totales.strip() != "" else 0
+
+                        puntos_historicos = input("Puntos históricos (opcional, default 0): ")
+                        puntos_historicos = int(puntos_historicos) if puntos_historicos.strip() != "" else 0
+                    except ValueError:
+                        print("Error: trofeos_totales y puntos_historicos deben ser números enteros.")
+                        continue
+
+                    print(database_controller.add_team(
+                        nombre,
+                        deporte,
+                        pais,
+                        region,
+                        trofeos_totales,
+                        puntos_historicos
+                    ))
                     continue
                 if response == 3:
                     estado = "MENU"
