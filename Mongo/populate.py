@@ -22,6 +22,9 @@ def poblar_equipos_db():
     client = MongoClient(MONGO_URI)
     db = client[DB_NOMBRE]
     col = db[COLLECTION_EQUIPOS]
+    
+    col.create_index("nombre", unique=True)
+    col.create_index([("pais", 1), ("isActive", 1)])  
 
     docs = []
     mapa_ids = {}

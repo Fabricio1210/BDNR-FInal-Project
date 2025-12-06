@@ -315,6 +315,24 @@ class DatabaseFacade():
             return "No se encontro el partido"
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
+        
+    def get_mvps_by_team_season(self, team, season):
+        """
+        No docstring >:(
+        """
+        try:
+            team_obj = self._mongo.obtener_equipo(team)
+            team_id = team_obj.get("_id")
+            data = self._cassandra.obtener_mvp_por_equipo_temporada(team_id, season)
+            for row in data:
+                row_dict = row._asdict()
+                for k, v in row_dict.items():
+                    print(f"{k}: {v}")
+            return ""
+        except ValueError as e:
+            return "No se encontroran las ligas"
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
 
     def add_player(self, nombre, apellido, numero, fecha_nacimiento, deporte, pais_origen, posicion, altura_cm, equipo_nombre):
         """
@@ -343,6 +361,30 @@ class DatabaseFacade():
         except Exception as e:
             return "Error en la base de datos: " + str(e)
 
+    def add_team(self, nombre, deporte, pais, region, trofeos_totales=0, puntos_historicos=0):
+        """
+        No docstring >:( 
+        """
+        try:
+            resultado = self._mongo.agregar_equipo(
+                nombre,
+                deporte,
+                pais,
+                region,
+                trofeos_totales,
+                puntos_historicos
+            )
+
+            if "error" in resultado:
+                return "Error: " + resultado["error"]
+
+            return f"Equipo '{nombre}' agregado correctamente. ID: {resultado['equipo_id']}"
+
+        except ValueError:
+            return "Error: datos inválidos para agregar equipo."
+        except Exception as e:
+            return "Error en la base de datos: " + str(e)
+            
     def get_team_rivalries(self, team):
         """
         No docstring >:(
@@ -535,5 +577,97 @@ class DatabaseFacade():
             else:
                 print("No se encontraron enfrentamientos para este equipo")
             return ""
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
+
+    def get_performance_by_player_match(self, name, last_name, date_match, local_team, visitor_team):
+        """
+        No docstring >:(
+        """
+        try:
+            player = self._mongo.obtener_jugadores(name, last_name)
+            player_id = player[0].get("_id")
+            match = self._mongo.obtener_partido_por_fecha_y_equipos(date_match, local_team, visitor_team)
+            data = self._cassandra.obtener_rendimiento_por_jugador_partido(match.get("_id"), player_id)
+            for row in data:
+                row_dict = row._asdict()
+                for k, v in row_dict.items():
+                    print(f"{k}: {v}")
+            return ""
+        except ValueError as e:
+            return "No se encontroran las ligas"
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
+
+    def get_historical_performance(self, name, last_name):
+        """
+        No docstring >:(
+        """
+        try:
+            player = self._mongo.obtener_jugadores(name, last_name)
+            player_id = player[0].get("_id")
+            data = self._cassandra.obtener_rendimiento_historico_jugador(player_id)
+            for row in data:
+                row_dict = row._asdict()
+                for k, v in row_dict.items():
+                    print(f"{k}: {v}")
+            return ""
+        except ValueError as e:
+            return "No se encontroran las ligas"
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
+    
+    def get_match_lineup_by_team(self, team, date_match, local_team, visitor_team):
+        """
+        No docstring >:(
+        """
+        try:
+            match = self._mongo.obtener_partido_por_fecha_y_equipos(date_match, local_team, visitor_team)
+            team_obj = self._mongo.obtener_equipo(team)
+            team_id = team_obj.get("_id")
+            data = self._cassandra.obtener_alineacion_por_equipo_partido(match.get("_id"), team_id)
+            for row in data:
+                row_dict = row._asdict()
+                for k, v in row_dict.items():
+                    print(f"{k}: {v}")
+            return ""
+        except ValueError as e:
+            return "No se encontro el partido con ese equipo: " + str(e)
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
+
+    def get_current_player_position(self, name, last_name):
+        """
+        No docstring >:(
+        """
+        try:
+            player = self._mongo.obtener_jugadores(name, last_name)
+            player_id = player[0].get("_id")
+            data = self._cassandra.obtener_posicion_actual_jugador(player_id)
+            for row in data:
+                row_dict = row._asdict()
+                for k, v in row_dict.items():
+                    print(f"{k}: {v}")
+            return ""
+        except ValueError as e:
+            return "No se encontroran las ligas"
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
+
+    def get_matches_by_player(self, name, last_name):
+        """
+        No docstring >:(
+        """
+        try:
+            player = self._mongo.obtener_jugadores(name, last_name)
+            player_id = player[0].get("_id")
+            data = self._cassandra.obtener_partidos_por_jugador(player_id)
+            for row in data:
+                row_dict = row._asdict()
+                for k, v in row_dict.items():
+                    print(f"{k}: {v}")
+            return ""
+        except ValueError as e:
+            return "No se encontroran las ligas"
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)

@@ -42,9 +42,13 @@ MENU_PLAYERS = """
     2- Consultar lo puntos que ha anotado un jugador en un partido
     3- Consultar las sanciones que ha tenido un jugador en un partido
     4- Consultar todos los compañeros de cierto jugador por su nombre y apellido
-    5- Consultar equipos rivales donde ha jugado un jugador
-    6- Consultar antigüedad de un jugador en temporadas
-    7- Regresar
+    5- Consultar los mejores jugadores (MVPs) por equipo y temporada
+    6- Consultar equipos rivales donde ha jugado un jugador
+    7- Consultar antigüedad de un jugador en temporadas
+    8- Consultar el rendimiento de un jugador en un partido
+    9- Consultar el rendimiento de un jugador durante su carrera
+    10- Consultar la posicion de un jugador en tiempo real
+    11- Regresar
 ------------------------------------------------------------
 """
 
@@ -57,7 +61,10 @@ MENU_MATCHES = """
     3- Obtener los eventos que ha tenido un equipo en cierto partido
     4- Obtener todos los enfrentamientos que ha habido en un estadio
     5- Obtener los partidos en cierta fecha y con ciertos equipos
-    6- Regresar
+    6- Obtener la alineacion de un equipo en un partido
+    7- Obtener los partidos de un equipo en cierta temporada
+    8- Consultar los partidos que ha jugado un jugador
+    9- Regresar
 ------------------------------------------------------------
 """
 
@@ -75,7 +82,8 @@ MENU_TEAMS = """
     8- Consultar rivalidades de un equipo
     9- Analizar impacto de localía de un equipo
     10- Consultar todas las temporadas de un equipo
-    11- Regresar
+    11- Obtener la alineacion de un equipo en un partido
+    12- Regresar
 ------------------------------------------------------------
 """
 
@@ -174,16 +182,39 @@ if __name__ == "__main__":
                     print(database_controller.get_player_teammates(nombre, apellido))
                     continue
                 if response == 5:
-                    nombre = input("Nombre del jugador: ")
-                    apellido = input("Apellido del jugador: ")
-                    print(database_controller.get_player_rival_teams(nombre, apellido))
+                    equipo = input("Nombre del equipo: ")
+                    temporada = input("Temporada: ")
+                    print(database_controller.get_mvps_by_team_season(equipo, temporada))
                     continue
                 if response == 6:
                     nombre = input("Nombre del jugador: ")
                     apellido = input("Apellido del jugador: ")
-                    print(database_controller.get_player_seniority(nombre, apellido))
+                    print(database_controller.get_player_rival_teams(nombre, apellido))
                     continue
                 if response == 7:
+                    nombre = input("Nombre del jugador: ")
+                    apellido = input("Apellido del jugador: ")
+                    print(database_controller.get_player_seniority(nombre, apellido))
+                    continue
+                if response == 8:
+                    nombre = input("Nombre del jugador: ")
+                    apellido = input("Apellido del jugador: ")
+                    fecha = input("Fecha (AAAA-MM-DD): ")
+                    equipo_local = input("Nombre del equipo local: ")
+                    equipo_visitante = input("Nombre del equipo visitante: ")
+                    print(database_controller.get_performance_by_player_match(nombre, apellido, fecha, equipo_local, equipo_visitante))
+                    continue
+                if response == 9:
+                    nombre = input("Nombre del jugador: ")
+                    apellido = input("Apellido del jugador: ")
+                    print(database_controller.get_historical_performance(nombre, apellido))
+                    continue
+                if response == 10:
+                    nombre = input("Nombre del jugador: ")
+                    apellido = input("Apellido del jugador: ")
+                    print(database_controller.get_current_player_position(nombre, apellido))
+                    continue
+                if response == 11:
                     estado = "MENU"
                     continue
                 print("Opcion invalida. Seleccione una opcion del 1-7")
@@ -230,6 +261,22 @@ if __name__ == "__main__":
                     print(database_controller.get_matches_by_date_and_teams(fecha, equipo_local, equipo_visitante))
                     continue
                 if response == 6:
+                    equipo = input("Nombre del equipo: ")
+                    fecha = input("Fecha (AAAA-MM-DD): ")
+                    equipo_local = input("Nombre del equipo local: ")
+                    equipo_visitante = input("Nombre del equipo visitante: ")
+                    print(database_controller.get_match_lineup_by_team(equipo, fecha, equipo_local, equipo_visitante))
+                    continue
+                if response == 7:
+                    equipo = input("Nombre del equipo: ")
+                    temporada = input("Temporada: ")
+                    print(database_controller.get_matches_by_team_season(equipo, temporada))
+                    continue
+                if response == 8:
+                    nombre = input("Nombre del jugador: ")
+                    apellido = input("Apellido del jugador: ")
+                    print(database_controller.get_matches_by_player(nombre, apellido))
+                if response == 9:
                     estado = "MENU"
                     continue
                 print("Opcion invalida. Seleccione una opcion del 1-6")
@@ -286,6 +333,13 @@ if __name__ == "__main__":
                     print(database_controller.get_team_seasons(equipo))
                     continue
                 if response == 11:
+                    equipo = input("Nombre del equipo: ")
+                    fecha = input("Fecha (AAAA-MM-DD): ")
+                    equipo_local = input("Nombre del equipo local: ")
+                    equipo_visitante = input("Nombre del equipo visitante: ")
+                    print(database_controller.get_match_lineup_by_team(equipo, fecha, equipo_local, equipo_visitante))
+                    continue
+                if response == 12:
                     estado = "MENU"
                     continue
                 print("Opcion invalida. Seleccione una opcion del 1-11")
@@ -341,7 +395,28 @@ if __name__ == "__main__":
                         ))
                     continue
                 if response == 2:
-                    print("No implementado aun :)")
+                    nombre = input("Nombre del equipo: ")
+                    deporte = input("Deporte: ")
+                    pais = input("País: ")
+                    region = input("Región: ")
+                    try:
+                        trofeos_totales = input("Trofeos totales (opcional, default 0): ")
+                        trofeos_totales = int(trofeos_totales) if trofeos_totales.strip() != "" else 0
+
+                        puntos_historicos = input("Puntos históricos (opcional, default 0): ")
+                        puntos_historicos = int(puntos_historicos) if puntos_historicos.strip() != "" else 0
+                    except ValueError:
+                        print("Error: trofeos_totales y puntos_historicos deben ser números enteros.")
+                        continue
+
+                    print(database_controller.add_team(
+                        nombre,
+                        deporte,
+                        pais,
+                        region,
+                        trofeos_totales,
+                        puntos_historicos
+                    ))
                     continue
                 if response == 3:
                     estado = "MENU"

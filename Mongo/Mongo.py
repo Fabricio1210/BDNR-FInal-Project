@@ -304,3 +304,39 @@ class MongoService:
 
         except Exception as e:
             raise Exception(f"Error al intentar eliminar la base de datos '{db_name}': {e}")
+
+    def agregar_equipo(self, nombre, deporte, pais, region, trofeos_totales=0, puntos_historicos=0):
+        try:
+            existente = self.db.db.equipos.find_one({"nombre": nombre})
+            if existente:
+                return {"error": f"El equipo '{nombre}' ya existe"}
+
+            try:
+                trofeos_totales = int(trofeos_totales)
+                puntos_historicos = int(puntos_historicos)
+            except ValueError:
+                return {"error": "Los valores de trofeos_totales y puntos_historicos deben ser enteros"}
+
+            nuevo_equipo = {
+                "nombre": nombre,
+                "deporte": deporte,
+                "pais": pais,
+                "region": region,
+                "estadisticas_acumuladas": {
+                    "trofeos_totales": trofeos_totales,
+                    "puntos_historicos": puntos_historicos
+                },
+                "isActive": True,
+                "jugadores_ids": []
+            }
+
+            equipo_id = self.db.db.equipos.insert_one(nuevo_equipo).inserted_id
+
+            return {
+                "mensaje": "Equipo agregado correctamente",
+                "equipo_id": str(equipo_id),
+                "nombre": nombre
+            }
+
+        except Exception as e:
+            return {"error": str(e)}
