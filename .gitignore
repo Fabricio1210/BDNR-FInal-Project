@@ -2,3 +2,5 @@
 venv/
 .pylintrc
 __pycache__/
+*.pyc
+*.pyo

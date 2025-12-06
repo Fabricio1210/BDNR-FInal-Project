@@ -39,11 +39,13 @@ MENU_PLAYERS = """
     CONSULTAR JUGADORES:
     ++++++++++++++++++
     1- Consultar toda la informacion de un jugador por su nombre y apellido
-    2- Consultar lo puntos que ha anotado un jugador en un partido 
+    2- Consultar lo puntos que ha anotado un jugador en un partido
     3- Consultar las sanciones que ha tenido un jugador en un partido
     4- Consultar todos los compañeros de cierto jugador por su nombre y apellido
     5- Consultar los mejores jugadores (MVPs) por equipo y temporada
-    6- Regresar
+    6- Consultar equipos rivales donde ha jugado un jugador
+    7- Consultar antigüedad de un jugador en temporadas
+    8- Regresar
 ------------------------------------------------------------
 """
 
@@ -71,7 +73,10 @@ MENU_TEAMS = """
     5- Ranking de equipos por deporte
     6- Obtener los primeros lugares de todos los deportes
     7- Obtener las sanciones que ha tenido un equipo en una temporada
-    8- Regresar
+    8- Consultar rivalidades de un equipo
+    9- Analizar impacto de localía de un equipo
+    10- Consultar todas las temporadas de un equipo
+    11- Regresar
 ------------------------------------------------------------
 """
 
@@ -163,21 +168,31 @@ if __name__ == "__main__":
                             nombre, apellido, fecha, equipo_local, equipo_visitante
                         )
                     )
+                    continue
                 if response == 4:
                     nombre = input("Nombre del jugador: ")
                     apellido = input("Apellido del jugador: ")
                     print(database_controller.get_player_teammates(nombre, apellido))
                     continue
                 if response == 5:
-                    nombre = input("Nombre del jugador: ")
-                    apellido = input("Apellido del jugador: ")
+                    equipo = input("Nombre del equipo: ")
                     temporada = input("Temporada: ")
-                    print(database_controller.get_player_teammates(nombre, apellido, temporada))
+                    print(database_controller.get_mvps_by_team_season(equipo, temporada))
                     continue
                 if response == 6:
+                    nombre = input("Nombre del jugador: ")
+                    apellido = input("Apellido del jugador: ")
+                    print(database_controller.get_player_rival_teams(nombre, apellido))
+                    continue
+                if response == 7:
+                    nombre = input("Nombre del jugador: ")
+                    apellido = input("Apellido del jugador: ")
+                    print(database_controller.get_player_seniority(nombre, apellido))
+                    continue
+                if response == 8:
                     estado = "MENU"
                     continue
-                print("Opcion invalida. Seleccione una opcion del 1-5")
+                print("Opcion invalida. Seleccione una opcion del 1-7")
 
             case "MATCHES":
                 print(MENU_MATCHES)
@@ -213,7 +228,7 @@ if __name__ == "__main__":
                 if response == 4:
                     estadio = input("Nombre del estadio: ")
                     print(database_controller.get_matches_by_stadium(estadio))
-                    continue 
+                    continue
                 if response == 5:
                     fecha = input("Fecha: ")
                     equipo_local = input("Nombre del equipo local: ")
@@ -223,7 +238,7 @@ if __name__ == "__main__":
                 if response == 6:
                     estado = "MENU"
                     continue
-                print("Opcion invalida. Seleccione una opcion del 1-5")
+                print("Opcion invalida. Seleccione una opcion del 1-6")
 
             case "TEAMS":
                 print(MENU_TEAMS)
@@ -262,12 +277,24 @@ if __name__ == "__main__":
                 if response == 7:
                     equipo = input("Nombre del equipo: ")
                     temporada = input("Temporada: ")
-                    print(database_controller.get_matches_by_team_season(equipo, temporada))
+                    print(database_controller.get_sanctions_by_team_season(equipo, temporada))
                     continue
                 if response == 8:
+                    equipo = input("Nombre del equipo: ")
+                    print(database_controller.get_team_rivalries(equipo))
+                    continue
+                if response == 9:
+                    equipo = input("Nombre del equipo: ")
+                    print(database_controller.get_home_advantage(equipo))
+                    continue
+                if response == 10:
+                    equipo = input("Nombre del equipo: ")
+                    print(database_controller.get_team_seasons(equipo))
+                    continue
+                if response == 11:
                     estado = "MENU"
                     continue
-                print("Opcion invalida. Seleccione una opcion del 1-8")
+                print("Opcion invalida. Seleccione una opcion del 1-11")
 
             case "LEAGUES":
                 print(MENU_LEAGUES)
