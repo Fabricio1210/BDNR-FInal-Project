@@ -42,7 +42,8 @@ MENU_PLAYERS = """
     2- Consultar lo puntos que ha anotado un jugador en un partido 
     3- Consultar las sanciones que ha tenido un jugador en un partido
     4- Consultar todos los compañeros de cierto jugador por su nombre y apellido
-    5- Regresar
+    5- Consultar los mejores jugadores (MVPs) por equipo y temporada
+    6- Regresar
 ------------------------------------------------------------
 """
 
@@ -168,6 +169,12 @@ if __name__ == "__main__":
                     print(database_controller.get_player_teammates(nombre, apellido))
                     continue
                 if response == 5:
+                    nombre = input("Nombre del jugador: ")
+                    apellido = input("Apellido del jugador: ")
+                    temporada = input("Temporada: ")
+                    print(database_controller.get_player_teammates(nombre, apellido, temporada))
+                    continue
+                if response == 6:
                     estado = "MENU"
                     continue
                 print("Opcion invalida. Seleccione una opcion del 1-5")
