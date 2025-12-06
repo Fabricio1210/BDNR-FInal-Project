@@ -39,9 +39,11 @@ MENU_PLAYERS = """
     CONSULTAR JUGADORES:
     ++++++++++++++++++
     1- Consultar toda la informacion de un jugador por su nombre y apellido
-    2- Consultar lo puntos que ha anotado un jugador en un partido 
+    2- Consultar lo puntos que ha anotado un jugador en un partido
     3- Consultar todos los compañeros de cierto jugador por su nombre y apellido
-    4- Regresar
+    4- Consultar equipos rivales donde ha jugado un jugador
+    5- Consultar antigüedad de un jugador en temporadas
+    6- Regresar
 ------------------------------------------------------------
 """
 
@@ -68,7 +70,10 @@ MENU_TEAMS = """
     4- Obtener los equipos que juegan como locales en cierto estadio o viceversa
     5- Ranking de equipos por deporte
     6- Obtener los primeros lugares de todos los deportes
-    7- Regresar
+    7- Consultar rivalidades de un equipo
+    8- Analizar impacto de localía de un equipo
+    9- Consultar todas las temporadas de un equipo
+    10- Regresar
 ------------------------------------------------------------
 """
 
@@ -155,9 +160,19 @@ if __name__ == "__main__":
                     print(database_controller.get_player_teammates(nombre, apellido))
                     continue
                 if response == 4:
+                    nombre = input("Nombre del jugador: ")
+                    apellido = input("Apellido del jugador: ")
+                    print(database_controller.get_player_rival_teams(nombre, apellido))
+                    continue
+                if response == 5:
+                    nombre = input("Nombre del jugador: ")
+                    apellido = input("Apellido del jugador: ")
+                    print(database_controller.get_player_seniority(nombre, apellido))
+                    continue
+                if response == 6:
                     estado = "MENU"
                     continue
-                print("Opcion invalida. Seleccione una opcion del 1-5")
+                print("Opcion invalida. Seleccione una opcion del 1-6")
 
             case "MATCHES":
                 print(MENU_MATCHES)
@@ -240,9 +255,21 @@ if __name__ == "__main__":
                     print(database_controller.get_first_places_from_all_sports())
                     continue
                 if response == 7:
+                    equipo = input("Nombre del equipo: ")
+                    print(database_controller.get_team_rivalries(equipo))
+                    continue
+                if response == 8:
+                    equipo = input("Nombre del equipo: ")
+                    print(database_controller.get_home_advantage(equipo))
+                    continue
+                if response == 9:
+                    equipo = input("Nombre del equipo: ")
+                    print(database_controller.get_team_seasons(equipo))
+                    continue
+                if response == 10:
                     estado = "MENU"
                     continue
-                print("Opcion invalida. Seleccione una opcion del 1-8")
+                print("Opcion invalida. Seleccione una opcion del 1-10")
 
             case "LEAGUES":
                 print(MENU_LEAGUES)
