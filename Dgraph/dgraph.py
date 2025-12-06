@@ -9,7 +9,8 @@ from datetime import datetime
 import pydgraph
 from Dgraph import schema
 
-log = logging.getLogger()
+log = logging.getLogger("ProyectoBases")
+log.propagate = False
 
 class DgraphSingleton:
     """
