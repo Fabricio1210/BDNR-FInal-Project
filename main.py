@@ -309,8 +309,18 @@ if __name__ == "__main__":
                     print(database_controller.get_matches_by_team_season(equipo, temporada))
                     continue
                 if response == 4:
-                    estadio = input("Estadio: ")
-                    print(database_controller.get_teams_by_stadium(estadio))
+                    print("\n¿Qué deseas buscar?")
+                    print("1- Equipos que juegan en un estadio (Estadio -> Equipos)")
+                    print("2- Estadio de un equipo (Equipo -> Estadio)")
+                    sub_response = input("Opción: ")
+                    if sub_response == "1":
+                        estadio = input("Nombre del estadio: ")
+                        print(database_controller.get_teams_by_stadium(estadio))
+                    elif sub_response == "2":
+                        equipo = input("Nombre del equipo: ")
+                        print(database_controller.get_stadium_by_team(equipo))
+                    else:
+                        print("Opción inválida")
                     continue
                 if response == 5:
                     deporte = input("Deporte: ")

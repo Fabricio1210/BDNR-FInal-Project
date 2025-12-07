@@ -106,7 +106,33 @@ class DatabaseFacade():
         """
         try:
             result = self._dgraph.consultar_companeros_jugador(name, last_name)
-            print(json.dumps(result, indent=4))
+            if result.get('companeros') and len(result['companeros']) > 0:
+                print(f"\n{'='*60}")
+                print(f"COMPAÑEROS DE {name} {last_name}")
+                print(f"{'='*60}")
+
+                companeros_unicos = set()
+                for equipo in result['companeros']:
+                    equipo_nombre = equipo.get('nombre', 'N/A')
+                    if equipo.get('~juega_para'):
+                        for companero in equipo['~juega_para']:
+                            comp_nombre = f"{companero.get('nombre', '')} {companero.get('apellido', '')}"
+                            companeros_unicos.add((
+                                comp_nombre,
+                                equipo_nombre,
+                                companero.get('numero', 'N/A'),
+                                companero.get('pais', 'N/A')
+                            ))
+
+                if companeros_unicos:
+                    print(f"\nTotal de compañeros: {len(companeros_unicos)}\n")
+                    for i, (comp_nombre, equipo, numero, pais) in enumerate(sorted(companeros_unicos), 1):
+                        print(f"[{i}] {comp_nombre} (#{numero})")
+                        print(f"    Equipo: {equipo} | País: {pais}")
+                else:
+                    print("\nNo se encontraron compañeros")
+            else:
+                print("No se encontró el jugador")
             return ""
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
@@ -233,7 +259,28 @@ class DatabaseFacade():
         """
         try:
             result = self._dgraph.consultar_enfrentamientos_estadio(stadium)
-            print(json.dumps(result, indent=4))
+            if result.get('enfrentamientos') and len(result['enfrentamientos']) > 0:
+                print(f"\n{'='*60}")
+                print(f"ENFRENTAMIENTOS EN {stadium.upper()}")
+                # Obtener info del estadio del primer partido
+                primer_partido = result['enfrentamientos'][0]
+                if primer_partido.get('campo'):
+                    campo = primer_partido['campo']
+                    print(f"País: {campo.get('pais', 'N/A')} | Capacidad: {campo.get('capacidad', 'N/A')}")
+                print(f"{'='*60}")
+
+                print(f"\nTotal de partidos: {len(result['enfrentamientos'])}\n")
+                for i, partido in enumerate(result['enfrentamientos'], 1):
+                    local = partido.get('equipo_local', {}).get('nombre', 'N/A')
+                    visitante = partido.get('equipo_visitante', {}).get('nombre', 'N/A')
+                    fecha = clean_date(partido.get('fecha', 'N/A'))
+                    marcador_local = partido.get('marcadorLocal', 0)
+                    marcador_visitante = partido.get('marcadorVisitante', 0)
+                    print(f"[{i}] {fecha}")
+                    print(f"    {local} {marcador_local} - {marcador_visitante} {visitante}")
+                    print(f"    {partido.get('resultado', 'N/A')}")
+            else:
+                print("No se encontraron enfrentamientos en este estadio")
             return ""
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
@@ -328,11 +375,79 @@ class DatabaseFacade():
 
     def get_teams_by_stadium(self, stadium):
         """
-        No docstring >:(
+        Busca equipos que juegan en un estadio
         """
         try:
             result = self._dgraph.consultar_equipos_locales_estadio(stadium)
-            print(json.dumps(result, indent=4))
+
+            if result.get('campo') and len(result['campo']) > 0:
+                campo = result['campo'][0]
+                print(f"\n{'='*60}")
+                print(f"EQUIPOS LOCALES EN {campo.get('nombre', 'N/A').upper()}")
+                print(f"País: {campo.get('pais', 'N/A')} | Capacidad: {campo.get('capacidad', 'N/A')}")
+                print(f"{'='*60}")
+
+                if campo.get('equipos_locales'):
+                    print(f"\nTotal de equipos: {len(campo['equipos_locales'])}\n")
+                    for i, equipo in enumerate(campo['equipos_locales'], 1):
+                        print(f"[{i}] {equipo.get('nombre', 'N/A')}")
+                        print(f"    Liga: {equipo.get('liga', 'N/A')}")
+                        print(f"    País: {equipo.get('pais', 'N/A')}")
+                else:
+                    print("\nNo se encontraron equipos locales")
+            else:
+                print("No se encontró el estadio")
+            return ""
+        except Exception as e:
+            return "Hubo un error en la base de datos. Error: " + str(e)
+
+    def get_stadium_by_team(self, team):
+        """
+        Busca el estadio local y todos los estadios donde ha jugado un equipo
+        """
+        try:
+            result = self._dgraph.consultar_campos_equipo(team)
+
+            if result.get('equipo') and len(result['equipo']) > 0:
+                equipo = result['equipo'][0]
+                print(f"\n{'='*60}")
+                print(f"ESTADIOS DE {equipo.get('nombre', 'N/A').upper()}")
+                print(f"País: {equipo.get('pais', 'N/A')}")
+                print(f"{'='*60}")
+
+                # Estadio local
+                if equipo.get('campo_local'):
+                    campo = equipo['campo_local']
+                    print(f"\n--- ESTADIO LOCAL ---")
+                    print(f"Nombre: {campo.get('nombre', 'N/A')}")
+                    print(f"País: {campo.get('pais', 'N/A')}")
+                    print(f"Capacidad: {campo.get('capacidad', 'N/A')}")
+                    print(f"Tipo: {campo.get('tipo', 'N/A')}")
+                else:
+                    print("\n--- ESTADIO LOCAL ---")
+                    print("Este equipo no tiene estadio local registrado")
+
+                # Estadios visitantes (donde ha jugado como visitante)
+                estadios_visitante = set()
+                if result.get('enfrentamientos_visitante'):
+                    for enf in result['enfrentamientos_visitante']:
+                        if enf.get('campo'):
+                            c = enf['campo']
+                            estadios_visitante.add((
+                                c.get('nombre', 'N/A'),
+                                c.get('pais', 'N/A'),
+                                c.get('capacidad', 'N/A'),
+                                c.get('tipo', 'N/A')
+                            ))
+
+                if estadios_visitante:
+                    print(f"\n--- ESTADIOS VISITADOS (como visitante) ---")
+                    print(f"Total: {len(estadios_visitante)}\n")
+                    for i, (nombre, pais, capacidad, tipo) in enumerate(sorted(estadios_visitante), 1):
+                        print(f"[{i}] {nombre}")
+                        print(f"    País: {pais} | Capacidad: {capacidad} | Tipo: {tipo}")
+            else:
+                print("No se encontró el equipo")
             return ""
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
@@ -343,10 +458,33 @@ class DatabaseFacade():
         """
         try:
             ranking = self._mongo.obtener_puntajes_por_deporte(sport)
-            print(json.dumps(ranking, indent=4))
-            return ""
-        except ValueError as e:
+
+            if not ranking:
+                return f"No se encontraron equipos para el deporte: {sport}"
+
+            salida = []
+            salida.append(f"Ranking de equipos por deporte\nDeporte: {sport}\n")
+
+            for i, equipo in enumerate(ranking, start=1):
+                equipo_id = str(equipo.get("_id", "N/A"))
+                nombre = equipo.get("equipo", "Desconocido")
+                temporada = equipo.get("temporada", "N/A")
+                liga = equipo.get("liga", "N/A")
+                puntos = equipo.get("puntos", "N/A")
+
+                salida.append(
+                    f"{i}. Equipo: {nombre}\n"
+                    f"   ID: {equipo_id}\n"
+                    f"   Liga: {liga}\n"
+                    f"   Temporada: {temporada}\n"
+                    f"   Puntos: {puntos}\n"
+                )
+
+            return "\n".join(salida)
+
+        except ValueError:
             return "No se encontraron los equipos"
+
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
 
@@ -531,10 +669,12 @@ class DatabaseFacade():
                 print(f"{'='*60}")
 
                 if equipo.get('rivalidad'):
+                    print(f"\nTotal de equipos rivales: {len(equipo['rivalidad'])}")
                     for i, rival in enumerate(equipo['rivalidad'], 1):
                         print(f"\n[{i}] {rival.get('nombre', 'N/A')}")
                         print(f"    Liga: {rival.get('liga', 'N/A')}")
                         print(f"    País: {rival.get('pais', 'N/A')}")
+                        print(f"    Enfrentamientos totales: {rival.get('total_enfrentamientos', 0)}")
                 else:
                     print("\nNo se encontraron rivalidades para este equipo")
             else:
@@ -649,14 +789,14 @@ class DatabaseFacade():
                 print(f"\n--- COMO VISITANTE (fuera de casa) ---")
                 print(f"Total partidos: {len(partidos_visitante)}")
                 if partidos_visitante:
-                    victorias = sum(1 for p in partidos_visitante if 'Victoria Local' in p.get('resultado', ''))
-                    print(f"Victorias como local: {victorias}")
+                    victorias = sum(1 for p in partidos_visitante if 'Victoria Visitante' in p.get('resultado', ''))
+                    print(f"Victorias: {victorias}")
                     for i, p in enumerate(partidos_visitante, 1):
                         print(f"\n  [{i}] {clean_date(p.get('fecha', 'N/A'))}")
                         if p.get('campo'):
                             print(f"      Estadio: {p['campo'].get('nombre', 'N/A')} ({p['campo'].get('pais', 'N/A')})")
-                        print(f"      vs {p.get('equipo_visitante', {}).get('nombre', 'N/A')}")
-                        print(f"      {p.get('marcadorLocal', 0)} - {p.get('marcadorVisitante', 0)} ({p.get('resultado', 'N/A')})")
+                        print(f"      vs {p.get('equipo_local', {}).get('nombre', 'N/A')}")
+                        print(f"      {p.get('marcadorVisitante', 0)} - {p.get('marcadorLocal', 0)} ({p.get('resultado', 'N/A')})")
             else:
                 print("No se encontró el equipo")
             return ""

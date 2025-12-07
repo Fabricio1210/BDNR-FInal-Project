@@ -107,11 +107,26 @@ class DgraphService:
             txn.discard()
 
     def consultar_rivalidades_equipo(self, nombre_equipo):
-        """Equipos rivales de un equipo específico"""
+        """Equipos rivales de un equipo específico con conteo de enfrentamientos"""
         txn = self._dgraph_client.client.txn(read_only=True)
         try:
             res = txn.query(schema.QUERY_RIVALIDADES_EQUIPO, variables={'$nombre_equipo': nombre_equipo})
-            return json.loads(res.json)
+            result = json.loads(res.json)
+
+            # Procesar conteo de enfrentamientos que ya vienen en la query
+            if result.get('equipo') and len(result['equipo']) > 0:
+                equipo = result['equipo'][0]
+                if equipo.get('rivalidad'):
+                    for rival in equipo['rivalidad']:
+                        # Sumar los enfrentamientos como local y como visitante
+                        total_local = len(rival.get('enfrentamientos_como_local', []))
+                        total_visitante = len(rival.get('enfrentamientos_como_visitante', []))
+                        rival['total_enfrentamientos'] = total_local + total_visitante
+                        # Limpiar los campos auxiliares
+                        rival.pop('enfrentamientos_como_local', None)
+                        rival.pop('enfrentamientos_como_visitante', None)
+
+            return result
         finally:
             txn.discard()
 
@@ -180,7 +195,6 @@ class DgraphService:
             temporada_uids = {} # {torneo_nombre_temporada: uid}
 
             # 1. Poblar Campos
-            log.info("Poblando nodo Campo...")
             campos_file = os.path.join("data", "campos.csv")
             if os.path.exists(campos_file):
                 with open(campos_file, 'r', encoding='utf-8') as f:
@@ -199,12 +213,10 @@ class DgraphService:
                             uid = list(response.uids.values())[0]
                             campo_uids[row['nombre']] = uid
                         txn.commit()
-                        log.info(f"Campos insertados: {len(campo_uids)}")
                     finally:
                         txn.discard()
 
             # 2. Poblar Equipos
-            log.info("Poblando nodo Equipo...")
             equipos_file = os.path.join("data", "equipos.csv")
             with open(equipos_file, 'r', encoding='utf-8') as f:
                 reader = csv.DictReader(f)
@@ -237,12 +249,10 @@ class DgraphService:
                         uid = list(response.uids.values())[0]
                         equipo_uids[equipo_csv_id] = uid
                     txn.commit()
-                    log.info(f"Equipos insertados: {len(equipo_uids)}")
                 finally:
                     txn.discard()
 
             # 2.5. Vincular Campos ↔ Equipos (relación inversa)
-            log.info("Vinculando Campos y Equipos...")
             txn = self._dgraph_client.client.txn()
             try:
                 for equipo_csv_id, campo_nombre in campos_data.items():
@@ -253,12 +263,10 @@ class DgraphService:
                             "equipos_locales": [{"uid": equipo_uids[equipo_csv_id]}]
                         }, commit_now=False)
                 txn.commit()
-                log.info("Campos vinculados con equipos")
             finally:
                 txn.discard()
 
             # 3. Poblar Jugadores
-            log.info("Poblando nodo Jugador...")
             jugadores_file = os.path.join("data", "jugadores.csv")
             with open(jugadores_file, 'r', encoding='utf-8') as f:
                 reader = csv.DictReader(f)
@@ -279,12 +287,10 @@ class DgraphService:
                         key = f"{row['nombre']}_{row['apellido']}"
                         jugador_uids[key] = uid
                     txn.commit()
-                    log.info(f"Jugadores insertados: {len(jugador_uids)}")
                 finally:
                     txn.discard()
 
             # 3.5. Vincular Jugadores con Equipos (historial)
-            log.info("Vinculando jugadores con equipos (historial)...")
             historial_file = os.path.join("data", "jugadores_equipos_historial.csv")
             if os.path.exists(historial_file):
                 with open(historial_file, 'r', encoding='utf-8') as f:
@@ -303,12 +309,10 @@ class DgraphService:
                                     }]
                                 }, commit_now=False)
                         txn.commit()
-                        log.info("Historial de jugadores vinculado")
                     finally:
                         txn.discard()
 
             # 4. Poblar Temporadas
-            log.info("Poblando nodo Temporada...")
             temporadas_file = os.path.join("data", "temporadas.csv")
             with open(temporadas_file, 'r', encoding='utf-8') as f:
                 reader = csv.DictReader(f)
@@ -331,12 +335,10 @@ class DgraphService:
                         temp_key = row['nombre']
                         temporada_uids[temp_key] = uid
                     txn.commit()
-                    log.info(f"Temporadas insertadas: {len(temporada_uids)}")
                 finally:
                     txn.discard()
 
             # 5. Pre-cargar mapeo de campos por equipo (optimización)
-            log.info("Pre-cargando mapeo campos-equipos...")
             campos_por_equipo = {}
             if os.path.exists(campos_file):
                 with open(campos_file, 'r', encoding='utf-8') as cf:
@@ -345,7 +347,6 @@ class DgraphService:
                         campos_por_equipo[campo_row['equipo_local_csv_id']] = campo_row['nombre']
 
             # 6. Poblar Enfrentamientos
-            log.info("Poblando nodo Enfrentamiento...")
             partidos_file = os.path.join("data", "partidos.csv")
             with open(partidos_file, 'r', encoding='utf-8') as f:
                 reader = csv.DictReader(f)
@@ -393,12 +394,10 @@ class DgraphService:
 
                         txn.mutate(set_obj=enfrentamiento, commit_now=False)
                     txn.commit()
-                    log.info("Enfrentamientos insertados exitosamente")
                 finally:
                     txn.discard()
 
             # 7. Crear rivalidades entre equipos que se han enfrentado
-            log.info("Creando rivalidades...")
             self._crear_rivalidades(equipo_uids)
 
             log.info("Población de Dgraph completada exitosamente")
@@ -430,14 +429,20 @@ class DgraphService:
             try:
                 for (equipo1, equipo2), count in rivalidades.items():
                     if count >= 2 and equipo1 in equipo_uids and equipo2 in equipo_uids:
-                        # Crear relación bidireccional
-                        mutation = {
+                        # Crear relación bidireccional (de equipo1 a equipo2)
+                        mutation1 = {
                             "uid": equipo_uids[equipo1],
                             "rivalidad": [{"uid": equipo_uids[equipo2]}]
                         }
-                        txn.mutate(set_obj=mutation, commit_now=False)
+                        txn.mutate(set_obj=mutation1, commit_now=False)
+
+                        # Crear relación bidireccional (de equipo2 a equipo1)
+                        mutation2 = {
+                            "uid": equipo_uids[equipo2],
+                            "rivalidad": [{"uid": equipo_uids[equipo1]}]
+                        }
+                        txn.mutate(set_obj=mutation2, commit_now=False)
                 txn.commit()
-                log.info(f"Rivalidades creadas: {len([v for v in rivalidades.values() if v >= 2])}")
             finally:
                 txn.discard()
 

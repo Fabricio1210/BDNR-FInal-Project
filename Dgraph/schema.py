@@ -26,8 +26,8 @@ anio: int @index(int) .
 fechaInicio: datetime .
 fechaFin: datetime .
 
-equipo_local: uid .
-equipo_visitante: uid .
+equipo_local: uid @reverse .
+equipo_visitante: uid @reverse .
 campo: uid @reverse .
 temporada: uid @reverse .
 fecha: datetime @index(year) .
@@ -281,6 +281,10 @@ query companeros($nombre: string, $apellido: string) {
 
 QUERY_RIVALIDADES_EQUIPO = """
 query rivalidades($nombre_equipo: string) {
+    var(func: type(Equipo)) @filter(eq(nombre, $nombre_equipo)) {
+        uid_equipo as uid
+    }
+
     equipo(func: type(Equipo)) @filter(eq(nombre, $nombre_equipo)) {
         uid
         nombre
@@ -291,6 +295,12 @@ query rivalidades($nombre_equipo: string) {
             nombre
             liga
             pais
+            enfrentamientos_como_local: ~equipo_local @filter(uid_in(equipo_visitante, uid(uid_equipo))) {
+                uid
+            }
+            enfrentamientos_como_visitante: ~equipo_visitante @filter(uid_in(equipo_local, uid(uid_equipo))) {
+                uid
+            }
         }
     }
 }
@@ -376,13 +386,13 @@ query impacto_localia($nombre_equipo: string) {
         }
     }
 
-    visitante(func: type(Enfrentamiento)) @filter(uid_in(equipo_local, uid(E)) AND NOT uid_in(campo, uid(C))) {
+    visitante(func: type(Enfrentamiento)) @filter(uid_in(equipo_visitante, uid(E))) {
         uid
         fecha
         marcadorLocal
         marcadorVisitante
         resultado
-        equipo_visitante {
+        equipo_local {
             nombre
         }
         campo {
@@ -422,3 +432,24 @@ query temporadas_equipo($nombre_equipo: string) {
     }
 }
 """ 
+
+QUERY_CONTADOR_ENFRENTAMIENTOS = """
+query contador_enfrentamientos($equipo1: string, $equipo2: string) {
+    local(func: type(Enfrentamiento)) @filter(has(equipo_local) AND has(equipo_visitante)) {
+        equipo_local @filter(eq(nombre, $equipo1)) {
+            nombre
+        }
+        equipo_visitante @filter(eq(nombre, $equipo2)) {
+            nombre
+        }
+    }
+    visitante(func: type(Enfrentamiento)) @filter(has(equipo_local) AND has(equipo_visitante)) {
+        equipo_local @filter(eq(nombre, $equipo2)) {
+            nombre
+        }
+        equipo_visitante @filter(eq(nombre, $equipo1)) {
+            nombre
+        }
+    }
+}
+"""
