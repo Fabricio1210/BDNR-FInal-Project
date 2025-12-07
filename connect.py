@@ -309,10 +309,33 @@ class DatabaseFacade():
         """
         try:
             ranking = self._mongo.obtener_puntajes_por_deporte(sport)
-            print(json.dumps(ranking, indent=4))
-            return ""
-        except ValueError as e:
+
+            if not ranking:
+                return f"No se encontraron equipos para el deporte: {sport}"
+
+            salida = []
+            salida.append(f"Ranking de equipos por deporte\nDeporte: {sport}\n")
+
+            for i, equipo in enumerate(ranking, start=1):
+                equipo_id = str(equipo.get("_id", "N/A"))
+                nombre = equipo.get("equipo", "Desconocido")
+                temporada = equipo.get("temporada", "N/A")
+                liga = equipo.get("liga", "N/A")
+                puntos = equipo.get("puntos", "N/A")
+
+                salida.append(
+                    f"{i}. Equipo: {nombre}\n"
+                    f"   ID: {equipo_id}\n"
+                    f"   Liga: {liga}\n"
+                    f"   Temporada: {temporada}\n"
+                    f"   Puntos: {puntos}\n"
+                )
+
+            return "\n".join(salida)
+
+        except ValueError:
             return "No se encontraron los equipos"
+
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
 

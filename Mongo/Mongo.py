@@ -46,6 +46,7 @@ class MongoService:
         self.db = MongoSingleton()
 
     def poblar(self):
+        log.info("Mongo DB popbalndo datos")
         poblar()
 
     def to_dict(self, obj):
