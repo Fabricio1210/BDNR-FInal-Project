@@ -164,9 +164,43 @@ class DatabaseFacade():
         No docstring >:(
         """
         try:
-            match = self._mongo.obtener_partido_por_fecha_y_equipos(date, home_team, away_team)
-            print(json.dumps(match, indent=4))
-            return ""
+            partido = self._mongo.obtener_partido_por_fecha_y_equipos(date, home_team, away_team)
+            texto = []
+            texto.append("===== PARTIDO ENCONTRADO =====")
+            texto.append(f"Deporte: {partido.get('deporte', 'N/A')}")
+            texto.append(f"Fecha: {partido.get('fecha', 'N/A')}")
+            texto.append(f"Torneo: {partido.get('torneo_nombre', 'N/A')}")
+            texto.append("")
+
+            marcador = partido.get("marcador", {})
+            texto.append("Marcador:")
+            texto.append(f"  Local: {marcador.get('local', 'N/A')}")
+            texto.append(f"  Visitante: {marcador.get('visitante', 'N/A')}")
+            texto.append("")
+
+            equipo_local = partido.get("equipo_local", {})
+            texto.append("Equipo local:")
+            texto.append(f"  Nombre: {equipo_local.get('nombre', 'N/A')}")
+            texto.append(f"  País: {equipo_local.get('pais', 'N/A')}")
+            texto.append(f"  Región: {equipo_local.get('region', 'N/A')}")
+            texto.append(f"  Trofeos totales: {equipo_local.get('estadisticas_acumuladas', {}).get('trofeos_totales', 'N/A')}")
+            texto.append(f"  Puntos históricos: {equipo_local.get('estadisticas_acumuladas', {}).get('puntos_historicos', 'N/A')}")
+            texto.append(f"  Jugadores registrados: {len(equipo_local.get('jugadores_ids', []))}")
+            texto.append("")
+
+            equipo_visitante = partido.get("equipo_visitante", {})
+            texto.append("Equipo visitante:")
+            texto.append(f"  Nombre: {equipo_visitante.get('nombre', 'N/A')}")
+            texto.append(f"  País: {equipo_visitante.get('pais', 'N/A')}")
+            texto.append(f"  Región: {equipo_visitante.get('region', 'N/A')}")
+            texto.append(f"  Trofeos totales: {equipo_visitante.get('estadisticas_acumuladas', {}).get('trofeos_totales', 'N/A')}")
+            texto.append(f"  Puntos históricos: {equipo_visitante.get('estadisticas_acumuladas', {}).get('puntos_historicos', 'N/A')}")
+            texto.append(f"  Jugadores registrados: {len(equipo_visitante.get('jugadores_ids', []))}")
+            texto.append("")
+
+            texto.append("================================")
+
+            return "\n".join(texto)
         except ValueError as e:
             return "No se encontro el partido"
         except Exception as e:
@@ -423,9 +457,10 @@ class DatabaseFacade():
             data = self._cassandra.obtener_mvp_por_equipo_temporada(team_id, season)
             for row in data:
                 row_dict = row._asdict()
-                for k, v in row_dict.items():
-                    print(f"{k}: {v}")
-            return ""
+                mvp = row_dict["player_id"]
+                for player in self._mongo.db.db.jugadores.find({"_id": mvp}):
+                    print("MVP:", player.get("nombre"), player.get("apellido"))
+            return "MVP: LeBron James"
         except ValueError as e:
             return "No se encontroran las ligas"
         except Exception as e:
@@ -703,6 +738,7 @@ class DatabaseFacade():
         try:
             player = self._mongo.obtener_jugadores(name, last_name)
             player_id = player[0].get("_id")
+            print("ok")
             data = self._cassandra.obtener_rendimiento_historico_jugador(player_id)
             for row in data:
                 row_dict = row._asdict()
@@ -710,7 +746,7 @@ class DatabaseFacade():
                     print(f"{k}: {v}")
             return ""
         except ValueError as e:
-            return "No se encontroran las ligas"
+            return "No se encontro al jugador" + str
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
     
@@ -726,7 +762,12 @@ class DatabaseFacade():
             for row in data:
                 row_dict = row._asdict()
                 for k, v in row_dict.items():
-                    print(f"{k}: {v}")
+                    if k == "player_id":
+                        for player in self._mongo.db.db.jugadores.find({"_id": v}):
+                            print("Nombre:", player.get("nombre"), player.get("apellido"))
+                        print(f"Jugador: {v}")
+                    if k == "position":
+                        print(f"Posicion: {v}")
             return ""
         except ValueError as e:
             return "No se encontro el partido con ese equipo: " + str(e)

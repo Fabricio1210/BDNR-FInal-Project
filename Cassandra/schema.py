@@ -172,7 +172,7 @@ QUERY_SANCTIONS_BY_TEAM_SEASON_TABLE = """
 QUERY_MVP_BY_TEAM_SEASON_TABLE = """
         SELECT *
         FROM mvp_by_team_season
-        CWHERE team_id = ? AND season_id = ?;
+        WHERE team_id = ? AND season_id = ?;
         """
 
 QUERY_EVENTS_BY_TEAM_MATCH_TABLE = """

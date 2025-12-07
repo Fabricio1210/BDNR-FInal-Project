@@ -523,7 +523,7 @@ class CassandraService:
         prepared = self.cassandra_session.session.prepare(
             schema.QUERY_HISTORICAL_PERFORMANCE_BY_PLAYER_TABLE
         )
-        return self.cassandra_session.session.execute(prepared, (player_id))
+        return self.cassandra_session.session.execute(prepared, (player_id,))
 
     def obtener_alineacion_por_equipo_partido(self, match_id: str, team_id: str):
         """
@@ -541,7 +541,7 @@ class CassandraService:
         prepared = self.cassandra_session.session.prepare(
             schema.QUERY_PLAYER_CURRENT_POSITION_TABLE
         )
-        return self.cassandra_session.session.execute(prepared, (player_id))
+        return self.cassandra_session.session.execute(prepared, (player_id,))
 
     def obtener_partidos_por_equipo_temporada(self, team_id: str, season_id: str):
         """
@@ -557,7 +557,7 @@ class CassandraService:
         """
         self.cassandra_session.session.execute("USE analisis_deportivo;")
         prepared = self.cassandra_session.session.prepare(schema.QUERY_MATCHES_BY_PLAYER_TABLE)
-        return self.cassandra_session.session.execute(prepared, (player_id))
+        return self.cassandra_session.session.execute(prepared, (player_id,))
 
     def obtener_head_to_head(self, team_a_id: str, team_b_id: str):
         """
