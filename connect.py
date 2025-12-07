@@ -117,10 +117,45 @@ class DatabaseFacade():
         """
         try:
             matches = self._mongo.obtener_partidos(sport, date)
-            print(matches)
-            return "matches"
-        except ValueError as e:
-            return "No se encontro el partido"
+
+            if isinstance(matches, dict) and "error" in matches:
+                return "Error: " + matches["error"]
+
+            if not matches:
+                return f"No se encontraron partidos de {sport} en la fecha {date}."
+
+            texto = []
+            texto.append("===== PARTIDOS ENCONTRADOS =====")
+            texto.append(f"Deporte: {sport}")
+            texto.append(f"Fecha buscada: {date}")
+            texto.append(f"Total de partidos: {len(matches)}")
+            texto.append("")
+
+            for idx, partido in enumerate(matches, start=1):
+                texto.append(f"----- Partido #{idx} -----")
+                texto.append(f"ID del partido: {partido.get('_id', 'N/A')}")
+                texto.append(f"Torneo: {partido.get('torneo_nombre', 'N/A')}")
+                texto.append(f"Fecha real: {partido.get('fecha', 'N/A')}")
+
+                texto.append("")
+                texto.append("Equipos:")
+                texto.append(f"  - Equipo local ID: {partido.get('equipo_local_id', 'N/A')}")
+                texto.append(f"  - Equipo visitante ID: {partido.get('equipo_visitante_id', 'N/A')}")
+
+                marcador = partido.get("marcador", {})
+                texto.append("")
+                texto.append("Marcador:")
+                texto.append(f"  Local: {marcador.get('local', 'N/A')}")
+                texto.append(f"  Visitante: {marcador.get('visitante', 'N/A')}")
+
+                texto.append("---------------------------")
+
+            texto.append("================================")
+
+            return "\n".join(texto)
+
+        except ValueError:
+            return "No se encontró el partido."
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
     
@@ -175,11 +210,52 @@ class DatabaseFacade():
         No docstring >:(
         """
         try:
-            equipo = self._mongo.obtener_equipo(team)
-            print(json.dumps(equipo, indent=4))
-            return ""
-        except ValueError as e:
-            return "No se encontro el equipo"
+            resultado = self._mongo.obtener_equipo(team)
+
+            if isinstance(resultado, dict) and "error" in resultado:
+                return "Error: " + resultado["error"]
+
+            if isinstance(resultado, dict) and ("nombre" in resultado or "_id" in resultado):
+                equipo = resultado
+            else:
+                equipo = resultado.get("equipo") if isinstance(resultado, dict) else None
+
+            if not equipo:
+                return "No se encontró el equipo."
+
+            texto = []
+            texto.append("===== INFORMACIÓN DEL EQUIPO =====")
+            texto.append(f"ID del equipo: {equipo.get('_id', 'N/A')}")
+            texto.append(f"Nombre: {equipo.get('nombre', 'N/A')}")
+            texto.append(f"Deporte: {equipo.get('deporte', 'N/A')}")
+            texto.append(f"País: {equipo.get('pais', 'N/A')}")
+            texto.append(f"Región: {equipo.get('region', 'N/A')}")
+            texto.append(f"Activo: {'Sí' if equipo.get('isActive', False) else 'No'}")
+            texto.append("")
+
+            est = equipo.get("estadisticas_acumuladas", {})
+            texto.append("----- Estadísticas acumuladas -----")
+            texto.append(f"Trofeos totales: {est.get('trofeos_totales', 'N/A')}")
+            texto.append(f"Puntos históricos: {est.get('puntos_historicos', 'N/A')}")
+            texto.append("")
+
+            jugadores = equipo.get("jugadores_ids", [])
+            texto.append("----- Jugadores -----")
+            texto.append(f"Total de jugadores: {len(jugadores)}")
+            if jugadores:
+                texto.append("IDs de los jugadores:")
+                for j in jugadores:
+                    texto.append(f"  - {j}")
+            else:
+                texto.append("No tiene jugadores registrados.")
+
+            texto.append("==================================")
+
+            return "\n".join(texto)
+
+        except ValueError:
+            return "No se encontró el equipo."
+
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
 
@@ -246,9 +322,30 @@ class DatabaseFacade():
         """
         try:
             ranking = self._mongo.obtener_primer_lugar_por_deporte()
-            print(json.dumps(ranking, indent=4))
-            return ""
-        except ValueError as e:
+            if isinstance(ranking, dict) and "error" in ranking:
+                return "Error: " + ranking["error"]
+
+            if not ranking:
+                return "No hay registros de torneos o deportes."
+
+            texto = []
+            texto.append("===== PRIMER LUGAR POR CADA DEPORTE =====")
+            texto.append(f"Total deportes encontrados: {len(ranking)}")
+            texto.append("")
+
+            for item in ranking:
+                texto.append(f"Deporte: {item.get('_id', 'N/A')}")
+                texto.append(f"Equipo campeón: {item.get('equipo', 'N/A')}")
+                texto.append(f"Liga/Torneo: {item.get('liga', 'N/A')}")
+                texto.append(f"Temporada: {item.get('temporada', 'N/A')}")
+                texto.append(f"Puntos obtenidos: {item.get('puntos', 'N/A')}")
+                texto.append("----------------------------------------")
+
+            texto.append("==========================================")
+
+            return "\n".join(texto)
+
+        except ValueError:
             return "No se encontraron los equipos"
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
@@ -671,3 +768,88 @@ class DatabaseFacade():
             return "No se encontroran las ligas"
         except Exception as e:
             return "Hubo un error en la base de datos. Error: " + str(e)
+
+    def add_tournament_stats(self,team_name,sport,tournament_name,season,points,victories,defeats,favor_goals):
+        """
+        No docstring >:(
+        """
+        try:
+            resultado = self._mongo.agregar_estadisticas_torneo(
+                team_name,
+                sport,
+                tournament_name,
+                season,
+                points,
+                victories,
+                defeats,
+                favor_goals
+            )
+
+            if "error" in resultado:
+                return "Error: " + resultado["error"]
+
+            return (
+                f"Estadísticas agregadas correctamente al torneo {tournament_name} "
+                f"en la temporada {season}. ID: {resultado['estadistica_id']}"
+            )
+
+        except ValueError:
+            return "Error: datos inválidos para agregar estadísticas del torneo."
+        except Exception as e:
+            return "Error en la base de datos: " + str(e)
+    
+    def get_all_sports(self):
+        """
+        No docstring >:(
+        """
+        try:
+            resultado = self._mongo.obtener_deportes()
+
+            if "error" in resultado:
+                return "Error: " + resultado["error"]
+
+            deportes = resultado["deportes"]
+            if not deportes:
+                return "No hay deportes registrados en la base de datos."
+
+            return "Deportes encontrados: " + ", ".join(deportes)
+
+        except Exception as e:
+            return "Error en la base de datos: " + str(e)
+
+    def get_teams_by_country_or_region(self, pais, region):
+        """
+        No docstring >:(
+        """
+        try:
+            resultado = self._mongo.buscar_equipos_por_pais_region(pais, region)
+
+            if "error" in resultado:
+                return "Error: " + resultado["error"]
+
+            if resultado["total"] == 0:
+                return "No se encontraron equipos con esos criterios."
+
+            texto = "Equipos encontrados:\n"
+            for eq in resultado["equipos"]:
+                texto += f"- {eq['nombre']} ({eq['pais']}, {eq['region']})\n"
+
+            return texto
+
+        except Exception as e:
+            return "Error en la base de datos: " + str(e)
+    
+    def deactivate_team(self, nombre_equipo):
+        """
+        No docstring >:(
+        """
+        try:
+            resultado = self._mongo.desactivar_equipo(nombre_equipo)
+
+            if "error" in resultado:
+                return "Error: " + resultado["error"]
+
+            return f"Equipo '{nombre_equipo}' desactivado correctamente."
+
+        except Exception as e:
+            return "Error en la base de datos: " + str(e)

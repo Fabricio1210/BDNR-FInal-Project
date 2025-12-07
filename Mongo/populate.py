@@ -19,6 +19,8 @@ COLLECTION_ESTADISTICAS = "estadisticas_torneos"
 COLLECTION_PARTIDOS = "partidos"
 COLLECTION_LIGAS = "ligas"
 
+
+
 def poblar_equipos_db():
     client = MongoClient(MONGO_URI)
     db = client[DB_NOMBRE]
