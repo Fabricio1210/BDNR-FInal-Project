@@ -10,6 +10,7 @@ import pydgraph
 from Dgraph import schema
 
 log = logging.getLogger("ProyectoBases")
+log.propagate = False
 
 class DgraphSingleton:
     """

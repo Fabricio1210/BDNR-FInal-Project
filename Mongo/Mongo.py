@@ -4,7 +4,8 @@ from Mongo.populate import poblar
 from datetime import datetime
 from bson import ObjectId
 
-log = logging.getLogger()
+log = logging.getLogger("ProyectoBases")
+log.propagate = False
 
 class MongoSingleton:
     _instance = None
@@ -13,6 +14,7 @@ class MongoSingleton:
     DEFAULT_DB = "sports_db"
 
     def _init_instance(self):
+        
         host = self.DEFAULT_HOST
         port = self.DEFAULT_PORT
         db_name = self.DEFAULT_DB
@@ -22,11 +24,9 @@ class MongoSingleton:
             self._client = MongoClient(uri)
             self.db = self._client[db_name]
             self._client.admin.command('ping')
-            print("Conexión a MongoDB exitosa")
             log.info("Conexión Singleton a MongoDB establecida")
 
         except Exception as e:
-            print(f"Error al conectar con MongoDB: {e}")
             log.error(f"Error al conectar con MongoDB usando URI: {uri}. {e}")
             raise
 
@@ -46,6 +46,7 @@ class MongoService:
         self.db = MongoSingleton()
 
     def poblar(self):
+        log.info("Mongo DB popbalndo datos")
         poblar()
 
     def to_dict(self, obj):
@@ -117,6 +118,43 @@ class MongoService:
             )
         return ligas_dict
 
+    def buscar_equipos_por_pais_region(self, pais=None, region=None):
+        try:
+            filtro = {}
+
+            if pais and pais.strip() != "":
+                filtro["pais"] = pais
+
+            if region and region.strip() != "":
+                filtro["region"] = region
+
+            if not filtro:
+                return {"error": "Debe proporcionar al menos país o región para la búsqueda."}
+
+            equipos = list(self.db.db.equipos.find(filtro, {"jugadores_ids": 0}))
+
+            for eq in equipos:
+                eq["_id"] = str(eq["_id"])
+
+            return {
+                "mensaje": "Equipos encontrados correctamente",
+                "total": len(equipos),
+                "equipos": equipos
+            }
+
+        except Exception as e:
+            return {"error": str(e)}
+
+    def obtener_deportes(self):
+        try:
+            deportes = self.db.db.equipos.distinct("deporte")
+            return {
+                "mensaje": "Deportes obtenidos correctamente",
+                "deportes": deportes
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
     def estadisticas_liga(self, liga, temporada):
         stats_ligas = self.db.db.estadisticas_torneos.find({
             "torneo_nombre": liga,
@@ -128,6 +166,32 @@ class MongoService:
                 f"No se encontraron ligas para el deporte."
             )
         return stats_ligas_dict
+
+    def desactivar_equipo(self, nombre_equipo):
+        try:
+            equipo = self.db.db.equipos.find_one({"nombre": nombre_equipo})
+
+            if not equipo:
+                return {"error": f"El equipo '{nombre_equipo}' no existe"}
+
+            if equipo.get("isActive") is False:
+                return {"error": f"El equipo '{nombre_equipo}' ya está desactivado"}
+
+            resultado = self.db.db.equipos.update_one(
+                {"_id": equipo["_id"]},
+                {"$set": {"isActive": False}}
+            )
+
+            if resultado.modified_count == 0:
+                return {"error": "No se pudo desactivar el equipo"}
+
+            return {
+                "mensaje": "Equipo desactivado correctamente",
+                "equipo": nombre_equipo
+            }
+
+        except Exception as e:
+            return {"error": str(e)}
 
     def obtener_partido_por_fecha_y_equipos(self, fecha_str, nombre_local, nombre_visitante):
         fecha = datetime.strptime(fecha_str, "%Y-%m-%d")
@@ -297,7 +361,7 @@ class MongoService:
 
     def eliminar_base_de_datos(self):
         db_name = self.db.DEFAULT_DB
-        
+        log.info("Base de datos de cassandra borrada exitosamente")
         try:
             self.db._client.drop_database(db_name)            
             return {"mensaje": f"La base de datos '{db_name}' ha sido eliminada correctamente."}
@@ -336,6 +400,46 @@ class MongoService:
                 "mensaje": "Equipo agregado correctamente",
                 "equipo_id": str(equipo_id),
                 "nombre": nombre
+            }
+
+        except Exception as e:
+            return {"error": str(e)}
+    
+    def agregar_estadisticas_torneo(self,equipo_nombre,deporte,torneo_nombre,temporada,puntos,victorias,derrotas, goles_a_favor):
+        try:
+            equipo = self.db.db.equipos.find_one({"nombre": equipo_nombre})
+            if not equipo:
+                return {"error": f"El equipo '{equipo_nombre}' no existe"}
+
+            try:
+                puntos = int(puntos)
+                victorias = int(victorias)
+                derrotas = int(derrotas)
+                goles_a_favor = int(goles_a_favor)
+            except ValueError:
+                return {"error": "Los valores de puntos, victorias, derrotas y goles_a_favor deben ser enteros"}
+
+            nueva_estadistica = {
+                "equipo_id": equipo["_id"],
+                "deporte": deporte,
+                "torneo_nombre": torneo_nombre,
+                "temporada": temporada,
+                "metricas": {
+                    "puntos": puntos,
+                    "victorias": victorias,
+                    "derrotas": derrotas,
+                    "goles_a_favor": goles_a_favor
+                }
+            }
+
+            estadistica_id = self.db.db.estadisticas_torneos.insert_one(nueva_estadistica).inserted_id
+
+            return {
+                "mensaje": "Estadística de torneo agregada correctamente",
+                "estadistica_id": str(estadistica_id),
+                "equipo": equipo_nombre,
+                "torneo": torneo_nombre,
+                "temporada": temporada
             }
 
         except Exception as e:

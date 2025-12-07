@@ -83,7 +83,10 @@ MENU_TEAMS = """
     9- Analizar impacto de localía de un equipo
     10- Consultar todas las temporadas de un equipo
     11- Obtener la alineacion de un equipo en un partido
-    12- Regresar
+    12- Obtener todos los deportes
+    13- Obtener equipos por region o pais
+    14- Marcar como inactivo un equipo
+    15- Regresar
 ------------------------------------------------------------
 """
 
@@ -103,7 +106,8 @@ MENU_CREATE = """
     ++++++++++++++++++
     1- Guardar un nuevo jugador
     2- Guardar un nuevo equipo
-    3- Regresar
+    3- Agregar estadisticas de un torneo 
+    4- Regresar
 ------------------------------------------------------------
 """
 
@@ -350,6 +354,31 @@ if __name__ == "__main__":
                     print(database_controller.get_match_lineup_by_team(equipo, fecha, equipo_local, equipo_visitante))
                     continue
                 if response == 12:
+                    print(database_controller.get_all_sports())
+                    continue
+                if response == 13:
+                    pais = input("País: ")
+                    region = input("Región: ")
+
+                    if pais.strip() == "" and region.strip() == "":
+                        print("Debe ingresar al menos país o región.")
+                        continue
+
+                    print(database_controller.get_teams_by_country_or_region(
+                        pais,
+                        region
+                    ))
+                    continue
+                if response == 14:
+                    nombre_equipo = input("Nombre del equipo a desactivar: ")
+
+                    if nombre_equipo.strip() == "":
+                        print("Debe ingresar un nombre de equipo válido.")
+                        continue
+
+                    print(database_controller.deactivate_team(nombre_equipo))
+                    continue
+                if response == 15:
                     estado = "MENU"
                     continue
                 print("Opcion invalida. Seleccione una opcion del 1-11")
@@ -404,31 +433,66 @@ if __name__ == "__main__":
                         equipo_nombre
                         ))
                     continue
-                if response == 2:
-                    nombre = input("Nombre del equipo: ")
+                if response == 3:
+                    equipo = input("Nombre del equipo: ")
                     deporte = input("Deporte: ")
-                    pais = input("País: ")
-                    region = input("Región: ")
-                    try:
-                        trofeos_totales = input("Trofeos totales (opcional, default 0): ")
-                        trofeos_totales = int(trofeos_totales) if trofeos_totales.strip() != "" else 0
+                    torneo = input("Nombre del torneo: ")
+                    temporada = input("Temporada: ")
 
-                        puntos_historicos = input("Puntos históricos (opcional, default 0): ")
-                        puntos_historicos = int(puntos_historicos) if puntos_historicos.strip() != "" else 0
+                    try:
+                        puntos = input("Puntos obtenidos: ")
+                        puntos = int(puntos) if puntos.strip() != "" else 0
+
+                        victorias = input("Victorias: ")
+                        victorias = int(victorias) if victorias.strip() != "" else 0
+
+                        derrotas = input("Derrotas: ")
+                        derrotas = int(derrotas) if derrotas.strip() != "" else 0
+
+                        goles_favor = input("Goles a favor: ")
+                        goles_favor = int(goles_favor) if goles_favor.strip() != "" else 0
+
                     except ValueError:
-                        print("Error: trofeos_totales y puntos_historicos deben ser números enteros.")
+                        print("Error: los valores numéricos deben ser enteros.")
                         continue
 
-                    print(database_controller.add_team(
-                        nombre,
+                    print(database_controller.add_tournament_stats(
+                        equipo,
                         deporte,
-                        pais,
-                        region,
-                        trofeos_totales,
-                        puntos_historicos
+                        torneo,
+                        temporada,
+                        puntos,
+                        victorias,
+                        derrotas,
+                        goles_favor
                     ))
                     continue
                 if response == 3:
+                    torneo = input("Nombre del torneo: ")
+                    temporada = input("Temporada: ")
+                    try:
+                        partidos = int(input("Partidos jugados: "))
+                        goles = int(input("Goles totales: "))
+                        faltas = int(input("Faltas cometidas: "))
+                        tarjetas = int(input("Tarjetas totales: "))
+                    except ValueError:
+                        print("Error: todos los valores deben ser números enteros.")
+                        continue
+
+                    estadisticas = {
+                        "partidos": partidos,
+                        "goles": goles,
+                        "faltas": faltas,
+                        "tarjetas": tarjetas
+                    }
+
+                    print(database_controller.add_tournament_stats(
+                        torneo,
+                        temporada,
+                        estadisticas
+                    ))
+                    continue
+                if response == 4:
                     estado = "MENU"
                     continue
                 print("Opcion invalida. Seleccione una opcion del 1-3")
