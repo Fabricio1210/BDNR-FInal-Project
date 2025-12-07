@@ -7,10 +7,10 @@ nombre: string @index(term, exact) .
 apellido: string @index(term) .
 numero: int .
 fechaNacimiento: datetime .
-pais: string @index(term) .
+pais: string .
 juega_para: [uid] @reverse .
 
-liga: string @index(exact) .
+liga: string .
 fundacion: datetime .
 ciudad: string .
 jugadores: [uid] @reverse .
@@ -18,7 +18,7 @@ campo_local: uid .
 rivalidad: [uid] .
 
 capacidad: int .
-tipo: string @index(term) .
+tipo: string .
 equipos_locales: [uid] @reverse .
 enfrentamientos: [uid] @reverse .
 
@@ -30,7 +30,7 @@ equipo_local: uid @reverse .
 equipo_visitante: uid @reverse .
 campo: uid @reverse .
 temporada: uid @reverse .
-fecha: datetime @index(year) .
+fecha: datetime .
 marcadorLocal: int .
 marcadorVisitante: int .
 resultado: string .

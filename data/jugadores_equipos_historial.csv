@@ -1,7 +1,7 @@
 jugador_nombre,jugador_apellido,equipo_id,fecha_inicio,fecha_fin
-Neymar,Jr,ID_FCB_007,2013-07-01,2017-08-02
+Neymar,Jr,ID_FCB_008,2013-07-01,2017-08-02
 Neymar,Jr,ID_PSG_001,2017-08-03,2024-12-31
-Lionel,Messi,ID_FCB_007,2004-10-16,2021-08-05
+Lionel,Messi,ID_FCB_008,2004-10-16,2021-08-05
 Lionel,Messi,ID_PSG_001,2021-08-10,2024-12-31
 LeBron,James,ID_LAL_002,2018-07-01,2024-12-31
 Stephen,Curry,ID_GSW_003,2009-06-25,2024-12-31
@@ -9,5 +9,5 @@ Alexia,Putellas,ID_FCB_004,2012-07-01,2024-12-31
 Kylian,Mbappé,ID_PSG_001,2017-08-31,2024-12-31
 Anthony,Davis,ID_LAL_002,2019-07-06,2024-12-31
 Cristiano,Ronaldo,ID_MUN_009,2003-08-01,2009-06-30
-Cristiano,Ronaldo,ID_RMA_008,2009-07-01,2018-07-10
+Cristiano,Ronaldo,ID_RMA_009,2009-07-01,2018-07-10
 Cristiano,Ronaldo,ID_ALN_006,2023-01-01,2024-12-31
