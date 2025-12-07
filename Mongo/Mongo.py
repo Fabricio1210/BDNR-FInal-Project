@@ -27,7 +27,6 @@ class MongoSingleton:
             log.info("Conexión Singleton a MongoDB establecida")
 
         except Exception as e:
-            print(f"Error al conectar con MongoDB: {e}")
             log.error(f"Error al conectar con MongoDB usando URI: {uri}. {e}")
             raise
 
