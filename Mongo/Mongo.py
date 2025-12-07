@@ -24,11 +24,9 @@ class MongoSingleton:
             self._client = MongoClient(uri)
             self.db = self._client[db_name]
             self._client.admin.command('ping')
-            print("Conexión a MongoDB exitosa")
             log.info("Conexión Singleton a MongoDB establecida")
 
         except Exception as e:
-            print(f"Error al conectar con MongoDB: {e}")
             log.error(f"Error al conectar con MongoDB usando URI: {uri}. {e}")
             raise
 
@@ -45,7 +43,6 @@ class MongoSingleton:
 
 class MongoService:
     def __init__(self):
-        log.info("Conexión Singleton a MongoDB establecida")
         self.db = MongoSingleton()
 
     def poblar(self):
